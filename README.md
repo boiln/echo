@@ -1,6 +1,6 @@
 # echo
 Metal Gear Online 2 server emulator
 
-## Acknoledgements
+## Acknowledgement
 
 GhzGangster - Inspiration, Good reverse engineer
