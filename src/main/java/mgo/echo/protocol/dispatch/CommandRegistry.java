@@ -116,9 +116,9 @@ public final class CommandRegistry {
             }
 
             Class<?> returnType = method.getReturnType();
-            if (returnType != boolean.class && returnType != Boolean.class) {
+            if (returnType != boolean.class && returnType != Boolean.class && returnType != void.class) {
                 throw new IllegalArgumentException(
-                        String.format("@Command method %s.%s must return boolean",
+                        String.format("@Command method %s.%s must return boolean or void",
                                 method.getDeclaringClass().getSimpleName(),
                                 method.getName()));
             }
@@ -148,7 +148,10 @@ public final class CommandRegistry {
 
         public boolean invoke(CommandContext ctx) throws Exception {
             Object result = method.invoke(controller, ctx);
-            return result != null && (Boolean) result;
+            if (result == null) {
+                return true;
+            }
+            return (Boolean) result;
         }
     }
 }
