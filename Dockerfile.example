@@ -1,0 +1,75 @@
+# =============================================================================
+# Stage 1: Dependencies (cached layer)
+# =============================================================================
+FROM maven:3.9.6-eclipse-temurin-8 AS deps
+
+WORKDIR /app
+
+# Copy only dependency-related files first (maximizes cache hits)
+COPY pom.xml .
+COPY .mvn ./.mvn
+
+# Download dependencies (cached unless pom.xml changes)
+RUN --mount=type=cache,target=/root/.m2/repository \
+    mvn dependency:go-offline -B
+
+# =============================================================================
+# Stage 2: Build (cached layer)
+# =============================================================================
+FROM maven:3.9.6-eclipse-temurin-8 AS builder
+
+WORKDIR /app
+
+# Copy cached dependencies
+COPY --from=deps /root/.m2 /root/.m2
+COPY pom.xml .
+COPY .mvn ./.mvn
+
+# Copy source files
+COPY src ./src
+
+# Build the JAR (skip tests)
+RUN --mount=type=cache,target=/root/.m2/repository \
+    mvn clean package -Dmaven.test.skip=true -B
+
+# =============================================================================
+# Stage 3: Production (minimal runtime image)
+# =============================================================================
+FROM eclipse-temurin:8-jre-alpine AS production
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S echo && \
+    adduser -S echo -u 1001 -G echo
+
+WORKDIR /app
+
+# Create directories with proper ownership
+RUN mkdir -p /app/assets && \
+    chown -R echo:echo /app
+
+# Copy the built JAR from the builder stage
+COPY --from=builder --chown=echo:echo /app/dist/echo.jar /app/echo.jar
+
+# Copy assets (will be overwritten by volume mount in production)
+COPY --chown=echo:echo assets/ /app/assets/
+
+# Environment configuration
+ENV ECHO_ASSETS_DIR=/app/assets \
+    JAVA_OPTS="-Xmx512m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+# Switch to non-root user
+USER echo
+
+# Expose lobby ports
+EXPOSE 5730-5739
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD java -version || exit 1
+
+# Use dumb-init for proper PID 1 behavior
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["sh", "-c", "java $JAVA_OPTS -jar echo.jar"]
