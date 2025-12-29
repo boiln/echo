@@ -1,29 +1,12 @@
 # =============================================================================
-# Stage 1: Dependencies (cached layer)
-# =============================================================================
-FROM maven:3.9.6-eclipse-temurin-8 AS deps
-
-WORKDIR /app
-
-# Copy only dependency-related files first (maximizes cache hits)
-COPY pom.xml .
-COPY .mvn ./.mvn
-
-# Download dependencies (cached unless pom.xml changes)
-RUN --mount=type=cache,target=/root/.m2/repository \
-    mvn dependency:go-offline -B
-
-# =============================================================================
-# Stage 2: Build (cached layer)
+# Stage 1: Build
 # =============================================================================
 FROM maven:3.9.6-eclipse-temurin-8 AS builder
 
 WORKDIR /app
 
-# Copy cached dependencies
-COPY --from=deps /root/.m2 /root/.m2
+# Copy pom.xml first for dependency caching
 COPY pom.xml .
-COPY .mvn ./.mvn
 
 # Copy source files
 COPY src ./src
@@ -33,7 +16,7 @@ RUN --mount=type=cache,target=/root/.m2/repository \
     mvn clean package -Dmaven.test.skip=true -B
 
 # =============================================================================
-# Stage 3: Production (minimal runtime image)
+# Stage 2: Production (minimal runtime image)
 # =============================================================================
 FROM eclipse-temurin:8-jre-alpine AS production
 

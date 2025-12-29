@@ -1,5 +1,6 @@
 package mgo.echo.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.netty.buffer.ByteBuf;
@@ -51,7 +52,8 @@ public class MessageController implements Controller {
             if (recipientType == 1) {
                 errors = MessageService.sendClanApplication(user, character, name, comment);
             } else {
-                errors = List.of(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
+                errors = Collections
+                        .singletonList(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
             }
 
             MessagePackets.writeSendResponse(ctx.nettyCtx(), errors);
