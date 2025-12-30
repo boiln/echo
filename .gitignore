@@ -24,8 +24,6 @@ src.bak/
 .vscode/
 .echo.properties
 .env
-Dockerfile
-docker-compose.yml
 .dockerignore
 stun.conf
 backend/
