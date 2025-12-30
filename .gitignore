@@ -25,6 +25,5 @@ src.bak/
 .echo.properties
 .env
 .dockerignore
-stun.conf
 backend/
 db/
