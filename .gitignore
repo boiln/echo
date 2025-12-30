@@ -27,4 +27,4 @@ src.bak/
 .dockerignore
 backend/
 db/
-setup_local_config.py
+scripts/
