@@ -1,58 +1,35 @@
-# =============================================================================
-# Stage 1: Build
-# =============================================================================
-FROM maven:3.9.6-eclipse-temurin-8 AS builder
+# Stage 1: Build the app with Maven and Java 17
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# Copy pom.xml first for dependency caching
 COPY pom.xml .
-
-# Copy source files
 COPY src ./src
 
-# Build the JAR (skip tests)
-RUN --mount=type=cache,target=/root/.m2/repository \
-    mvn clean package -Dmaven.test.skip=true -B
+# Build the JAR (skip test compilation and execution)
+RUN mvn clean package -Dmaven.test.skip=true
 
-# =============================================================================
-# Stage 2: Production (minimal runtime image)
-# =============================================================================
-FROM eclipse-temurin:8-jre-alpine AS production
+# Stage 2: Runtime image with Java 17
+FROM eclipse-temurin:17-jre-jammy
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Copy the built JAR from the builder stage (shade plugin outputs to dist/ directory)
+COPY --from=builder /app/dist/echo.jar /app/echo.jar
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S echo && \
-    adduser -S echo -u 1001 -G echo
+# Copy the properties file (will be mounted or copied from host)
+COPY echo.properties /app/echo.properties
 
+# Create an assets directory and copy any root-level .bin files there
+RUN mkdir -p /app/assets
+COPY assets/ /app/assets/
+
+# Allow overriding assets directory via NOMAD_ASSETS_DIR; default is /app/assets
+ENV NOMAD_ASSETS_DIR=/app/assets
+
+# Set working directory
 WORKDIR /app
 
-# Create directories with proper ownership
-RUN mkdir -p /app/assets && \
-    chown -R echo:echo /app
-
-# Copy the built JAR from the builder stage
-COPY --from=builder --chown=echo:echo /app/dist/echo.jar /app/echo.jar
-
-# Copy assets (will be overwritten by volume mount in production)
-COPY --chown=echo:echo assets/ /app/assets/
-
-# Environment configuration
-ENV ECHO_ASSETS_DIR=/app/assets \
-    JAVA_OPTS="-Xmx512m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
-
-# Switch to non-root user
-USER echo
-
-# Expose lobby ports
+# Expose sample lobby ports (adjust based on your lobbies)
 EXPOSE 5730-5739
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD java -version || exit 1
-
-# Use dumb-init for proper PID 1 behavior
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "java $JAVA_OPTS -jar echo.jar"]
+# Run the server
+CMD ["java", "-jar", "echo.jar"]

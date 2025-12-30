@@ -9,12 +9,12 @@ public class EchoConnectionProvider implements ConnectionProvider {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public boolean isUnwrappableAs(Class arg0) {
+    public boolean isUnwrappableAs(Class<?> unwrapType) {
         return false;
     }
 
     @Override
-    public <T> T unwrap(Class<T> arg0) {
+    public <T> T unwrap(Class<T> unwrapType) {
         return null;
     }
 
