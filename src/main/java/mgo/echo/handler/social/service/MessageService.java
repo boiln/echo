@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -24,8 +22,6 @@ import mgo.echo.util.Util;
  * No Netty dependencies - pure domain logic.
  */
 public class MessageService {
-    private static final Logger logger = LogManager.getLogger();
-
     // =========================================================================
     // Get Clan Application Messages
     // =========================================================================

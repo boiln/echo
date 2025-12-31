@@ -105,18 +105,20 @@ public class FriendsBlockedPacket {
      * Write a search result entry
      */
     public static void writeSearchEntry(ByteBuf bo, Character character) {
-        GameInfo gameInfo = getGameInfo(character.getId());
-
         bo.writeInt(character.getId());
         Util.writeString(character.getName(), 16, bo);
 
+        int lobbyId = 0;
+        String lobbyName = "";
         if (character.getLobby() != null) {
-            bo.writeShort(character.getLobbyId());
-            Util.writeString(character.getLobby().getName(), 16, bo);
-        } else {
-            bo.writeShort(0);
-            Util.writeString("", 16, bo);
+            lobbyId = character.getLobbyId();
+            lobbyName = character.getLobby().getName();
         }
+
+        GameInfo gameInfo = getGameInfo(character.getId());
+
+        bo.writeShort(lobbyId);
+        Util.writeString(lobbyName, 16, bo);
 
         bo.writeInt(gameInfo.gameId);
         Util.writeString(gameInfo.hostName, 16, bo);

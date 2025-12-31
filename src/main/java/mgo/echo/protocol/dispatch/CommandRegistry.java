@@ -82,17 +82,6 @@ public final class CommandRegistry {
         /**
          * Register multiple controllers at once.
          */
-        public Builder registerAll(Controller... controllers) {
-            for (Controller controller : controllers) {
-                register(controller);
-            }
-
-            return this;
-        }
-
-        /**
-         * Register multiple controllers at once.
-         */
         public Builder registerAll(List<Controller> controllers) {
             for (Controller controller : controllers) {
                 register(controller);

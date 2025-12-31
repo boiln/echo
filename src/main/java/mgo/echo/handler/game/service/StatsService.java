@@ -159,28 +159,17 @@ public class StatsService {
     }
 
     /**
-     * Get current experience for a character
+     * Get current experience for a character (per-character EXP)
      */
     public static int getCurrentExperience(User user, Character character) {
-        if (user.getMainCharacterId() != null && character.getId().equals(user.getMainCharacterId())) {
-            return user.getMainExp();
-        }
-
-        return user.getAltExp();
+        return character.getExp() != null ? character.getExp() : 0;
     }
 
     /**
-     * Set experience for a character
+     * Set experience for a character (per-character EXP)
      */
     public static void setExperience(User user, Character character, int experience) {
-        boolean isMain = user.getMainCharacterId() != null && character.getId().equals(user.getMainCharacterId());
-
-        if (isMain) {
-            user.setMainExp(experience);
-            return;
-        }
-
-        user.setAltExp(experience);
+        character.setExp(experience);
     }
 
     /**
@@ -191,16 +180,19 @@ public class StatsService {
     }
 
     /**
-     * Update player experience in database
+     * Update player experience in database (per-character EXP)
      */
     public static void updatePlayerExperience(Session session, User targetUser, Character targetCharacter,
             int experience, boolean aborted) {
         int currentExp = getCurrentExperience(targetUser, targetCharacter);
         int finalExp = calculateFinalExperience(currentExp, experience, aborted);
 
-        User aUser = session.get(User.class, targetUser.getId());
-        setExperience(aUser, targetCharacter, finalExp);
-        setExperience(targetUser, targetCharacter, finalExp);
+        // Update character's EXP in database
+        Character aCharacter = session.get(Character.class, targetCharacter.getId());
+        if (aCharacter != null) {
+            aCharacter.setExp(finalExp);
+        }
+        targetCharacter.setExp(finalExp);
     }
 
     /**

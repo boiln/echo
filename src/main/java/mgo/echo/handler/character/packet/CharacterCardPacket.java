@@ -20,32 +20,36 @@ public class CharacterCardPacket {
         bo.writeInt(0);
         bo.writeInt(data.charaId);
         Util.writeString(data.name, 16, bo);
+
         bo.writeShort(0);
-        bo.writeByte(0x01);
-        bo.writeByte(0x11);
-        bo.writeByte(0x00);
-        bo.writeByte(0x01);
-        bo.writeInt(0); // totalReward
+        bo.writeShort(data.points);
+        bo.writeShort(0);
+
+        bo.writeInt(data.totalReward);
         bo.writeInt(data.playtimeSeconds);
 
         String comment = data.comment != null ? data.comment : "";
-        int commentLen = Math.min(comment.length(), 127);
-        bo.writeByte(commentLen);
+        bo.writeByte(0);
         Util.writeString(comment, 127, bo);
 
-        bo.writeInt(0);
-        bo.writeByte(data.hasClan ? 0x01 : 0x00);
-        Util.writeString(data.clanName, 16, bo);
-        bo.writeByte(data.level);
-        bo.writeInt(0);
-        bo.writeInt(0);
-        bo.writeInt(0);
-        bo.writeByte(0x0C);
         bo.writeShort(0);
-        bo.writeByte(0x0F);
-        bo.writeByte(0x00);
-        bo.writeByte(0x01);
-        bo.writeByte(0x02);
+        bo.writeByte(0);
+        bo.writeByte(data.hasClan ? 0x12 : 0x00);
+
+        String clanTag = "";
+        if (data.hasClan && data.clanName != null && !data.clanName.isEmpty()) {
+            clanTag = ";" + data.clanName;
+        }
+        Util.writeString(clanTag, 13, bo);
+        bo.writeByte(0);
+
+        bo.writeInt(data.hasClan ? 1 : 0);
+        bo.writeInt(0);
+        bo.writeInt(0);
+        bo.writeByte(data.hasEmblem ? 3 : 0);
+        bo.writeInt(data.points);
+        bo.writeInt(0x0F00);
+        bo.writeShort(0x0100);
 
         Packets.write(ctx, CharactersCmd.GET_CHARACTER_CARD_RESPONSE, bo);
     }

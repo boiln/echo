@@ -2,9 +2,8 @@ package mgo.echo.handler.character.service;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 
@@ -170,60 +169,115 @@ public class CharacterService {
         public final int charaId;
         public final String name;
         public final String comment;
-        public final int level;
+        public final int animalRank;
+        public final int points;
         public final String clanName;
+        public final int clanId;
         public final boolean hasClan;
+        public final boolean hasEmblem;
+        public final boolean isFemale;
+        public final int totalReward;
         public final int playtimeSeconds;
 
-        public CharacterCardData(int charaId, String name, String comment, int level,
-                String clanName, boolean hasClan, int playtimeSeconds) {
+        public CharacterCardData(int charaId, String name, String comment, int animalRank, int points,
+                String clanName, int clanId, boolean hasClan, boolean hasEmblem, boolean isFemale,
+                int totalReward, int playtimeSeconds) {
             this.charaId = charaId;
             this.name = name;
             this.comment = comment;
-            this.level = level;
+            this.animalRank = animalRank;
+            this.points = points;
             this.clanName = clanName;
+            this.clanId = clanId;
             this.hasClan = hasClan;
+            this.hasEmblem = hasEmblem;
+            this.isFemale = isFemale;
+            this.totalReward = totalReward;
             this.playtimeSeconds = playtimeSeconds;
         }
     }
 
     public static CharacterCardData getCharacterCard(int targetCharaId) {
         return DbManager.tx(session -> {
-            Query<Character> query = session.createQuery(
-                    "from Character c " +
+            Character targetChar = session.createQuery(
+                    "select c from Character c " +
                             "join fetch c.user u " +
-                            "left join fetch c.clanMember cm " +
-                            "left join fetch cm.clan " +
                             "where c.id = :charaId",
-                    Character.class);
-            query.setParameter("charaId", targetCharaId);
-            Character targetChar = query.uniqueResult();
-
+                    Character.class)
+                    .setParameter("charaId", targetCharaId)
+                    .uniqueResult();
             if (targetChar == null) {
                 return null;
             }
 
             int playtime = calculatePlaytime(session, targetCharaId);
 
+            CharacterStats stats = session.createQuery(
+                    "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
+                    .setParameter("charaId", targetCharaId)
+                    .uniqueResultOptional()
+                    .orElse(null);
+
             User targetUser = targetChar.getUser();
             String charName = targetChar.getName();
             String comment = targetChar.getComment() != null ? targetChar.getComment() : "";
 
             int exp = calculateExp(targetChar, targetUser);
-            int level = calculateLevel(exp);
+            int totalReward = stats != null ? stats.getScore() : 0;
 
-            String clanName = "";
-            boolean hasClan = false;
-            List<ClanMember> clanMembers = targetChar.getClanMember();
-            if (clanMembers != null && !clanMembers.isEmpty()) {
-                ClanMember clanMember = clanMembers.get(0);
-                if (clanMember != null && clanMember.getClan() != null) {
-                    clanName = clanMember.getClan().getName();
-                    hasClan = true;
-                }
+            // Use stored animal rank - it should be pre-calculated or manually set
+            int animalRank = targetChar.getRank() != null ? targetChar.getRank() : 0;
+
+            int points = exp;
+
+            boolean isFemale = false;
+            CharacterAppearance appearance = session.createQuery(
+                    "select ap from CharacterAppearance ap " +
+                            "where ap.character.id = :charaId " +
+                            "order by ap.id asc",
+                    CharacterAppearance.class)
+                    .setParameter("charaId", targetCharaId)
+                    .setMaxResults(1)
+                    .uniqueResultOptional()
+                    .orElse(null);
+            if (appearance != null && appearance.getGender() != null) {
+                isFemale = appearance.getGender() != 0;
             }
 
-            return new CharacterCardData(targetCharaId, charName, comment, level, clanName, hasClan, playtime);
+            String clanName = "";
+            int clanId = 0;
+            boolean hasClan = false;
+            boolean hasEmblem = false;
+            ClanMember clanMember = session.createQuery(
+                    "select cm from ClanMember cm " +
+                            "join fetch cm.clan cl " +
+                            "where cm.character.id = :charaId " +
+                            "order by cm.id asc",
+                    ClanMember.class)
+                    .setParameter("charaId", targetCharaId)
+                    .setMaxResults(1)
+                    .uniqueResultOptional()
+                    .orElse(null);
+            if (clanMember != null && clanMember.getClan() != null) {
+                clanName = clanMember.getClan().getName();
+                clanId = clanMember.getClan().getId();
+                hasClan = true;
+                hasEmblem = clanMember.getClan().getEmblem() != null;
+            }
+
+            return new CharacterCardData(
+                    targetCharaId,
+                    charName,
+                    comment,
+                    animalRank,
+                    points,
+                    clanName,
+                    clanId,
+                    hasClan,
+                    hasEmblem,
+                    isFemale,
+                    totalReward,
+                    playtime);
         });
     }
 
@@ -249,11 +303,7 @@ public class CharacterService {
     }
 
     private static int calculateExp(Character character, User user) {
-        if (user.getMainCharacterId() != null &&
-                character.getId().equals(user.getMainCharacterId())) {
-            return user.getMainExp() != null ? user.getMainExp() : 0;
-        }
-        return user.getAltExp() != null ? user.getAltExp() : 0;
+        return character.getExp() != null ? character.getExp() : 0;
     }
 
     public static int calculateLevel(int experience) {
@@ -301,6 +351,167 @@ public class CharacterService {
     }
 
     // ========================================================================
+    // Animal Rank Calculation
+    // ========================================================================
+
+    /**
+     * Calculate animal rank for a character.
+     * Uses the previous week's stats from mgo2_characters_stats_weekly table.
+     * Falls back to current stats if no weekly stats exist.
+     */
+    @SuppressWarnings("unchecked")
+    private static int calculateAnimalRank(Session session, int charaId, CharacterStats currentStats) {
+        // First try to get previous week's stats
+        CharacterStats weeklyStats = getWeeklyStats(session, charaId);
+
+        // Use weekly stats if available, otherwise use current stats
+        CharacterStats statsToUse = weeklyStats != null ? weeklyStats : currentStats;
+
+        if (statsToUse == null) {
+            return 0;
+        }
+
+        // For Tsuchinoko, we need days since last login
+        // This would require tracking login times - for now assume 0
+        int daysSinceLastLogin = 0;
+
+        return AnimalRankService.calculateAnimalRank(statsToUse, daysSinceLastLogin);
+    }
+
+    /**
+     * Query the previous week's stats from the weekly stats table.
+     * Returns null if no weekly stats exist.
+     */
+    @SuppressWarnings("unchecked")
+    private static CharacterStats getWeeklyStats(Session session, int charaId) {
+        try {
+            // Query weekly stats and map to CharacterStats object
+            NativeQuery<Object[]> query = session.createNativeQuery(
+                    "SELECT * FROM mgo2_characters_stats_weekly WHERE chara = :charaId LIMIT 1");
+            query.setParameter("charaId", charaId);
+
+            List<Object[]> results = query.list();
+            if (results.isEmpty()) {
+                return null;
+            }
+
+            Object[] row = results.get(0);
+
+            // Map the result to a CharacterStats object
+            CharacterStats stats = new CharacterStats();
+            stats.setKills(getIntValue(row, 3));
+            stats.setDeaths(getIntValue(row, 4));
+            stats.setWins(getIntValue(row, 5));
+            stats.setScore(getIntValue(row, 6));
+            stats.setRounds(getIntValue(row, 7));
+            stats.setStuns(getIntValue(row, 8));
+            stats.setStunsReceived(getIntValue(row, 9));
+            stats.setStunsFriendly(getIntValue(row, 10));
+            stats.setHeadshotKills(getIntValue(row, 11));
+            stats.setHeadshotDeaths(getIntValue(row, 12));
+            stats.setHeadshotStuns(getIntValue(row, 13));
+            stats.setHeadshotStunsReceived(getIntValue(row, 14));
+            stats.setLockKills(getIntValue(row, 15));
+            stats.setLockDeaths(getIntValue(row, 16));
+            stats.setLockStuns(getIntValue(row, 17));
+            stats.setLockStunsReceived(getIntValue(row, 18));
+            stats.setConsecutiveKills(getIntValue(row, 19));
+            stats.setConsecutiveDeaths(getIntValue(row, 20));
+            stats.setConsecutiveHeadshots(getIntValue(row, 21));
+            stats.setConsecutiveTdm(getIntValue(row, 22));
+            stats.setSpotted(getIntValue(row, 23));
+            stats.setSelfSpotted(getIntValue(row, 24));
+            stats.setSnakeSpotted(getIntValue(row, 25));
+            stats.setSnakeSelfSpotted(getIntValue(row, 26));
+            stats.setSuicides(getIntValue(row, 27));
+            stats.setSalutes(getIntValue(row, 28));
+            stats.setRadio(getIntValue(row, 29));
+            stats.setChat(getIntValue(row, 30));
+            stats.setCqcGiven(getIntValue(row, 31));
+            stats.setCqcTaken(getIntValue(row, 32));
+            stats.setRolls(getIntValue(row, 33));
+            stats.setCatapult(getIntValue(row, 34));
+            stats.setFalls(getIntValue(row, 35));
+            stats.setTrapped(getIntValue(row, 36));
+            stats.setMelee(getIntValue(row, 37));
+            stats.setMeleeRec(getIntValue(row, 38));
+            stats.setBoxTime(getIntValue(row, 39));
+            stats.setBoxUses(getIntValue(row, 40));
+            stats.setBasesCaptured(getIntValue(row, 41));
+            stats.setBasesDestroyed(getIntValue(row, 42));
+            stats.setSopDestab(getIntValue(row, 43));
+            stats.setGakoSaved(getIntValue(row, 44));
+            stats.setGakoDefended(getIntValue(row, 45));
+            stats.setGakoFirst(getIntValue(row, 46));
+            stats.setResDefend(getIntValue(row, 47));
+            stats.setResGakoTime(getIntValue(row, 48));
+            stats.setResFirstGrab(getIntValue(row, 49));
+            stats.setBombDisarms(getIntValue(row, 50));
+            stats.setSdmSurvivals(getIntValue(row, 51));
+            stats.setRaceCheckpoints(getIntValue(row, 52));
+            stats.setWinsSnake(getIntValue(row, 53));
+            stats.setKillsSnake(getIntValue(row, 54));
+            stats.setSnakeHoldups(getIntValue(row, 55));
+            stats.setSnakeTagsSpawned(getIntValue(row, 56));
+            stats.setSnakeTagsTaken(getIntValue(row, 57));
+            stats.setSnakeInjured(getIntValue(row, 58));
+            stats.setTsneGrab1(getIntValue(row, 59));
+            stats.setTsneGrab2(getIntValue(row, 60));
+            stats.setKnifeKills(getIntValue(row, 61));
+            stats.setKnifeStuns(getIntValue(row, 62));
+            stats.setBoosts(getIntValue(row, 63));
+            stats.setScans(getIntValue(row, 64));
+            stats.setEvgTime(getIntValue(row, 65));
+            stats.setWakeups(getIntValue(row, 66));
+            stats.setTeamKills(getIntValue(row, 67));
+            stats.setWithdrawals(getIntValue(row, 68));
+            stats.setPointsAssist(getIntValue(row, 69));
+            stats.setPointsBase(getIntValue(row, 70));
+            stats.setTrainedSoldiers(getIntValue(row, 71));
+            stats.setTimeTraining(getIntValue(row, 72));
+            stats.setTimeInstructor(getIntValue(row, 73));
+            stats.setTimeStudent(getIntValue(row, 74));
+            stats.setTime(getIntValue(row, 75));
+            stats.setTimeSnake(getIntValue(row, 76));
+            stats.setTimeDedi(getIntValue(row, 77));
+            stats.setStatsDm(getStringValue(row, 78));
+            stats.setStatsTdm(getStringValue(row, 79));
+            stats.setStatsRes(getStringValue(row, 80));
+            stats.setStatsCap(getStringValue(row, 81));
+            stats.setStatsBase(getStringValue(row, 82));
+            stats.setStatsBomb(getStringValue(row, 83));
+            stats.setStatsSne(getStringValue(row, 84));
+            stats.setStatsTsne(getStringValue(row, 85));
+            stats.setStatsSdm(getStringValue(row, 86));
+            stats.setStatsInt(getStringValue(row, 87));
+            stats.setStatsScap(getStringValue(row, 88));
+            stats.setStatsRace(getStringValue(row, 89));
+
+            return stats;
+        } catch (Exception e) {
+            // Log error and return null
+            return null;
+        }
+    }
+
+    private static int getIntValue(Object[] row, int index) {
+        if (index >= row.length || row[index] == null) {
+            return 0;
+        }
+        if (row[index] instanceof Number) {
+            return ((Number) row[index]).intValue();
+        }
+        return 0;
+    }
+
+    private static String getStringValue(Object[] row, int index) {
+        if (index >= row.length || row[index] == null) {
+            return null;
+        }
+        return row[index].toString();
+    }
+
+    // ========================================================================
     // Search
     // ========================================================================
 
@@ -326,18 +537,51 @@ public class CharacterService {
     public static class PersonalStatsData {
         public final Character character;
         public final CharacterStats stats;
+        public final int playtimeSeconds;
+        public final String clanName;
+        public final boolean hasClan;
 
-        public PersonalStatsData(Character character, CharacterStats stats) {
+        public PersonalStatsData(Character character, CharacterStats stats, int playtimeSeconds, String clanName,
+                boolean hasClan) {
             this.character = character;
             this.stats = stats;
+            this.playtimeSeconds = playtimeSeconds;
+            this.clanName = clanName;
+            this.hasClan = hasClan;
         }
     }
 
     public static PersonalStatsData getPersonalStats(int targetCharaId) {
         return DbManager.tx(session -> {
-            Character targetChar = session.get(Character.class, targetCharaId);
+            Character targetChar = session.createQuery(
+                    "select distinct c from Character c " +
+                            "left join fetch c.clanMember cm " +
+                            "left join fetch cm.clan " +
+                            "where c.id = :charaId",
+                    Character.class)
+                    .setParameter("charaId", targetCharaId)
+                    .uniqueResult();
             if (targetChar == null) {
                 return null;
+            }
+
+            int playtime = calculatePlaytime(session, targetCharaId);
+
+            String clanName = "";
+            boolean hasClan = false;
+            ClanMember clanMember = session.createQuery(
+                    "select cm from ClanMember cm " +
+                            "join fetch cm.clan cl " +
+                            "where cm.character.id = :charaId " +
+                            "order by cm.id asc",
+                    ClanMember.class)
+                    .setParameter("charaId", targetCharaId)
+                    .setMaxResults(1)
+                    .uniqueResultOptional()
+                    .orElse(null);
+            if (clanMember != null && clanMember.getClan() != null) {
+                clanName = clanMember.getClan().getName();
+                hasClan = true;
             }
 
             CharacterStats stats = session.createQuery(
@@ -346,7 +590,7 @@ public class CharacterService {
                     .uniqueResultOptional()
                     .orElse(null);
 
-            return new PersonalStatsData(targetChar, stats);
+            return new PersonalStatsData(targetChar, stats, playtime, clanName, hasClan);
         });
     }
 }

@@ -28,7 +28,6 @@ import mgo.echo.util.Util;
  * - Roster and Stats
  */
 public class ClanController implements Controller {
-
     // ========================================================================
     // Clan Creation/Deletion (0x4b00, 0x4b04)
     // ========================================================================

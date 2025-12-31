@@ -68,6 +68,7 @@ public class GameLobby extends BaseLobby {
             return;
         }
 
+        game.setLastUpdate((int) java.time.Instant.now().getEpochSecond());
         HostService.onPing(game);
     }
 

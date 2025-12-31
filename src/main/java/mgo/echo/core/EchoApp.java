@@ -54,6 +54,8 @@ public class EchoApp {
             Clan clan = query.uniqueResult();
 
             if (clan != null && isLeader) {
+                // Hibernate.initialize(clan.getApplications());
+
                 Query<MessageClanApplication> queryM = session
                         .createQuery("from MessageClanApplication m join fetch m.character where m.clan = :clan",
                                 MessageClanApplication.class);
@@ -77,7 +79,6 @@ public class EchoApp {
 
     public EchoApp() {
         Properties properties = new Properties();
-        String key = "";
         String dbUrl = null, dbUser = null, dbPassword = null;
         int dbPoolMin = 0, dbPoolMax = 0, dbPoolIncrement = 0;
         String plugin = null;
@@ -85,7 +86,6 @@ public class EchoApp {
 
         try {
             properties.load(new FileInputStream(new File("echo.properties")));
-            key = properties.getProperty("apikey");
             dbUrl = properties.getProperty("dbUrl");
             dbUser = properties.getProperty("dbUser");
             dbPassword = properties.getProperty("dbPassword");

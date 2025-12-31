@@ -37,7 +37,7 @@ public class LobbyService {
             session.beginTransaction();
 
             for (Lobby lobby : lobbies) {
-                Query query = session.createQuery("delete Game where lobby=:lobby");
+                Query<?> query = session.createQuery("delete Game where lobby=:lobby");
                 query.setParameter("lobby", lobby);
                 query.executeUpdate();
             }

@@ -77,8 +77,6 @@ public final class CharacterInfoPacket {
     }
 
     private static int getCharacterExperience(User user, Character character) {
-        boolean isMainCharacter = user.getMainCharacterId() != null
-                && character.getId().equals(user.getMainCharacterId());
-        return isMainCharacter ? user.getMainExp() : user.getAltExp();
+        return character.getExp() != null ? character.getExp() : 0;
     }
 }

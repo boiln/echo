@@ -13,7 +13,9 @@ public class ActiveLobbies {
     }
 
     public static void remove(Lobby lobby) {
-        lobbies.remove(lobby);
+        if (lobby != null) {
+            lobbies.remove(lobby.getId());
+        }
     }
 
     public static ConcurrentHashMap<Integer, Lobby> get() {

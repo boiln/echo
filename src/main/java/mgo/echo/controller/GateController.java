@@ -34,7 +34,7 @@ public class GateController implements Controller {
     private static final Logger logger = LogManager.getLogger(GateController.class);
 
     @Command(0x2005)
-    public void getLobbyList(CommandContext ctx) {
+    public boolean getLobbyList(CommandContext ctx) {
         AtomicReference<ByteBuf[]> payloads = new AtomicReference<>();
 
         try {
@@ -63,15 +63,17 @@ public class GateController implements Controller {
             Packets.write(ctx.nettyCtx(), 0x2002, 0);
             Packets.write(ctx.nettyCtx(), 0x2003, payloads);
             Packets.write(ctx.nettyCtx(), 0x2004, 0);
+            return true;
         } catch (Exception e) {
             logger.error("Exception while getting lobby list.", e);
             Util.releaseBuffers(payloads);
             Packets.write(ctx.nettyCtx(), 0x2002, Error.GENERAL);
+            return false;
         }
     }
 
     @Command(0x2008)
-    public void getNews(CommandContext ctx) {
+    public boolean getNews(CommandContext ctx) {
         ByteBuf[] bos = null;
         Session session = null;
 
@@ -106,11 +108,13 @@ public class GateController implements Controller {
             Packets.write(ctx.nettyCtx(), 0x2009, 0);
             Packets.write(ctx.nettyCtx(), 0x200a, bos);
             Packets.write(ctx.nettyCtx(), 0x200b, 0);
+            return true;
         } catch (Exception e) {
             logger.error("Exception while getting news.", e);
             DbManager.rollbackAndClose(session);
             Util.releaseBuffers(bos);
             Packets.write(ctx.nettyCtx(), 0x2009, Error.GENERAL);
+            return false;
         }
     }
 }

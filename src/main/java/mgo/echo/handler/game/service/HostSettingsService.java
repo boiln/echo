@@ -94,14 +94,10 @@ public class HostSettingsService {
     }
 
     /**
-     * Get current experience for a user's character
+     * Get current experience for a character (per-character EXP)
      */
     public static int getCurrentExperience(User user, Character character) {
-        if (user.getMainCharacterId() != null && character.getId().equals(user.getMainCharacterId())) {
-            return user.getMainExp();
-        }
-
-        return user.getAltExp();
+        return character.getExp() != null ? character.getExp() : 0;
     }
 
     /**

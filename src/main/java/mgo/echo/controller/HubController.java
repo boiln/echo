@@ -71,6 +71,7 @@ public class HubController implements Controller {
             Util.releaseBuffers(payloads);
             Packets.write(ctx.nettyCtx(), 0x4901, Error.GENERAL);
         }
+
         return true;
     }
 
@@ -91,6 +92,7 @@ public class HubController implements Controller {
             Packets.write(ctx.nettyCtx(), 0x4991, Error.GENERAL);
             Util.releaseBuffer(bo);
         }
+
         return true;
     }
 

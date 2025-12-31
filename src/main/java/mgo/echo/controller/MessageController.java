@@ -52,7 +52,8 @@ public class MessageController implements Controller {
             if (recipientType == 1) {
                 errors = MessageService.sendClanApplication(user, character, name, comment);
             } else {
-                errors = Collections.singletonList(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
+                errors = Collections
+                        .singletonList(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
             }
 
             MessagePackets.writeSendResponse(ctx.nettyCtx(), errors);

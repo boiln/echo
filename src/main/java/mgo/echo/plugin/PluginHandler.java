@@ -18,7 +18,7 @@ public class PluginHandler {
         if (INSTANCE == null) {
             INSTANCE = new PluginHandler();
         }
-        
+
         return INSTANCE;
     }
 
@@ -26,7 +26,7 @@ public class PluginHandler {
         try {
             Class<?> clazz = getClass().getClassLoader().loadClass(className);
             if (clazz != null && Plugin.class.isAssignableFrom(clazz)) {
-                plugin = (Plugin) clazz.newInstance();
+                plugin = (Plugin) clazz.getDeclaredConstructor().newInstance();
                 logger.debug("Loaded Plugin: {}", className);
             }
         } catch (Exception e) {

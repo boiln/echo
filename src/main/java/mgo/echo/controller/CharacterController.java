@@ -66,6 +66,7 @@ public class CharacterController implements Controller {
         sendSkills(ctx);
         sendSkillSets(ctx, character);
         sendGearSets(ctx, character);
+
         return true;
     }
 
@@ -78,6 +79,7 @@ public class CharacterController implements Controller {
         if (macros.size() <= 0) {
             macros = ChatMacrosPacket.initializeMacros(character);
         }
+
         ChatMacrosPacket.write(ctx.nettyCtx(), macros);
     }
 
@@ -98,6 +100,7 @@ public class CharacterController implements Controller {
         if (sets.size() <= 0) {
             sets = SetsPacket.initializeSkillSets(character);
         }
+
         SetsPacket.writeSkillSets(ctx.nettyCtx(), sets);
     }
 
@@ -106,6 +109,7 @@ public class CharacterController implements Controller {
         if (sets.size() <= 0) {
             sets = SetsPacket.initializeGearSets(character);
         }
+
         SetsPacket.writeGearSets(ctx.nettyCtx(), sets);
     }
 
@@ -126,6 +130,7 @@ public class CharacterController implements Controller {
         GameplayOptionsDto dto = GameplayOptionsPacket.read(ctx.packet());
         GameplayOptionsPacket.saveToDb(character, dto);
         ctx.write(CharactersCmd.UPDATE_SETTINGS_RESPONSE, 0);
+
         return true;
     }
 
@@ -167,6 +172,7 @@ public class CharacterController implements Controller {
         if (type == 1) {
             ctx.write(CharactersCmd.UPDATE_SETTINGS_RESPONSE, 0);
         }
+
         return true;
     }
 
@@ -192,6 +198,7 @@ public class CharacterController implements Controller {
             logger.error("Exception while updating personal info.", e);
             ctx.write(CharactersCmd.UPDATE_PERSONAL_INFO_RESPONSE, Error.GENERAL);
         }
+
         return true;
     }
 
@@ -279,7 +286,15 @@ public class CharacterController implements Controller {
             return true;
         }
 
-        StatsPacket.write(ctx.nettyCtx(), targetCharaId, data.character, data.stats);
+        StatsPacket.write(ctx.nettyCtx(), targetCharaId, data.character, data.stats, data.playtimeSeconds,
+                data.hasClan, data.clanName);
+
+        CharacterService.CharacterCardData card = CharacterService.getCharacterCard(targetCharaId);
+        if (card == null) {
+            return true;
+        }
+
+        CharacterCardPacket.write(ctx.nettyCtx(), card);
         return true;
     }
 
@@ -312,6 +327,7 @@ public class CharacterController implements Controller {
             logger.error("Exception while updating connection info.", e);
             ctx.write(CharactersCmd.UPDATE_CONNECTION_INFO_RESPONSE, Error.GENERAL);
         }
+
         return true;
     }
 
@@ -362,6 +378,7 @@ public class CharacterController implements Controller {
             ctx.write(CharactersCmd.GET_FRIENDS_BLOCKED_LIST_START, Error.GENERAL);
             Util.releaseBuffers(payloads);
         }
+
         return true;
     }
 
@@ -403,6 +420,7 @@ public class CharacterController implements Controller {
             Util.safeRelease(bo);
             ctx.write(CharactersCmd.ADD_FRIENDS_BLOCKED_DATA, Error.GENERAL);
         }
+
         return true;
     }
 
@@ -436,6 +454,7 @@ public class CharacterController implements Controller {
             ctx.write(CharactersCmd.REMOVE_FRIENDS_BLOCKED_DATA, Error.GENERAL);
             Util.safeRelease(bo);
         }
+
         return true;
     }
 
@@ -455,10 +474,16 @@ public class CharacterController implements Controller {
 
             List<Character> characters = CharacterService.searchCharacters(name, exactOnly);
 
-            Packets.handleMutliElementPayload(ctx.nettyCtx(), characters.size(), 17,
-                    FriendsBlockedPacket.SEARCH_ENTRY_SIZE, payloads, (i, bo) -> {
-                        FriendsBlockedPacket.writeSearchEntry(bo, characters.get(i));
-                    });
+            int maxEntries = 14;
+            int entrySize = FriendsBlockedPacket.SEARCH_ENTRY_SIZE;
+            int count = Math.min(characters.size(), maxEntries);
+
+            ByteBuf bo = ctx.nettyCtx().alloc().directBuffer(maxEntries * entrySize);
+            for (int i = 0; i < count; i++) {
+                FriendsBlockedPacket.writeSearchEntry(bo, characters.get(i));
+            }
+            bo.writeZero((maxEntries - count) * entrySize);
+            payloads.set(new ByteBuf[] { bo });
 
             Packets.write(ctx.nettyCtx(), CharactersCmd.SEARCH_RESPONSE_START, 0);
             Packets.write(ctx.nettyCtx(), CharactersCmd.SEARCH_RESPONSE_DATA, payloads);
@@ -468,6 +493,7 @@ public class CharacterController implements Controller {
             ctx.write(CharactersCmd.SEARCH_RESPONSE_START, Error.GENERAL);
             Util.releaseBuffers(payloads);
         }
+
         return true;
     }
 
@@ -493,6 +519,7 @@ public class CharacterController implements Controller {
             logger.error("Exception while getting character card.", e);
             ctx.write(CharactersCmd.GET_CHARACTER_CARD_RESPONSE, Error.GENERAL);
         }
+
         return true;
     }
 

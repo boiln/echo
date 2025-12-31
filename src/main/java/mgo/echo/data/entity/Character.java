@@ -48,6 +48,9 @@ public class Character {
     @Column(name = "host_votes")
     private Integer hostVotes = 0;
 
+    @Column(name = "exp")
+    private Integer exp = 0;
+
     @Column(length = 2048, name = "gameplay_options")
     private String gameplayOptions;
 
@@ -169,6 +172,14 @@ public class Character {
 
     public void setHostVotes(Integer hostVotes) {
         this.hostVotes = hostVotes;
+    }
+
+    public Integer getExp() {
+        return exp;
+    }
+
+    public void setExp(Integer exp) {
+        this.exp = exp;
     }
 
     public String getGameplayOptions() {
