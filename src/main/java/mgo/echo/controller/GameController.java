@@ -164,7 +164,7 @@ public class GameController implements Controller {
 
     @Command(0x4400)
     public boolean chat(CommandContext ctx) {
-        mgo.echo.handler.social.ChatHandler.send(ctx.nettyCtx(), ctx.packet());
+        mgo.echo.handler.social.packet.ChatPacketHandler.send(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 

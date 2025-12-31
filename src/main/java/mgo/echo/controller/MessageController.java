@@ -7,9 +7,9 @@ import io.netty.buffer.ByteBuf;
 import mgo.echo.data.entity.Character;
 import mgo.echo.data.entity.MessageClanApplication;
 import mgo.echo.data.entity.User;
-import mgo.echo.handler.account.AccountHandler;
+import mgo.echo.handler.account.service.AccountService;
 import mgo.echo.handler.social.dto.MessageRecipientError;
-import mgo.echo.handler.social.packet.MessagePackets;
+import mgo.echo.handler.social.packet.MessagePacket;
 import mgo.echo.handler.social.service.MessageService;
 import mgo.echo.protocol.dispatch.Command;
 import mgo.echo.protocol.dispatch.CommandContext;
@@ -34,7 +34,7 @@ public class MessageController implements Controller {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
             if (user == null) {
-                MessagePackets.writeSendError(ctx.nettyCtx());
+                MessagePacket.writeSendError(ctx.nettyCtx());
                 return true;
             }
 
@@ -44,7 +44,7 @@ public class MessageController implements Controller {
             bi.skipBytes(708);
             int recipientType = bi.readByte();
 
-            AccountHandler.updateUserClan(ctx.nettyCtx());
+            AccountService.updateUserClan(ctx.nettyCtx());
             Character character = user.getCurrentCharacter();
 
             List<MessageRecipientError> errors;
@@ -56,9 +56,9 @@ public class MessageController implements Controller {
                         .singletonList(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
             }
 
-            MessagePackets.writeSendResponse(ctx.nettyCtx(), errors);
+            MessagePacket.writeSendResponse(ctx.nettyCtx(), errors);
         } catch (Exception e) {
-            MessagePackets.writeSendError(ctx.nettyCtx());
+            MessagePacket.writeSendError(ctx.nettyCtx());
         }
 
         return true;
@@ -81,12 +81,12 @@ public class MessageController implements Controller {
             int type = bi.readByte();
 
             if (type == 0xf) {
-                MessagePackets.writeMailMessages(ctx.nettyCtx());
+                MessagePacket.writeMailMessages(ctx.nettyCtx());
                 return true;
             }
 
             if (type == 0x10) {
-                AccountHandler.updateUserClan(ctx.nettyCtx());
+                AccountService.updateUserClan(ctx.nettyCtx());
                 Character character = user.getCurrentCharacter();
 
                 if (character == null) {
@@ -100,7 +100,7 @@ public class MessageController implements Controller {
                     return true;
                 }
 
-                MessagePackets.writeClanApplicationMessages(ctx.nettyCtx(), messages);
+                MessagePacket.writeClanApplicationMessages(ctx.nettyCtx(), messages);
             }
         } catch (Exception e) {
             Packets.write(ctx.nettyCtx(), 0x4821, Error.GENERAL);

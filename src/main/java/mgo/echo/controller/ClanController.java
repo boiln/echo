@@ -4,9 +4,9 @@ import io.netty.buffer.ByteBuf;
 import mgo.echo.data.entity.Character;
 import mgo.echo.data.entity.ClanMember;
 import mgo.echo.data.entity.User;
-import mgo.echo.handler.account.AccountHandler;
-import mgo.echo.handler.social.ClanHandler;
-import mgo.echo.handler.social.packet.ClanPackets;
+import mgo.echo.handler.account.service.AccountService;
+import mgo.echo.handler.social.packet.ClanPacket;
+import mgo.echo.handler.social.packet.ClanPacketHandler;
 import mgo.echo.handler.social.service.ClanService;
 import mgo.echo.handler.social.service.ClanService.ClanResult;
 import mgo.echo.protocol.command.ClansCmd;
@@ -36,7 +36,7 @@ public class ClanController implements Controller {
     public boolean create(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeCreateResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeCreateResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
@@ -44,12 +44,12 @@ public class ClanController implements Controller {
         String name = Util.readString(bi, 16);
         String comment = Util.readString(bi, 128);
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanResult result = ClanService.createClan(character, name, comment);
 
-        ClanPackets.writeCreateResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeCreateResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -57,18 +57,18 @@ public class ClanController implements Controller {
     public boolean disband(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeDisbandResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeDisbandResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.disband(character, clanMember);
 
-        ClanPackets.writeDisbandResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeDisbandResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -78,19 +78,19 @@ public class ClanController implements Controller {
 
     @Command(0x4b10)
     public boolean getList(CommandContext ctx) {
-        ClanHandler.getList(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.getList(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 
     @Command(0x4b20)
     public boolean getInformationMember(CommandContext ctx) {
-        ClanHandler.getInformationMember(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.getInformationMember(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 
     @Command(0x4b80)
     public boolean getInformation(CommandContext ctx) {
-        ClanHandler.getInformation(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.getInformation(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 
@@ -102,21 +102,21 @@ public class ClanController implements Controller {
     public boolean acceptJoin(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeAcceptJoinResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeAcceptJoinResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         int targetCharaId = bi.readInt();
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.acceptJoin(clanMember, targetCharaId);
 
-        ClanPackets.writeAcceptJoinResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeAcceptJoinResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -124,21 +124,21 @@ public class ClanController implements Controller {
     public boolean declineJoin(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeDeclineJoinResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeDeclineJoinResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         int targetCharaId = bi.readInt();
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.declineJoin(clanMember, targetCharaId);
 
-        ClanPackets.writeDeclineJoinResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeDeclineJoinResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -146,21 +146,21 @@ public class ClanController implements Controller {
     public boolean banish(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeBanishResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeBanishResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         int targetCharaId = bi.readInt();
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.banish(clanMember, targetCharaId);
 
-        ClanPackets.writeBanishResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeBanishResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -168,16 +168,16 @@ public class ClanController implements Controller {
     public boolean leave(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeLeaveResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeLeaveResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanResult result = ClanService.leave(character);
 
-        ClanPackets.writeLeaveResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeLeaveResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -194,7 +194,7 @@ public class ClanController implements Controller {
 
     @Command(0x4b46)
     public boolean updateState(CommandContext ctx) {
-        ClanHandler.updateState(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.updateState(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 
@@ -204,19 +204,19 @@ public class ClanController implements Controller {
 
     @Command(0x4b48)
     public boolean getEmblem(CommandContext ctx) {
-        ClanHandler.getEmblem(ctx.nettyCtx(), ctx.packet(), 0x4b49, false);
+        ClanPacketHandler.getEmblem(ctx.nettyCtx(), ctx.packet(), 0x4b49, false);
         return true;
     }
 
     @Command(0x4b4a)
     public boolean getEmblem2(CommandContext ctx) {
-        ClanHandler.getEmblem(ctx.nettyCtx(), ctx.packet(), 0x4b4b, false);
+        ClanPacketHandler.getEmblem(ctx.nettyCtx(), ctx.packet(), 0x4b4b, false);
         return true;
     }
 
     @Command(0x4b4c)
     public boolean getEmblemWip(CommandContext ctx) {
-        ClanHandler.getEmblem(ctx.nettyCtx(), ctx.packet(), 0x4b4d, true);
+        ClanPacketHandler.getEmblem(ctx.nettyCtx(), ctx.packet(), 0x4b4d, true);
         return true;
     }
 
@@ -224,11 +224,11 @@ public class ClanController implements Controller {
     public boolean setEmblem(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeSetEmblemResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeSetEmblemResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
@@ -241,7 +241,7 @@ public class ClanController implements Controller {
         boolean isWip = type == 2;
         ClanResult result = ClanService.setEmblem(clanMember, emblem, isWip);
 
-        ClanPackets.writeSetEmblemResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeSetEmblemResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -251,7 +251,7 @@ public class ClanController implements Controller {
 
     @Command(0x4b52)
     public boolean getRoster(CommandContext ctx) {
-        ClanHandler.getRoster(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.getRoster(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 
@@ -263,21 +263,21 @@ public class ClanController implements Controller {
     public boolean transferLeadership(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeTransferLeadershipResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeTransferLeadershipResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         int targetCharaId = bi.readInt();
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.transferLeadership(clanMember, targetCharaId);
 
-        ClanPackets.writeTransferLeadershipResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeTransferLeadershipResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -285,21 +285,21 @@ public class ClanController implements Controller {
     public boolean setEmblemEditor(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeSetEmblemEditorResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeSetEmblemEditorResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         int targetCharaId = bi.readInt();
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.setEmblemEditor(clanMember, targetCharaId);
 
-        ClanPackets.writeSetEmblemEditorResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeSetEmblemEditorResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -307,21 +307,21 @@ public class ClanController implements Controller {
     public boolean updateComment(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeUpdateCommentResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeUpdateCommentResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         String comment = Util.readString(bi, 128);
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.updateComment(clanMember, comment);
 
-        ClanPackets.writeUpdateCommentResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeUpdateCommentResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -329,21 +329,21 @@ public class ClanController implements Controller {
     public boolean updateNotice(CommandContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
         if (user == null) {
-            ClanPackets.writeUpdateNoticeResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
+            ClanPacket.writeUpdateNoticeResponse(ctx.nettyCtx(), Error.INVALID_SESSION);
             return true;
         }
 
         ByteBuf bi = ctx.packet().getPayload();
         String notice = Util.readString(bi, 512);
 
-        AccountHandler.updateUserClan(ctx.nettyCtx());
+        AccountService.updateUserClan(ctx.nettyCtx());
 
         Character character = user.getCurrentCharacter();
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
 
         ClanResult result = ClanService.updateNotice(clanMember, notice);
 
-        ClanPackets.writeUpdateNoticeResponse(ctx.nettyCtx(), result.error);
+        ClanPacket.writeUpdateNoticeResponse(ctx.nettyCtx(), result.error);
         return true;
     }
 
@@ -353,13 +353,13 @@ public class ClanController implements Controller {
 
     @Command(0x4b70)
     public boolean getStats(CommandContext ctx) {
-        ClanHandler.getStats(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.getStats(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 
     @Command(0x4b90)
     public boolean search(CommandContext ctx) {
-        ClanHandler.search(ctx.nettyCtx(), ctx.packet());
+        ClanPacketHandler.search(ctx.nettyCtx(), ctx.packet());
         return true;
     }
 }

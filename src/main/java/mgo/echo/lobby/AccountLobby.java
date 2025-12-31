@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import mgo.echo.controller.Controllers;
 import mgo.echo.data.entity.Lobby;
-import mgo.echo.handler.account.AccountHandler;
+import mgo.echo.handler.account.service.AccountService;
 import mgo.echo.protocol.Packet;
 import mgo.echo.protocol.dispatch.RegistryDispatcher;
 
@@ -33,6 +33,6 @@ public class AccountLobby extends BaseLobby {
 
     @Override
     public void onChannelInactive(ChannelHandlerContext ctx) {
-        AccountHandler.onLobbyDisconnected(ctx, getLobby());
+        AccountService.onLobbyDisconnected(ctx, getLobby());
     }
 }

@@ -3,9 +3,9 @@ package mgo.echo.plugin;
 import org.hibernate.cfg.Configuration;
 
 import io.netty.channel.ChannelHandlerContext;
-import mgo.echo.chat.ChatMessage;
 import mgo.echo.data.entity.Game;
 import mgo.echo.data.entity.User;
+import mgo.echo.handler.social.dto.ChatMessage;
 import mgo.echo.protocol.Packet;
 
 public class Plugin {

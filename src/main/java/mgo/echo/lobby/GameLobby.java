@@ -11,7 +11,7 @@ import mgo.echo.data.entity.Game;
 import mgo.echo.data.entity.Lobby;
 import mgo.echo.data.entity.Player;
 import mgo.echo.data.entity.User;
-import mgo.echo.handler.account.AccountHandler;
+import mgo.echo.handler.account.service.AccountService;
 import mgo.echo.handler.game.service.HostService;
 import mgo.echo.plugin.PluginHandler;
 import mgo.echo.protocol.Packet;
@@ -74,6 +74,6 @@ public class GameLobby extends BaseLobby {
 
     @Override
     public void onChannelInactive(ChannelHandlerContext ctx) {
-        AccountHandler.onLobbyDisconnected(ctx, getLobby());
+        AccountService.onLobbyDisconnected(ctx, getLobby());
     }
 }

@@ -1,4 +1,4 @@
-package mgo.echo.chat;
+package mgo.echo.handler.social.dto;
 
 public class ChatMessage {
     private MessageRecipient recipient;

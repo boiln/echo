@@ -22,7 +22,7 @@ import mgo.echo.data.entity.Player;
 import mgo.echo.data.entity.User;
 import mgo.echo.data.repository.DbManager;
 import mgo.echo.handler.game.dto.JoinResult;
-import mgo.echo.handler.social.ChatHandler;
+import mgo.echo.handler.social.packet.ChatPacketHandler;
 import mgo.echo.session.ActiveGames;
 import mgo.echo.session.ActiveUsers;
 import mgo.echo.util.Util;
@@ -448,8 +448,8 @@ public class GameService {
     }
 
     private static void notifyPlayersOfGameEnd(Game game) {
-        ChatHandler.sendServerMessageToGame("This game is being removed due to inactivity.", game);
-        ChatHandler.sendServerMessageToGame("If this is in error, please report this to staff.", game);
+        ChatPacketHandler.sendServerMessageToGame("This game is being removed due to inactivity.", game);
+        ChatPacketHandler.sendServerMessageToGame("If this is in error, please report this to staff.", game);
     }
 
     private static void removeAllPlayersFromGame(Game game) {

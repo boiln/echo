@@ -1,4 +1,4 @@
-package mgo.echo.handler.social;
+package mgo.echo.handler.social.packet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
-import mgo.echo.handler.social.dto.ChatMessage;
-import mgo.echo.handler.social.dto.MessageRecipient;
 import mgo.echo.data.entity.Character;
 import mgo.echo.data.entity.Game;
 import mgo.echo.data.entity.Player;
 import mgo.echo.data.entity.User;
+import mgo.echo.handler.social.dto.ChatMessage;
+import mgo.echo.handler.social.dto.MessageRecipient;
 import mgo.echo.plugin.PluginHandler;
 import mgo.echo.protocol.Packet;
 import mgo.echo.session.ActiveChannels;
@@ -24,8 +24,8 @@ import mgo.echo.session.ActiveUsers;
 import mgo.echo.util.Packets;
 import mgo.echo.util.Util;
 
-public class ChatHandler {
-    private static final Logger logger = LogManager.getLogger(ChatHandler.class);
+public class ChatPacketHandler {
+    private static final Logger logger = LogManager.getLogger(ChatPacketHandler.class);
     private static final String SERVER_MESSAGE_PREFIX = "Server | ";
 
     public static ByteBuf constructMessage(int chara, int flag2, String message) {
@@ -50,7 +50,7 @@ public class ChatHandler {
             User targetUser = ActiveUsers.get(ctx.channel());
             Character targetCharacter = targetUser.getCurrentCharacter();
 
-            bo = ChatHandler.constructMessage(ctx, targetCharacter.getId(), 0x30, fmessage);
+            bo = ChatPacketHandler.constructMessage(ctx, targetCharacter.getId(), 0x30, fmessage);
             Packets.write(ctx, 0x4401, bo);
             Packets.flush(ctx);
         } catch (Exception e) {
@@ -101,7 +101,6 @@ public class ChatHandler {
     }
 
     private static ChatMessage handleCommand(User user, String message) {
-        // /global command
         if (message.startsWith("/global ")) {
             if (user.getRole() < 10) {
                 return new ChatMessage(MessageRecipient.SELF, "You do not have permission to use this command.");
@@ -110,7 +109,6 @@ public class ChatHandler {
             return new ChatMessage(MessageRecipient.GLOBAL, out);
         }
 
-        // /room command
         if (message.startsWith("/room ")) {
             if (user.getRole() < 10) {
                 return new ChatMessage(MessageRecipient.SELF, "You do not have permission to use this command.");
@@ -119,12 +117,10 @@ public class ChatHandler {
             return new ChatMessage(MessageRecipient.ROOM, out);
         }
 
-        // /kick command
         if (message.startsWith("/kick ")) {
             return handleKickCommand(user, message);
         }
 
-        // /gamelog command
         if (message.startsWith("/gamelog")) {
             return handleGamelogCommand(user);
         }
