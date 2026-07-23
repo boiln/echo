@@ -12,21 +12,22 @@ public class JoinResult {
     private final int currentRule;
 
     private JoinResult(
-            boolean success,
-            Integer errorCode,
-            String publicIp,
-            int publicPort,
-            String privateIp,
-            int privatePort,
-            int currentMap,
-            int currentRule) {
-        this.success = success;
-        this.errorCode = errorCode;
-        this.publicIp = publicIp;
-        this.publicPort = publicPort;
-        this.privateIp = privateIp;
+        boolean success,
+        Integer errorCode,
+        String publicIp,
+        int publicPort,
+        String privateIp,
+        int privatePort,
+        int currentMap,
+        int currentRule
+    ) {
+        this.success     = success;
+        this.errorCode   = errorCode;
+        this.publicIp    = publicIp;
+        this.publicPort  = publicPort;
+        this.privateIp   = privateIp;
         this.privatePort = privatePort;
-        this.currentMap = currentMap;
+        this.currentMap  = currentMap;
         this.currentRule = currentRule;
     }
 
@@ -35,12 +36,13 @@ public class JoinResult {
     }
 
     public static JoinResult success(
-            String publicIp,
-            int publicPort,
-            String privateIp,
-            int privatePort,
-            int currentMap,
-            int currentRule) {
+        String publicIp,
+        int publicPort,
+        String privateIp,
+        int privatePort,
+        int currentMap,
+        int currentRule
+    ) {
         return new JoinResult(true, null, publicIp, publicPort, privateIp, privatePort, currentMap, currentRule);
     }
 

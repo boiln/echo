@@ -32,9 +32,10 @@ public class FriendsService {
      */
     public static List<CharacterFriend> getFriends(Session session, Character character) {
         Query<CharacterFriend> query = session.createQuery(
-                "from CharacterFriend f join fetch f.target t left join fetch t.lobby where f.character = :chara",
-                CharacterFriend.class);
+            "from CharacterFriend f join fetch f.target t left join fetch t.lobby where f.character = :chara",
+            CharacterFriend.class);
         query.setParameter("chara", character);
+
         return query.list();
     }
 
@@ -43,9 +44,10 @@ public class FriendsService {
      */
     public static List<CharacterBlocked> getBlocked(Session session, Character character) {
         Query<CharacterBlocked> query = session.createQuery(
-                "from CharacterBlocked f join fetch f.target t left join fetch t.lobby where f.character = :chara",
-                CharacterBlocked.class);
+            "from CharacterBlocked f join fetch f.target t left join fetch t.lobby where f.character = :chara",
+            CharacterBlocked.class);
         query.setParameter("chara", character);
+
         return query.list();
     }
 
@@ -58,6 +60,7 @@ public class FriendsService {
     public static AddResult add(int type, Character character, int targetId) {
         return DbManager.tx(session -> {
             Character target = session.get(Character.class, targetId);
+
             if (target == null) {
                 return AddResult.TARGET_NOT_FOUND;
             }
@@ -111,6 +114,7 @@ public class FriendsService {
 
         session.saveOrUpdate(friend);
         friends.add(friend);
+
         return true;
     }
 
@@ -132,6 +136,7 @@ public class FriendsService {
 
         session.saveOrUpdate(block);
         blocked.add(block);
+
         return true;
     }
 
@@ -141,10 +146,11 @@ public class FriendsService {
     private static boolean removeFriend(Session session, Character character, int targetId) {
         List<CharacterFriend> friends = character.getFriends();
 
-        for (CharacterFriend friend : friends) {
+        for (CharacterFriend friend: friends) {
             if (friend.getTargetId() == targetId) {
                 friends.remove(friend);
                 session.remove(friend);
+
                 return true;
             }
         }
@@ -158,10 +164,11 @@ public class FriendsService {
     private static boolean removeBlocked(Session session, Character character, int targetId) {
         List<CharacterBlocked> blocked = character.getBlocked();
 
-        for (CharacterBlocked block : blocked) {
+        for (CharacterBlocked block: blocked) {
             if (block.getTargetId() == targetId) {
                 blocked.remove(block);
                 session.remove(block);
+
                 return true;
             }
         }

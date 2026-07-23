@@ -43,8 +43,8 @@ public class HostService {
         public final Integer errorCode;
 
         private CreateGameResult(boolean success, Integer gameId, Integer errorCode) {
-            this.success = success;
-            this.gameId = gameId;
+            this.success   = success;
+            this.gameId    = gameId;
             this.errorCode = errorCode;
         }
 
@@ -59,6 +59,7 @@ public class HostService {
 
     public static CreateGameResult createGame(User user, Character character, Lobby lobby) {
         List<CharacterHostSettings> settingsList = character.getHostSettings();
+
         if (settingsList == null) {
             settingsList = new ArrayList<>();
             character.setHostSettings(settingsList);
@@ -69,8 +70,8 @@ public class HostService {
 
         String name = settings.get("name").getAsString();
         String password = settings.get("password") != null && !settings.get("password").isJsonNull()
-                ? settings.get("password").getAsString()
-                : null;
+        ? settings.get("password").getAsString()
+        : null;
         int stance = settings.get("stance").getAsInt();
         String comment = settings.get("comment").getAsString();
 
@@ -84,7 +85,7 @@ public class HostService {
         String jsonRuleSettings = Util.jsonEncode(ruleSettings);
 
         Game game = buildNewGame(
-                character, lobby, name, password, comment, stance, maxPlayers, jsonGames, jsonCommon, jsonRuleSettings);
+            character, lobby, name, password, comment, stance, maxPlayers, jsonGames, jsonCommon, jsonRuleSettings);
 
         DbManager.txVoid(session -> session.save(game));
 
@@ -95,20 +96,22 @@ public class HostService {
         logGameCreationEvent(character, lobby, game, name);
 
         logger.info("Created Game {} ({}).", game.getName(), game.getId());
+
         return CreateGameResult.success(game.getId());
     }
 
     private static Game buildNewGame(
-            Character character,
-            Lobby lobby,
-            String name,
-            String password,
-            String comment,
-            int stance,
-            int maxPlayers,
-            String jsonGames,
-            String jsonCommon,
-            String jsonRuleSettings) {
+        Character character,
+        Lobby lobby,
+        String name,
+        String password,
+        String comment,
+        int stance,
+        int maxPlayers,
+        String jsonGames,
+        String jsonCommon,
+        String jsonRuleSettings
+    ) {
         Game game = new Game();
         game.setHostId(character.getId());
         game.setHost(character);
@@ -123,13 +126,15 @@ public class HostService {
         game.setRules(jsonRuleSettings);
         game.setStance(stance);
         game.setCurrentGame(0);
-        game.setLastUpdate((int) Instant.now().getEpochSecond());
+        game.setLastUpdate((int)Instant.now().getEpochSecond());
+
         return game;
     }
 
-    private static void logGameCreationEvent(Character character, Lobby lobby, Game game, String name) {
+    private static void logGameCreationEvent(Character character, Lobby lobby, Game game,
+        String name) {
         EventCreateGame event = new EventCreateGame();
-        event.setTime((int) Instant.now().getEpochSecond());
+        event.setTime((int)Instant.now().getEpochSecond());
         event.setHostId(character.getId());
         event.setLobbyId(lobby.getId());
         event.setGameId(game.getId());
@@ -144,13 +149,16 @@ public class HostService {
 
     public static int setPlayerTeam(Game game, int targetId, int team) {
         Player targetPlayer = game.getPlayerByCharacterId(targetId);
+
         if (targetPlayer == null) {
             logger.error("Error while setting player team: Couldn't find player.");
+
             return 1;
         }
 
         targetPlayer.setTeam(team);
         DbManager.txVoid(session -> session.update(targetPlayer));
+
         return 0;
     }
 
@@ -159,7 +167,7 @@ public class HostService {
     // =========================================================================
 
     public static void updatePings(Game game, int hostPing, ByteBuf bi) {
-        game.setLastUpdate((int) Instant.now().getEpochSecond());
+        game.setLastUpdate((int)Instant.now().getEpochSecond());
 
         while (bi.readableBytes() >= 8) {
             int targetId = bi.readInt();
@@ -170,6 +178,7 @@ public class HostService {
             }
 
             Player target = game.getPlayerByCharacterId(targetId);
+
             if (target != null) {
                 target.setPing(targetPing);
             }
@@ -185,22 +194,25 @@ public class HostService {
     public static int updateStats(Game game, ByteBuf bi) {
         int gameMode = StatsService.getGameModeFromGame(game);
         logger.debug(
-                "UpdateStats: game={}, currentGame={}, gameMode={}", game.getName(), game.getCurrentGame(), gameMode);
+            "UpdateStats: game={}, currentGame={}, gameMode={}", game.getName(), game.getCurrentGame(), gameMode);
 
         // DEBUG: Log raw stats packet for analysis
         if (logger.isDebugEnabled()) {
             int readable = bi.readableBytes();
-            byte[] rawBytes = new byte[readable];
+            byte[] rawBytes = new byte [readable];
             bi.getBytes(bi.readerIndex(), rawBytes);
             StringBuilder hex = new StringBuilder();
+
             for (int i = 0; i < rawBytes.length; i++) {
                 hex.append(String.format("%02x", rawBytes[i]));
+
                 if ((i + 1) % 32 == 0) {
                     hex.append("\n");
                 } else if ((i + 1) % 4 == 0) {
                     hex.append(" ");
                 }
             }
+
             logger.debug("0x4390 UpdateStats raw packet ({} bytes):\n{}", readable, hex.toString());
         }
 
@@ -208,35 +220,39 @@ public class HostService {
         StatsService.RoundStats roundStats = StatsService.parseStatsPacket(bi, gameMode);
 
         logger.debug(
-                "Parsed stats for target {}: kills={}, deaths={}, stuns={}, stunsRec={}, "
-                        + "hsKills={}, hsDeaths={}, hsStuns={}, hsStunsRec={}, consKills={}, score={}",
-                targetId,
-                roundStats.kills,
-                roundStats.deaths,
-                roundStats.stuns,
-                roundStats.stunsReceived,
-                roundStats.headshotKills,
-                roundStats.headshotDeaths,
-                roundStats.headshotStuns,
-                roundStats.headshotStunsReceived,
-                roundStats.consecutiveKills,
-                roundStats.score);
+            "Parsed stats for target {}: kills={}, deaths={}, stuns={}, stunsRec={}, "
+            + "hsKills={}, hsDeaths={}, hsStuns={}, hsStunsRec={}, consKills={}, score={}",
+            targetId,
+            roundStats.kills,
+            roundStats.deaths,
+            roundStats.stuns,
+            roundStats.stunsReceived,
+            roundStats.headshotKills,
+            roundStats.headshotDeaths,
+            roundStats.headshotStuns,
+            roundStats.headshotStunsReceived,
+            roundStats.consecutiveKills,
+            roundStats.score);
 
         // Try to find player in game
         Player targetPlayer = game.getPlayerByCharacterId(targetId);
+
         if (targetPlayer != null) {
             return updateStatsForPlayer(targetPlayer.getCharacter(), roundStats);
         }
 
         // Check if player was in last round
         List<Integer> playersLastRound = game.getPlayersLastRound();
+
         if (!playersLastRound.contains(targetId)) {
             logger.error("Error while updating stats: Player didn't play this round.");
+
             return 3;
         }
 
         // Try to find online user
         User targetUser = ActiveUsers.getByCharacterId(targetId);
+
         if (targetUser != null) {
             return updateStatsForPlayer(targetUser.getCurrentCharacter(), roundStats);
         }
@@ -245,18 +261,20 @@ public class HostService {
         return updateStatsFromDb(targetId, roundStats);
     }
 
-    private static int updateStatsForPlayer(Character targetCharacter, StatsService.RoundStats roundStats) {
+    private static int updateStatsForPlayer(Character targetCharacter,
+        StatsService.RoundStats roundStats) {
         User targetUser = targetCharacter.getUser();
 
         Session session = DbManager.getSession();
         session.beginTransaction();
 
         StatsService.updatePlayerExperience(session, targetUser, targetCharacter, roundStats.experience,
-                roundStats.aborted);
+            roundStats.aborted);
         StatsService.updateCharacterStats(session, targetCharacter, roundStats);
 
         session.getTransaction().commit();
         DbManager.closeSession(session);
+
         return 0;
     }
 
@@ -265,10 +283,12 @@ public class HostService {
         session.beginTransaction();
 
         Character targetCharacter = session.get(Character.class, targetId);
+
         if (targetCharacter == null) {
             logger.error("Error while updating stats: Character doesn't exist.");
             session.getTransaction().commit();
             DbManager.closeSession(session);
+
             return 0;
         }
 
@@ -283,6 +303,7 @@ public class HostService {
 
         session.getTransaction().commit();
         DbManager.closeSession(session);
+
         return 0;
     }
 
@@ -306,8 +327,10 @@ public class HostService {
 
     public static boolean passHost(Game game, Character currentHost, int targetId) {
         Player targetPlayer = game.getPlayerByCharacterId(targetId);
+
         if (targetPlayer == null) {
             logger.error("Error while passing game: Couldn't find player.");
+
             return false;
         }
 
@@ -322,6 +345,7 @@ public class HostService {
         session.update(game);
         session.getTransaction().commit();
         DbManager.closeSession(session);
+
         return true;
     }
 
@@ -333,7 +357,7 @@ public class HostService {
         List<Integer> playersLastRound = game.getPlayersLastRound();
         playersLastRound.clear();
 
-        for (Player targetPlayer : game.getPlayers()) {
+        for (Player targetPlayer: game.getPlayers()) {
             playersLastRound.add(targetPlayer.getCharacterId());
         }
     }
@@ -343,7 +367,7 @@ public class HostService {
     // =========================================================================
 
     public static void onPing(Game game) {
-        int time = (int) Instant.now().getEpochSecond();
+        int time = (int)Instant.now().getEpochSecond();
 
         if (time < game.getLastNCheck() + 60) {
             return;

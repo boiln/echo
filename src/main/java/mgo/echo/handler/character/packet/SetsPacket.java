@@ -40,14 +40,14 @@ public final class SetsPacket {
         try {
             bo = ctx.alloc().directBuffer(SKILL_SET_SIZE * sets.size());
 
-            for (CharacterSetSkills set : sets) {
+            for (CharacterSetSkills set: sets) {
                 bo.writeInt(set.getModes())
-                        .writeByte(set.getSkill1()).writeByte(set.getSkill2())
-                        .writeByte(set.getSkill3()).writeByte(set.getSkill4())
-                        .writeZero(1)
-                        .writeByte(set.getLevel1()).writeByte(set.getLevel2())
-                        .writeByte(set.getLevel3()).writeByte(set.getLevel4())
-                        .writeZero(1);
+                    .writeByte(set.getSkill1()).writeByte(set.getSkill2())
+                    .writeByte(set.getSkill3()).writeByte(set.getSkill4())
+                    .writeZero(1)
+                    .writeByte(set.getLevel1()).writeByte(set.getLevel2())
+                    .writeByte(set.getLevel3()).writeByte(set.getLevel4())
+                    .writeZero(1);
                 Util.writeString(set.getName(), 63, bo, StandardCharsets.UTF_8);
             }
 
@@ -125,18 +125,18 @@ public final class SetsPacket {
         try {
             bo = ctx.alloc().directBuffer(GEAR_SET_SIZE * sets.size());
 
-            for (CharacterSetGear set : sets) {
+            for (CharacterSetGear set: sets) {
                 bo.writeInt(set.getStages())
-                        .writeByte(set.getFace()).writeByte(set.getHead())
-                        .writeByte(set.getUpper()).writeByte(set.getLower())
-                        .writeByte(set.getChest()).writeByte(set.getWaist())
-                        .writeByte(set.getHands()).writeByte(set.getFeet())
-                        .writeByte(set.getAccessory1()).writeByte(set.getAccessory2())
-                        .writeByte(set.getHeadColor()).writeByte(set.getUpperColor())
-                        .writeByte(set.getLowerColor()).writeByte(set.getChestColor())
-                        .writeByte(set.getWaistColor()).writeByte(set.getHandsColor())
-                        .writeByte(set.getFeetColor()).writeByte(set.getAccessory1Color())
-                        .writeByte(set.getAccessory2Color()).writeByte(set.getFacePaint());
+                    .writeByte(set.getFace()).writeByte(set.getHead())
+                    .writeByte(set.getUpper()).writeByte(set.getLower())
+                    .writeByte(set.getChest()).writeByte(set.getWaist())
+                    .writeByte(set.getHands()).writeByte(set.getFeet())
+                    .writeByte(set.getAccessory1()).writeByte(set.getAccessory2())
+                    .writeByte(set.getHeadColor()).writeByte(set.getUpperColor())
+                    .writeByte(set.getLowerColor()).writeByte(set.getChestColor())
+                    .writeByte(set.getWaistColor()).writeByte(set.getHandsColor())
+                    .writeByte(set.getFeetColor()).writeByte(set.getAccessory1Color())
+                    .writeByte(set.getAccessory2Color()).writeByte(set.getFacePaint());
                 Util.writeString(set.getName(), 63, bo, StandardCharsets.UTF_8);
             }
 

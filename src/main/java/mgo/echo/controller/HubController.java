@@ -31,10 +31,9 @@ import mgo.echo.util.Util;
 public class HubController implements Controller {
     private static final Logger logger = LogManager.getLogger(HubController.class);
 
-    private static final byte[] TRAINING_BYTES = new byte[] {
-            (byte) 0x00, (byte) 0x0A, (byte) 0x00, (byte) 0x15,
-            (byte) 0x00, (byte) 0x3A, (byte) 0x00, (byte) 0x08,
-            (byte) 0x00, (byte) 0x61
+    private static final byte[] TRAINING_BYTES = new byte [] {
+        (byte)0x00, (byte)0x0A, (byte)0x00, (byte)0x15, (byte)0x00, (byte)0x3A, (byte)0x00,
+        (byte)0x08, (byte)0x00, (byte)0x61
     };
 
     // ========================================================================
@@ -103,6 +102,7 @@ public class HubController implements Controller {
     @Command(0x4150)
     public boolean onLobbyDisconnect(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), HubCmd.LOBBY_DISCONNECT_RESPONSE);
+
         return true;
     }
 
@@ -114,6 +114,7 @@ public class HubController implements Controller {
     public boolean onTrainingConnect(CommandContext ctx) {
         ByteBuf bo = Unpooled.wrappedBuffer(TRAINING_BYTES);
         Packets.write(ctx.nettyCtx(), HubCmd.TRAINING_CONNECT_RESPONSE, bo);
+
         return true;
     }
 }

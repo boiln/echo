@@ -27,28 +27,32 @@ public class AccountController implements Controller {
         try {
             ByteBuf bi = ctx.payload();
             int id = bi.readInt();
-            byte[] bytes = new byte[16];
+            byte[] bytes = new byte [16];
             bi.readBytes(bytes);
 
             String mgo2Session = AccountService.decodeSessionBytes(bytes);
             logger.info("Decrypted session: {}", mgo2Session);
 
             User user = AccountService.findUserBySession(mgo2Session);
+
             if (user == null) {
                 logger.error("Error while checking session: Bad session.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.CHECK_SESSION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
             if (id != user.getCurrentCharacterId()) {
                 logger.error("Error while checking session: Bad character id ... {} -- {}",
-                        id, user.getCurrentCharacterId());
+                    id, user.getCurrentCharacterId());
                 Packets.write(ctx.nettyCtx(), UsersCmd.CHECK_SESSION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
             if (!AccountService.connectToLobby(ctx.nettyCtx(), ctx.lobby(), user)) {
                 Packets.write(ctx.nettyCtx(), UsersCmd.CHECK_SESSION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 

@@ -31,7 +31,8 @@ import mgo.echo.util.Util;
 public class ClanPacketHandler {
     private static final Logger logger = LogManager.getLogger();
 
-    public static void getEmblem(ChannelHandlerContext ctx, Packet in, int command, boolean getWip) {
+    public static void getEmblem(ChannelHandlerContext ctx, Packet in, int command,
+        boolean getWip) {
         ByteBuf bo = null;
 
         try {
@@ -42,6 +43,7 @@ public class ClanPacketHandler {
 
             if (clan == null) {
                 Packets.write(ctx, command, Error.CLAN_DOESNOTEXIST);
+
                 return;
             }
 
@@ -60,11 +62,13 @@ public class ClanPacketHandler {
     private static void writeEmblemData(ByteBuf bo, Clan clan, boolean getWip) {
         if (getWip && clan.getEmblemWip() != null) {
             bo.writeBytes(clan.getEmblemWip());
+
             return;
         }
 
         if (clan.getEmblem() != null) {
             bo.writeBytes(clan.getEmblem());
+
             return;
         }
 
@@ -77,7 +81,8 @@ public class ClanPacketHandler {
         try {
             List<Clan> clans = DbManager.tx(session -> {
                 Query<Clan> query = session.createQuery("from Clan c join fetch c.leader l join fetch l.character",
-                        Clan.class);
+                    Clan.class);
+
                 return query.list();
             });
 
@@ -98,7 +103,7 @@ public class ClanPacketHandler {
 
     private static void writeClanListEntry(ByteBuf bo, Clan clan) {
         boolean isNew = false;
-        int time = (int) Instant.now().getEpochSecond();
+        int time = (int)Instant.now().getEpochSecond();
 
         bo.writeInt(clan.getId());
         Util.writeString(clan.getName(), 16, bo);
@@ -121,8 +126,9 @@ public class ClanPacketHandler {
 
             List<Clan> clans = DbManager.tx(session -> {
                 Query<Clan> query = session.createQuery(
-                        "from Clan c join fetch c.leader l join fetch l.character where c.name like :name", Clan.class);
+                    "from Clan c join fetch c.leader l join fetch l.character where c.name like :name", Clan.class);
                 query.setParameter("name", searchName);
+
                 return query.list();
             });
 
@@ -146,9 +152,11 @@ public class ClanPacketHandler {
 
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 logger.error("Error while getting clan information (member): No User.");
                 Packets.write(ctx, ClansCmd.GET_INFORMATION_MEMBER_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -162,23 +170,27 @@ public class ClanPacketHandler {
 
             Clan clan = DbManager.tx(session -> {
                 Query<Clan> query = session.createQuery(
-                        "from Clan c join fetch c.leader l join fetch l.character where c.id=:clanId", Clan.class);
+                    "from Clan c join fetch c.leader l join fetch l.character where c.id=:clanId", Clan.class);
                 query.setParameter("clanId", clanId);
 
                 Clan c = query.uniqueResult();
+
                 if (c != null) {
                     Hibernate.initialize(c.getEmblemEditor());
                     Hibernate.initialize(c.getApplications());
                     Hibernate.initialize(c.getNoticeWriter());
+
                     if (c.getNoticeWriter() != null) {
                         Hibernate.initialize(c.getNoticeWriter().getCharacter());
                     }
                 }
+
                 return c;
             });
 
             if (clan == null) {
                 Packets.write(ctx, ClansCmd.GET_INFORMATION_MEMBER_RESPONSE, Error.CLAN_DOESNOTEXIST);
+
                 return;
             }
 
@@ -201,7 +213,7 @@ public class ClanPacketHandler {
             bo.writeInt(0);
             Util.writeString("", 16, bo);
             bo.writeInt(0).writeInt(0).writeInt(0).writeInt(0).writeInt(0).writeInt(0).writeInt(0).writeInt(0)
-                    .writeByte(0).writeByte(0);
+                .writeByte(0).writeByte(0);
 
             // Emblem status
             bo.writeByte(clan.getEmblemWip() != null ? 2 : 0);
@@ -229,8 +241,8 @@ public class ClanPacketHandler {
                 Util.writeString(clan.getNotice(), 512, bo);
                 bo.writeInt(clan.getNoticeTime());
                 String writerName = clan.getNoticeWriter() != null
-                        ? clan.getNoticeWriter().getCharacter().getName()
-                        : "[Deleted]";
+                ? clan.getNoticeWriter().getCharacter().getName()
+                : "[Deleted]";
                 Util.writeString(writerName, 16, bo);
             } else {
                 Util.writeString("", 512, bo);
@@ -253,9 +265,11 @@ public class ClanPacketHandler {
 
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 logger.error("Error while getting clan information: No User.");
                 Packets.write(ctx, ClansCmd.GET_INFORMATION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -266,14 +280,16 @@ public class ClanPacketHandler {
 
             Clan clan = DbManager.tx(session -> {
                 Query<Clan> query = session.createQuery(
-                        "from Clan c join fetch c.leader l join fetch l.character join fetch c.members where c.id=:clanId",
-                        Clan.class);
+                    "from Clan c join fetch c.leader l join fetch l.character join fetch c.members where c.id=:clanId",
+                    Clan.class);
                 query.setParameter("clanId", clanId);
+
                 return query.uniqueResult();
             });
 
             if (clan == null) {
                 Packets.write(ctx, ClansCmd.GET_INFORMATION_RESPONSE, Error.CLAN_DOESNOTEXIST);
+
                 return;
             }
 
@@ -291,8 +307,8 @@ public class ClanPacketHandler {
             Util.writeString(comment, 128, bo);
 
             bo.writeInt(0).writeInt(members.size()).writeInt(totalReward)
-                    .writeInt(0).writeInt(0).writeInt(0).writeInt(0).writeInt(0)
-                    .writeInt(0).writeInt(0).writeInt(0);
+                .writeInt(0).writeInt(0).writeInt(0).writeInt(0).writeInt(0)
+                .writeInt(0).writeInt(0).writeInt(0);
 
             Packets.write(ctx, ClansCmd.GET_INFORMATION_RESPONSE, bo);
         } catch (Exception e) {
@@ -308,9 +324,11 @@ public class ClanPacketHandler {
 
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 logger.error("Error while getting clan roster: No User.");
                 Packets.write(ctx, ClansCmd.GET_ROSTER_START, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -324,24 +342,26 @@ public class ClanPacketHandler {
 
             Clan clan = DbManager.tx(session -> {
                 Query<Clan> query = session.createQuery(
-                        "from Clan c join fetch c.members m join fetch m.character where c.id = :clan", Clan.class);
+                    "from Clan c join fetch c.members m join fetch m.character where c.id = :clan", Clan.class);
                 query.setParameter("clan", clanId);
 
                 Clan c = query.uniqueResult();
 
                 if (c != null && c.getLeader() != null && clanMember != null
                         && clanMember.getId().equals(c.getLeader().getId())) {
-                    Query<MessageClanApplication> queryM = session.createQuery(
+                        Query<MessageClanApplication> queryM = session.createQuery(
                             "from MessageClanApplication m join fetch m.character where m.clan = :clan",
                             MessageClanApplication.class);
-                    queryM.setParameter("clan", c);
-                    c.setApplications(queryM.list());
-                }
+                        queryM.setParameter("clan", c);
+                        c.setApplications(queryM.list());
+                    }
+
                 return c;
             });
 
             if (clan == null) {
                 Packets.write(ctx, ClansCmd.GET_ROSTER_START, Error.CLAN_DOESNOTEXIST);
+
                 return;
             }
 
@@ -352,11 +372,12 @@ public class ClanPacketHandler {
                 Character cCharacter = member.getCharacter();
 
                 Game game = ActiveGames.get((g) -> {
-                    for (Player player : g.getPlayers()) {
+                    for (Player player: g.getPlayers()) {
                         if (player.getCharacterId().equals(cCharacter.getId())) {
                             return true;
                         }
                     }
+
                     return false;
                 });
 
@@ -390,11 +411,12 @@ public class ClanPacketHandler {
                     Character cCharacter = application.getCharacter();
 
                     Game game = ActiveGames.get((g) -> {
-                        for (Player player : g.getPlayers()) {
+                        for (Player player: g.getPlayers()) {
                             if (player.getCharacterId().equals(cCharacter.getId())) {
                                 return true;
                             }
                         }
+
                         return false;
                     });
 
@@ -438,9 +460,11 @@ public class ClanPacketHandler {
 
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 logger.error("Error while getting clan info: No User.");
                 Packets.write(ctx, ClansCmd.UPDATE_STATE_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -459,14 +483,16 @@ public class ClanPacketHandler {
                 if (clanMember.getId().equals(clan.getLeaderId())) {
                     List<MessageClanApplication> applications = DbManager.tx(session -> {
                         Query<MessageClanApplication> query = session.createQuery(
-                                "from MessageClanApplication a where a.clan = :clan", MessageClanApplication.class);
+                            "from MessageClanApplication a where a.clan = :clan", MessageClanApplication.class);
                         query.setParameter("clan", clan);
+
                         return query.list();
                     });
                     notifications = applications.isEmpty() ? 0 : 0b100000000;
                 }
 
-                payloads = new ByteBuf[2];
+                payloads = new ByteBuf [2];
+
                 for (int i = 0; i < payloads.length; i++) {
                     ByteBuf bo = ctx.alloc().directBuffer(28);
                     bo.writeInt(0).writeInt(clan.getId());
@@ -476,7 +502,9 @@ public class ClanPacketHandler {
                     Util.writeString(clan.getName(), 16, bo);
                     payloads[i] = bo;
                 }
+
                 Packets.write(ctx, ClansCmd.UPDATE_STATE_RESPONSE, payloads);
+
                 return;
             }
 
@@ -484,7 +512,8 @@ public class ClanPacketHandler {
             if (clanApplication != null) {
                 Clan clan = clanApplication.getClan();
 
-                payloads = new ByteBuf[2];
+                payloads = new ByteBuf [2];
+
                 for (int i = 0; i < payloads.length; i++) {
                     ByteBuf bo = ctx.alloc().directBuffer(28);
                     bo.writeInt(0).writeInt(clan.getId());
@@ -494,12 +523,14 @@ public class ClanPacketHandler {
                     Util.writeString(clan.getName(), 16, bo);
                     payloads[i] = bo;
                 }
+
                 Packets.write(ctx, ClansCmd.UPDATE_STATE_RESPONSE, payloads);
+
                 return;
             }
 
             // Case 3: Not in any clan
-            payloads = new ByteBuf[1];
+            payloads = new ByteBuf [1];
             ByteBuf bo = ctx.alloc().directBuffer(28);
             bo.writeInt(0).writeInt(0);
             bo.writeByte(0xff);

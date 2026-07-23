@@ -15,7 +15,7 @@ public class EchoService {
 
     public EchoService(Callable<Boolean> callable, int seconds) {
         this.callable = callable;
-        this.seconds = seconds;
+        this.seconds  = seconds;
     }
 
     public void start() {
@@ -23,16 +23,20 @@ public class EchoService {
         future = executor.submit(() -> {
             while (running && !active) {
                 active = true;
+
                 try {
                     boolean result = callable.call();
+
                     if (!result) {
                         running = false;
                         break;
                     }
+
                     Thread.sleep(seconds * 1000);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
                 active = false;
             }
         });
@@ -40,8 +44,10 @@ public class EchoService {
 
     public void stop() {
         running = false;
+
         if (future != null && !future.isDone()) {
             future.cancel(true);
+
             try {
                 future.get();
             } catch (Exception e) {

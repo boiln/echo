@@ -32,13 +32,16 @@ public class ChatPacketHandler {
         ByteBuf bb = PooledByteBufAllocator.DEFAULT.directBuffer(message.length() + 6);
         bb.writeInt(chara).writeByte(flag2);
         Util.writeString(message, message.length() + 1, bb);
+
         return bb;
     }
 
-    public static ByteBuf constructMessage(ChannelHandlerContext ctx, int chara, int flag2, String message) {
+    public static ByteBuf constructMessage(ChannelHandlerContext ctx, int chara, int flag2,
+        String message) {
         ByteBuf bb = ctx.alloc().directBuffer(message.length() + 6);
         bb.writeInt(chara).writeByte(flag2);
         Util.writeString(message, message.length() + 1, bb);
+
         return bb;
     }
 
@@ -75,9 +78,10 @@ public class ChatPacketHandler {
                     }
 
                     return recipients.stream()
-                            .anyMatch(e -> e.getCharacterId() == targetCharacter.getId());
+                        .anyMatch(e -> e.getCharacterId() == targetCharacter.getId());
                 } catch (Exception e) {
                     logger.error("Exception during chat processing.", e);
+
                     return false;
                 }
             }, (ch) -> {
@@ -105,7 +109,9 @@ public class ChatPacketHandler {
             if (user.getRole() < 10) {
                 return new ChatMessage(MessageRecipient.SELF, "You do not have permission to use this command.");
             }
+
             String out = message.replaceFirst("/global ", "");
+
             return new ChatMessage(MessageRecipient.GLOBAL, out);
         }
 
@@ -113,7 +119,9 @@ public class ChatPacketHandler {
             if (user.getRole() < 10) {
                 return new ChatMessage(MessageRecipient.SELF, "You do not have permission to use this command.");
             }
+
             String out = message.replaceFirst("/room ", "");
+
             return new ChatMessage(MessageRecipient.ROOM, out);
         }
 
@@ -149,6 +157,7 @@ public class ChatPacketHandler {
                     return targetCharacter.getId() == targetId;
                 } catch (Exception e) {
                     logger.error("Exception during /kicking character.", e);
+
                     return false;
                 }
             }, (ch) -> {
@@ -163,6 +172,7 @@ public class ChatPacketHandler {
             return new ChatMessage(MessageRecipient.SELF, "Kicked character.");
         } catch (Exception e) {
             logger.error("Exception occurred while /kicking character", e);
+
             return new ChatMessage(MessageRecipient.SELF, "Failed to kick character.");
         }
     }
@@ -175,14 +185,14 @@ public class ChatPacketHandler {
         try {
             Collection<Game> games = ActiveGames.getGames();
 
-            for (Game aGame : games) {
+            for (Game aGame: games) {
                 StringBuilder lout = new StringBuilder("GameLog | ");
                 lout.append(aGame.getName()).append(" (").append(aGame.getId()).append(") | ");
 
                 List<Player> aPlayers = aGame.getPlayers();
-                for (Player aPlayer : aPlayers) {
+                for (Player aPlayer: aPlayers) {
                     lout.append(aPlayer.getCharacter().getName())
-                            .append(" (").append(aPlayer.getCharacterId()).append("), ");
+                        .append(" (").append(aPlayer.getCharacterId()).append("), ");
                 }
 
                 logger.info("{}", lout);
@@ -197,15 +207,19 @@ public class ChatPacketHandler {
     public static void send(ChannelHandlerContext ctx, Packet in) {
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 logger.error("Error while sending message: No user.");
+
                 return;
             }
 
             Character character = user.getCurrentCharacter();
             Player player = character.getPlayer().size() > 0 ? character.getPlayer().get(0) : null;
+
             if (player == null) {
                 logger.error("Error while sending message: Not in a game.");
+
                 return;
             }
 
@@ -241,11 +255,13 @@ public class ChatPacketHandler {
 
     private static ChatMessage resolveCommand(User user, String message) {
         ChatMessage chatMessage = PluginHandler.get().getPlugin().handleChatCommand(user, message);
+
         if (chatMessage != null) {
             return chatMessage;
         }
 
         chatMessage = handleCommand(user, message);
+
         if (chatMessage != null) {
             return chatMessage;
         }
@@ -258,25 +274,25 @@ public class ChatPacketHandler {
     }
 
     private static void dispatchMessage(ChannelHandlerContext ctx, ChatMessage chatMessage,
-            Character character, int flag2, List<Player> players) {
+        Character character, int flag2, List<Player> players) {
         switch (chatMessage.getRecipient()) {
-            case NORMAL:
-                sendNormalMessage(ctx, chatMessage, character, flag2, players);
-                break;
-            case SELF:
-                sendSelfMessage(ctx, chatMessage, character, flag2);
-                break;
-            case ROOM:
-                sendRoomMessage(ctx, chatMessage, character, flag2, players);
-                break;
-            case GLOBAL:
-                sendGlobalMessage(ctx, chatMessage, character, flag2);
-                break;
+        case NORMAL:
+            sendNormalMessage(ctx, chatMessage, character, flag2, players);
+            break;
+        case SELF:
+            sendSelfMessage(ctx, chatMessage, character, flag2);
+            break;
+        case ROOM:
+            sendRoomMessage(ctx, chatMessage, character, flag2, players);
+            break;
+        case GLOBAL:
+            sendGlobalMessage(ctx, chatMessage, character, flag2);
+            break;
         }
     }
 
     private static void sendNormalMessage(ChannelHandlerContext ctx, ChatMessage chatMessage,
-            Character character, int flag2, List<Player> players) {
+        Character character, int flag2, List<Player> players) {
         ArrayList<Player> recipients = new ArrayList<>(players);
         String fmessage = chatMessage.getMessage();
 
@@ -290,9 +306,10 @@ public class ChatPacketHandler {
                 }
 
                 return recipients.stream()
-                        .anyMatch(e -> e.getCharacterId() == targetCharacter.getId());
+                    .anyMatch(e -> e.getCharacterId() == targetCharacter.getId());
             } catch (Exception e) {
                 logger.error("Exception during chat processing.", e);
+
                 return false;
             }
         }, (ch) -> {
@@ -310,7 +327,7 @@ public class ChatPacketHandler {
     }
 
     private static void sendSelfMessage(ChannelHandlerContext ctx, ChatMessage chatMessage,
-            Character character, int flag2) {
+        Character character, int flag2) {
         String fmessage = SERVER_MESSAGE_PREFIX + chatMessage.getMessage();
         ByteBuf bo = null;
 
@@ -324,7 +341,7 @@ public class ChatPacketHandler {
     }
 
     private static void sendRoomMessage(ChannelHandlerContext ctx, ChatMessage chatMessage,
-            Character character, int flag2, List<Player> players) {
+        Character character, int flag2, List<Player> players) {
         ArrayList<Player> recipients = new ArrayList<>(players);
         String fmessage = SERVER_MESSAGE_PREFIX + chatMessage.getMessage();
 
@@ -338,9 +355,10 @@ public class ChatPacketHandler {
                 }
 
                 return recipients.stream()
-                        .anyMatch(e -> e.getCharacterId() == targetCharacter.getId());
+                    .anyMatch(e -> e.getCharacterId() == targetCharacter.getId());
             } catch (Exception e) {
                 logger.error("Exception during chat processing.", e);
+
                 return false;
             }
         }, (ch) -> {
@@ -358,16 +376,18 @@ public class ChatPacketHandler {
     }
 
     private static void sendGlobalMessage(ChannelHandlerContext ctx, ChatMessage chatMessage,
-            Character character, int flag2) {
+        Character character, int flag2) {
         String fmessage = SERVER_MESSAGE_PREFIX + chatMessage.getMessage();
 
         ActiveChannels.process((ch) -> {
             try {
                 User targetUser = ActiveUsers.get(ch);
                 Character targetCharacter = targetUser.getCurrentCharacter();
+
                 return targetCharacter != null;
             } catch (Exception e) {
                 logger.error("Exception during chat processing.", e);
+
                 return false;
             }
         }, (ch) -> {

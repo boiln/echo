@@ -17,6 +17,7 @@ public class CryptoProvider {
         if (instanceAuth == null) {
             instanceAuth = new CryptoProvider(CryptoConstants.CRYPTO_AUTH);
         }
+
         return instanceAuth;
     }
 
@@ -24,26 +25,30 @@ public class CryptoProvider {
         if (instancePacket == null) {
             instancePacket = new CryptoProvider(CryptoConstants.CRYPTO_PACKET);
         }
+
         return instancePacket;
     }
 
     public byte[] decrypt(byte[] bytes) {
         ByteBuf c = null, p = null;
         byte[] result = null;
+
         try {
             c = Unpooled.wrappedBuffer(bytes);
             p = PooledByteBufAllocator.DEFAULT.directBuffer(bytes.length);
             decrypt(p, c);
-            result = new byte[bytes.length];
+            result = new byte [bytes.length];
             p.getBytes(0, result);
         } finally {
             if (c != null) {
                 c.release();
             }
+
             if (p != null) {
                 p.release();
             }
         }
+
         return result;
     }
 
@@ -79,7 +84,7 @@ public class CryptoProvider {
                 kC = ck.getInt(kIndexC + 0x848);
                 kD = ck.getInt(kIndexD + 0xc48);
 
-                a ^= ((kA + kB) ^ kC) + kD;
+                a ^=((kA + kB) ^ kC) + kD;
 
                 k = ck.getInt(0x3c - j * 8);
                 b ^= k;
@@ -94,7 +99,7 @@ public class CryptoProvider {
                 kC = ck.getInt(kIndexC + 0x848);
                 kD = ck.getInt(kIndexD + 0xc48);
 
-                b ^= ((kA + kB) ^ kC) + kD;
+                b ^=((kA + kB) ^ kC) + kD;
             }
 
             k = ck.getInt(0x0);
@@ -107,20 +112,23 @@ public class CryptoProvider {
     public byte[] encrypt(byte[] bytes) {
         ByteBuf c = null, p = null;
         byte[] result = null;
+
         try {
             c = PooledByteBufAllocator.DEFAULT.directBuffer(bytes.length);
             p = Unpooled.wrappedBuffer(bytes);
             encrypt(p, c);
-            result = new byte[bytes.length];
+            result = new byte [bytes.length];
             c.getBytes(0, result);
         } finally {
             if (c != null) {
                 c.release();
             }
+
             if (p != null) {
                 p.release();
             }
         }
+
         return result;
     }
 
@@ -156,7 +164,7 @@ public class CryptoProvider {
                 kC = ck.getInt(kIndexC + 0x848);
                 kD = ck.getInt(kIndexD + 0xc48);
 
-                a ^= ((kA + kB) ^ kC) + kD;
+                a ^=((kA + kB) ^ kC) + kD;
 
                 k = ck.getInt(0x40 - j * 8);
                 b ^= k;
@@ -171,7 +179,7 @@ public class CryptoProvider {
                 kC = ck.getInt(kIndexC + 0x848);
                 kD = ck.getInt(kIndexD + 0xc48);
 
-                b ^= ((kA + kB) ^ kC) + kD;
+                b ^=((kA + kB) ^ kC) + kD;
             }
 
             k = ck.getInt(0x44);

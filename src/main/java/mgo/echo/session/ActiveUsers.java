@@ -15,6 +15,7 @@ public class ActiveUsers {
         if (get(channel) == null) {
             return users.put(channel, user) == null;
         }
+
         return false;
     }
 
@@ -36,6 +37,6 @@ public class ActiveUsers {
 
     public static User getByCharacterId(int charaId) {
         return getOne((e) -> e != null && e.getCurrentCharacterId() != null
-                && (Integer) e.getCurrentCharacterId() == charaId);
+                && (Integer)e.getCurrentCharacterId() == charaId);
     }
 }

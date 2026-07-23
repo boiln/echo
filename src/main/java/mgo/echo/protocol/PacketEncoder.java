@@ -26,8 +26,9 @@ public class PacketEncoder extends ChannelOutboundHandlerAdapter {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         Packet packet = null;
+
         try {
-            packet = (Packet) msg;
+            packet = (Packet)msg;
 
             final int command = packet.getCommand();
             final int lenP = (packet.getPayload() != null) ? packet.getPayload().capacity() : 0;
@@ -35,20 +36,23 @@ public class PacketEncoder extends ChannelOutboundHandlerAdapter {
 
             if (lenP > 0) {
                 logger.debug("{} - Out - Command {} - {} bytes", Util.getUserInfo(ctx), String.format("%04x", command),
-                        lenP);
+                    lenP);
                 logger.debug(() -> ByteBufUtil.hexDump(fPacket.getPayload()));
             } else {
                 logger.debug("{} - Out - Command {}", Util.getUserInfo(ctx), String.format("%04x", command));
             }
 
             int pad = 0;
+
             if (Packets.usesCrypto(CRYPTED_IDS, packet)) {
                 int lenPayload = packet.getPayload().readableBytes();
                 pad = 8 - (lenPayload % 8);
+
                 if (pad != 0) {
                     packet.getPayload().capacity(lenPayload + pad);
                     packet.getPayload().writeZero(pad);
                 }
+
                 CryptoProvider.instancePacket().encrypt(packet.getPayload());
             }
 
@@ -64,6 +68,7 @@ public class PacketEncoder extends ChannelOutboundHandlerAdapter {
 
             ByteBuf buffer = ctx.alloc().directBuffer(24 + lengthPayload);
             buffer.writeBytes(packet.getHeader(), 0, 24);
+
             if (packet.getPayload() != null) {
                 buffer.writeBytes(packet.getPayload(), 0, lengthPayload);
             }

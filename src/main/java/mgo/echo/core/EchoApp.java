@@ -40,6 +40,7 @@ public class EchoApp {
 
     public void test() {
         Session session = null;
+
         try {
             int clanId = 1;
             boolean isLeader = true;
@@ -48,7 +49,7 @@ public class EchoApp {
             session.beginTransaction();
 
             Query<Clan> query = session.createQuery(
-                    "from Clan c join fetch c.members m join fetch m.character where c.id = :clan", Clan.class);
+                "from Clan c join fetch c.members m join fetch m.character where c.id = :clan", Clan.class);
             query.setParameter("clan", clanId);
 
             Clan clan = query.uniqueResult();
@@ -57,8 +58,8 @@ public class EchoApp {
                 // Hibernate.initialize(clan.getApplications());
 
                 Query<MessageClanApplication> queryM = session
-                        .createQuery("from MessageClanApplication m join fetch m.character where m.clan = :clan",
-                                MessageClanApplication.class);
+                    .createQuery("from MessageClanApplication m join fetch m.character where m.clan = :clan",
+                    MessageClanApplication.class);
                 queryM.setParameter("clan", clan);
                 clan.setApplications(queryM.list());
             }
@@ -86,24 +87,25 @@ public class EchoApp {
 
         try {
             properties.load(new FileInputStream(new File("echo.properties")));
-            dbUrl = properties.getProperty("dbUrl");
-            dbUser = properties.getProperty("dbUser");
-            dbPassword = properties.getProperty("dbPassword");
-            plugin = properties.getProperty("plugin");
-            DB_WORKERS = Integer.parseInt(properties.getProperty("dbWorkers"));
-            dbPoolMin = Integer.parseInt(properties.getProperty("dbPoolMin"));
-            dbPoolMax = Integer.parseInt(properties.getProperty("dbPoolMax"));
+            dbUrl           = properties.getProperty("dbUrl");
+            dbUser          = properties.getProperty("dbUser");
+            dbPassword      = properties.getProperty("dbPassword");
+            plugin          = properties.getProperty("plugin");
+            DB_WORKERS      = Integer.parseInt(properties.getProperty("dbWorkers"));
+            dbPoolMin       = Integer.parseInt(properties.getProperty("dbPoolMin"));
+            dbPoolMax       = Integer.parseInt(properties.getProperty("dbPoolMax"));
             dbPoolIncrement = Integer.parseInt(properties.getProperty("dbPoolIncrement"));
-            SERVER_WORKERS = Integer.parseInt(properties.getProperty("serverWorkers"));
+            SERVER_WORKERS  = Integer.parseInt(properties.getProperty("serverWorkers"));
 
             String strLobbies = properties.getProperty("lobbies");
             String[] strsLobbies = strLobbies.split(",");
-            for (String lobStr : strsLobbies) {
+            for (String lobStr: strsLobbies) {
                 int id = Integer.parseInt(lobStr);
                 lobbyIds.add(id);
             }
         } catch (Exception e) {
             logger.error("Error while reading properties file.", e);
+
             return;
         }
 
@@ -130,7 +132,7 @@ public class EchoApp {
             session = DbManager.getSession();
             session.beginTransaction();
 
-            for (Integer lobbyId : lobbyIds) {
+            for (Integer lobbyId: lobbyIds) {
                 Lobby lobby = session.get(Lobby.class, lobbyId);
                 lobbies.add(lobby);
             }
@@ -138,15 +140,16 @@ public class EchoApp {
             session.getTransaction().commit();
             DbManager.closeSession(session);
 
-            for (Lobby lobby : lobbies) {
+            for (Lobby lobby: lobbies) {
                 if (lobby.getType() < 0 || lobby.getType() > 2) {
                     continue;
                 }
+
                 ActiveLobbies.add(lobby);
             }
             LobbyService.initializeLobbies();
 
-            bossGroup = new NioEventLoopGroup(1);
+            bossGroup   = new NioEventLoopGroup(1);
             workerGroup = new NioEventLoopGroup();
 
             EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(SERVER_WORKERS, new ThreadFactory() {
@@ -160,8 +163,9 @@ public class EchoApp {
             });
 
             ArrayList<EchoServer> servers = new ArrayList<>();
-            for (Lobby lobby : lobbies) {
+            for (Lobby lobby: lobbies) {
                 BaseLobby nLobby = null;
+
                 if (lobby.getType() == 0) {
                     nLobby = new GateLobby(lobby);
                 } else if (lobby.getType() == 1) {
@@ -169,11 +173,12 @@ public class EchoApp {
                 } else if (lobby.getType() == 2) {
                     nLobby = new GameLobby(lobby);
                 }
+
                 EchoServer nServer = new EchoServer(nLobby, bossGroup, workerGroup, executorGroup);
                 servers.add(nServer);
             }
 
-            for (EchoServer server : servers) {
+            for (EchoServer server: servers) {
                 server.start();
             }
 
@@ -184,6 +189,7 @@ public class EchoApp {
             EchoService service = new EchoService(() -> {
                 LobbyService.updateLobbies();
                 GameService.cleanup();
+
                 return true;
             }, 60);
             service.start();

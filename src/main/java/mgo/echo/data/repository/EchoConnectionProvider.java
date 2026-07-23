@@ -14,7 +14,7 @@ public class EchoConnectionProvider implements ConnectionProvider {
     }
 
     @Override
-    public <T> T unwrap(Class<T> unwrapType) {
+    public<T> T unwrap(Class<T> unwrapType) {
         return null;
     }
 

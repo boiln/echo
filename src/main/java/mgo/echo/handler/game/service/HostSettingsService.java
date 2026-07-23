@@ -25,15 +25,16 @@ public class HostSettingsService {
      */
     public static HostSettingsDto getOrCreateSettings(User user, Character character, Lobby lobby) {
         List<CharacterHostSettings> settingsList = character.getHostSettings();
+
         if (settingsList == null) {
             settingsList = new ArrayList<>();
             character.setHostSettings(settingsList);
         }
 
         CharacterHostSettings hostSettings = settingsList.stream()
-                .filter((e) -> e.getType() == lobby.getSubtype())
-                .findFirst()
-                .orElse(null);
+            .filter((e) -> e.getType() == lobby.getSubtype())
+            .findFirst()
+            .orElse(null);
 
         if (hostSettings == null) {
             hostSettings = createDefaultSettings(user, character, lobby, settingsList);
@@ -45,7 +46,8 @@ public class HostSettingsService {
     /**
      * Save host settings for a character
      */
-    public static void saveSettings(User user, Character character, Lobby lobby, HostSettingsDto settings) {
+    public static void saveSettings(User user, Character character, Lobby lobby,
+        HostSettingsDto settings) {
         String json = settings.toJson();
         user.setSessionHostSettings(json);
 
@@ -55,15 +57,16 @@ public class HostSettingsService {
         }
 
         List<CharacterHostSettings> settingsList = character.getHostSettings();
+
         if (settingsList == null) {
             settingsList = new ArrayList<>();
             character.setHostSettings(settingsList);
         }
 
         CharacterHostSettings hostSettings = settingsList.stream()
-                .filter((e) -> e.getType() == lobby.getSubtype())
-                .findFirst()
-                .orElse(null);
+            .filter((e) -> e.getType() == lobby.getSubtype())
+            .findFirst()
+            .orElse(null);
 
         if (hostSettings == null) {
             hostSettings = new CharacterHostSettings();
@@ -85,6 +88,7 @@ public class HostSettingsService {
         for (int i = 0; i < settings.games.size(); i++) {
             JsonArray game = settings.games.get(i).getAsJsonArray();
             int rule = game.get(0).getAsInt();
+
             if (rule == 13) { // Clan room rule
                 return true;
             }
@@ -104,11 +108,11 @@ public class HostSettingsService {
      * Create default host settings for a new host
      */
     private static CharacterHostSettings createDefaultSettings(User user, Character character,
-            Lobby lobby, List<CharacterHostSettings> settingsList) {
+        Lobby lobby, List<CharacterHostSettings> settingsList) {
         int exp = getCurrentExperience(user, character);
 
         String settingsStr = SETTINGS_DEFAULT.replaceFirst(Pattern.quote("{CHARACTER_NAME}"),
-                character.getName());
+            character.getName());
         settingsStr = settingsStr.replaceFirst(Pattern.quote("{CHARACTER_EXP}"), exp + "");
 
         CharacterHostSettings hostSettings = new CharacterHostSettings();
@@ -117,6 +121,7 @@ public class HostSettingsService {
         hostSettings.setSettings(settingsStr);
 
         settingsList.add(hostSettings);
+
         return hostSettings;
     }
 }

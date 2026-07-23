@@ -32,16 +32,15 @@ import mgo.echo.util.Util;
 public class AccountService {
     private static final Logger logger = LogManager.getLogger(AccountService.class);
 
-    private static final byte[] XOR_SESSION_ID = new byte[] {
-            (byte) 0x35, (byte) 0xd5, (byte) 0xc3, (byte) 0x8e,
-            (byte) 0xd0, (byte) 0x11, (byte) 0x0e, (byte) 0xa8
+    private static final byte[] XOR_SESSION_ID = new byte [] {
+        (byte)0x35, (byte)0xd5, (byte)0xc3, (byte)0x8e, (byte)0xd0, (byte)0x11, (byte)0x0e,
+        (byte)0xa8
     };
 
     private static final byte[] SPECIAL_SESSION_BYTES = {
-            (byte) 0xE7, (byte) 0xBA, (byte) 0xB4, (byte) 0x26,
-            (byte) 0xFE, (byte) 0x3F, (byte) 0x40, (byte) 0x73,
-            (byte) 0xDB, (byte) 0x94, (byte) 0x36, (byte) 0xDF,
-            (byte) 0x6D, (byte) 0xDB, (byte) 0xD3, (byte) 0x9C
+        (byte)0xE7, (byte)0xBA, (byte)0xB4, (byte)0x26, (byte)0xFE, (byte)0x3F, (byte)0x40,
+        (byte)0x73, (byte)0xDB, (byte)0x94, (byte)0x36, (byte)0xDF, (byte)0x6D, (byte)0xDB,
+        (byte)0xD3, (byte)0x9C
     };
 
     private AccountService() {
@@ -53,24 +52,27 @@ public class AccountService {
 
     public static String decodeSessionBytes(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
+        for (byte b: bytes) {
             sb.append(String.format("%02x", b));
         }
         logger.info("Session bytes: {}", sb.toString());
 
         if (Arrays.equals(bytes, SPECIAL_SESSION_BYTES)) {
             logger.info("Using special session: cafebabe");
+
             return "cafebabe";
         }
 
         byte[] mgo2SessionBytes = decryptSessionId(bytes);
+
         return new String(mgo2SessionBytes, StandardCharsets.ISO_8859_1);
     }
 
     private static byte[] decryptSessionId(byte[] full) {
-        byte[] bytes = new byte[8];
+        byte[] bytes = new byte [8];
         System.arraycopy(full, 0, bytes, 0, bytes.length);
         Util.xor(bytes, XOR_SESSION_ID);
+
         return CryptoProvider.instanceAuth().encrypt(bytes);
     }
 
@@ -78,6 +80,7 @@ public class AccountService {
         return DbManager.tx(dbSession -> {
             Query<User> query = dbSession.createQuery("from User where session=:session", User.class);
             query.setParameter("session", session);
+
             return query.uniqueResult();
         });
     }
@@ -112,11 +115,13 @@ public class AccountService {
             return true;
         } catch (Exception e) {
             logger.error("Exception while handling lobby connection.", e);
+
             return true;
         }
     }
 
-    private static void initializeCharacterForLobby(Session session, Character character, Lobby lobby) {
+    private static void initializeCharacterForLobby(Session session, Character character,
+        Lobby lobby) {
         Hibernate.initialize(character);
         character.setLobby(lobby);
         character.setLobbyId(lobby.getId());
@@ -128,6 +133,7 @@ public class AccountService {
         Hibernate.initialize(character.getClanMember());
 
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
+
         if (clanMember != null) {
             Hibernate.initialize(clanMember.getClan());
         }
@@ -146,16 +152,19 @@ public class AccountService {
     private static void closePreviousSessions(ChannelHandlerContext ctx, User user) {
         try {
             List<User> duplicates = ActiveUsers
-                    .get(u -> u != null && u.getId() != null && u.getId().equals(user.getId()));
+                .get(u -> u != null && u.getId() != null && u.getId().equals(user.getId()));
 
-            for (User online : duplicates) {
+            for (User online: duplicates) {
                 Channel oldChannel = online.getChannel();
+
                 if (oldChannel == null) {
                     continue;
                 }
+
                 if (oldChannel == ctx.channel()) {
                     continue;
                 }
+
                 if (!oldChannel.isOpen()) {
                     continue;
                 }
@@ -175,6 +184,7 @@ public class AccountService {
     public static void onLobbyDisconnected(ChannelHandlerContext ctx, Lobby lobby) {
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 return;
             }
@@ -184,6 +194,7 @@ public class AccountService {
 
             if (user.getCurrentCharacterId() == null || character == null) {
                 ActiveUsers.remove(ctx.channel());
+
                 return;
             }
 
@@ -198,10 +209,11 @@ public class AccountService {
         }
     }
 
-    private static void handlePlayerQuitIfNeeded(ChannelHandlerContext ctx, User user, Character character) {
+    private static void handlePlayerQuitIfNeeded(ChannelHandlerContext ctx, User user,
+        Character character) {
         boolean hasPlayer = Hibernate.isInitialized(character.getPlayer())
-                && character.getPlayer() != null
-                && !character.getPlayer().isEmpty();
+            && character.getPlayer() != null
+            && !character.getPlayer().isEmpty();
 
         Player player = hasPlayer ? character.getPlayer().get(0) : null;
         logger.debug("Disconnecting from lobby {}: Player - {}", user.getId(), player);
@@ -221,11 +233,13 @@ public class AccountService {
     public static void updateUserClan(ChannelHandlerContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 return;
             }
 
             Character character = user.getCurrentCharacter();
+
             if (user.getCurrentCharacterId() == null || character == null) {
                 return;
             }
@@ -233,6 +247,7 @@ public class AccountService {
             ClanData clanData = DbManager.tx(session -> {
                 MessageClanApplication application = fetchClanApplication(session, character);
                 ClanMember member = fetchClanMember(session, character);
+
                 return new ClanData(application, member);
             });
 
@@ -254,22 +269,25 @@ public class AccountService {
 
         ClanData(MessageClanApplication application, ClanMember member) {
             this.application = application;
-            this.member = member;
+            this.member      = member;
         }
     }
 
-    private static MessageClanApplication fetchClanApplication(Session session, Character character) {
+    private static MessageClanApplication fetchClanApplication(Session session,
+        Character character) {
         Query<MessageClanApplication> query = session.createQuery(
-                "from MessageClanApplication a join fetch a.clan where a.character = :character",
-                MessageClanApplication.class);
+            "from MessageClanApplication a join fetch a.clan where a.character = :character",
+            MessageClanApplication.class);
         query.setParameter("character", character);
+
         return query.uniqueResult();
     }
 
     private static ClanMember fetchClanMember(Session session, Character character) {
         Query<ClanMember> query = session.createQuery(
-                "from ClanMember m join fetch m.clan where m.character = :character", ClanMember.class);
+            "from ClanMember m join fetch m.clan where m.character = :character", ClanMember.class);
         query.setParameter("character", character);
+
         return query.uniqueResult();
     }
 }

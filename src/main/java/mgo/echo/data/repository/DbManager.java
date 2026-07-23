@@ -48,14 +48,16 @@ import mgo.echo.plugin.PluginHandler;
 public class DbManager {
     private static final Logger logger = LogManager.getLogger(DbManager.class);
 
-    private static final Class<?>[] entityClasses = { Character.class, CharacterAppearance.class,
-            CharacterBlocked.class, CharacterChatMacro.class, CharacterEquippedSkills.class, CharacterFriend.class,
-            CharacterHostSettings.class, CharacterSetGear.class, CharacterSetSkills.class, CharacterStats.class,
-            Clan.class,
-            MessageClanApplication.class, ClanMember.class, ConnectionInfo.class, EventCreateGame.class,
-            EventEndGame.class,
-            EventConnectGame.class, EventDisconnectGame.class, Game.class, Lobby.class, News.class, Player.class,
-            User.class };
+    private static final Class<?>[] entityClasses = {
+        Character.class,             CharacterAppearance.class,     CharacterBlocked.class,
+        CharacterChatMacro.class,    CharacterEquippedSkills.class, CharacterFriend.class,
+        CharacterHostSettings.class, CharacterSetGear.class,        CharacterSetSkills.class,
+        CharacterStats.class,        Clan.class,                    MessageClanApplication.class,
+        ClanMember.class,            ConnectionInfo.class,          EventCreateGame.class,
+        EventEndGame.class,          EventConnectGame.class,        EventDisconnectGame.class,
+        Game.class,                  Lobby.class,                   News.class,
+        Player.class,                User.class
+    };
 
     private static ComboPooledDataSource cpds;
 
@@ -63,8 +65,8 @@ public class DbManager {
 
     public static HashMap<Session, String> sessionCheckouts = new HashMap<>();
 
-    public static boolean initialize(String url, String user, String password, int minPoolSize, int maxPoolSize,
-            int poolIncrement) {
+    public static boolean initialize(String url, String user, String password, int minPoolSize,
+        int maxPoolSize, int poolIncrement) {
         try {
             cpds = new ComboPooledDataSource();
             cpds.setDriverClass("com.mysql.cj.jdbc.Driver");
@@ -82,9 +84,12 @@ public class DbManager {
             cpds.setTestConnectionOnCheckout(true);
         } catch (Exception e) {
             logger.error("Failed to initialize DbManager.", e);
+
             return false;
         }
+
         logger.debug("Initialized DbManager.");
+
         return true;
     }
 
@@ -99,21 +104,22 @@ public class DbManager {
             props.put("hibernate.format_sql", "false");
             configuration.setProperties(props);
 
-            for (Class<?> clazz : entityClasses) {
+            for (Class<?> clazz: entityClasses) {
                 configuration.addAnnotatedClass(clazz);
             }
 
             PluginHandler.get().getPlugin().addAnnotatedClass(configuration);
 
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                    .applySettings(configuration.getProperties())
-                    .addService(ConnectionProvider.class, new EchoConnectionProvider()).build();
+                .applySettings(configuration.getProperties())
+                .addService(ConnectionProvider.class, new EchoConnectionProvider()).build();
 
             SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
             return sessionFactory;
         } catch (Throwable ex) {
             logger.error("Failed to build session factory.", ex);
+
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -128,10 +134,12 @@ public class DbManager {
 
     public static Connection get() {
         Connection conn = null;
+
         try {
             long time = System.currentTimeMillis();
             conn = cpds.getConnection();
             time = System.currentTimeMillis() - time;
+
             if (time >= 1000L) {
                 logger.warn("Took a long time to get a connection: {} ms", time);
             }
@@ -143,7 +151,7 @@ public class DbManager {
     }
 
     public static void close(Connection conn) {
-        close(conn, (Statement) null, null);
+        close(conn, (Statement)null, null);
     }
 
     public static void close(Connection conn, Statement stmt) {
@@ -166,6 +174,7 @@ public class DbManager {
                 // Ignored
             }
         }
+
         if (stmt != null) {
             try {
                 stmt.close();
@@ -173,6 +182,7 @@ public class DbManager {
                 // Ignored
             }
         }
+
         if (conn != null) {
             try {
                 conn.close();
@@ -185,11 +195,13 @@ public class DbManager {
     public static Session getSession() {
         String callerName = Thread.currentThread().getStackTrace()[2].getMethodName();
         Session session = getSessionFactory().getCurrentSession();
+
         if (session.getTransaction().isActive()) {
             logger.error("Transaction is active on checkout! Last checked out by: {}", sessionCheckouts.get(session));
         }
 
         sessionCheckouts.put(session, callerName);
+
         return session;
     }
 
@@ -198,6 +210,7 @@ public class DbManager {
             if (session.getTransaction().isActive()) {
                 logger.error("Transaction is active on close! Last checked out by: {}", sessionCheckouts.get(session));
             }
+
             try {
                 session.close();
             } catch (Exception e) {
@@ -240,8 +253,9 @@ public class DbManager {
      * @param work Function that receives Session and returns a result
      * @return Result from the work function, or null if an exception occurred
      */
-    public static <T> T tx(Function<Session, T> work) {
+    public static<T> T tx(Function<Session, T> work) {
         Session session = null;
+
         try {
             session = getSession();
             session.beginTransaction();
@@ -250,10 +264,12 @@ public class DbManager {
 
             session.getTransaction().commit();
             closeSession(session);
+
             return result;
         } catch (Exception e) {
             logger.error("Transaction failed.", e);
             rollbackAndClose(session);
+
             return null;
         }
     }
@@ -267,8 +283,9 @@ public class DbManager {
      * @return Result from the work function
      * @throws RuntimeException if transaction fails
      */
-    public static <T> T txOrThrow(Function<Session, T> work) {
+    public static<T> T txOrThrow(Function<Session, T> work) {
         Session session = null;
+
         try {
             session = getSession();
             session.beginTransaction();
@@ -277,10 +294,12 @@ public class DbManager {
 
             session.getTransaction().commit();
             closeSession(session);
+
             return result;
         } catch (Exception e) {
             logger.error("Transaction failed.", e);
             rollbackAndClose(session);
+
             throw new RuntimeException("Transaction failed", e);
         }
     }
@@ -304,6 +323,7 @@ public class DbManager {
      */
     public static boolean txVoid(Consumer<Session> work) {
         Session session = null;
+
         try {
             session = getSession();
             session.beginTransaction();
@@ -312,10 +332,12 @@ public class DbManager {
 
             session.getTransaction().commit();
             closeSession(session);
+
             return true;
         } catch (Exception e) {
             logger.error("Transaction failed.", e);
             rollbackAndClose(session);
+
             return false;
         }
     }
@@ -329,6 +351,7 @@ public class DbManager {
      */
     public static void txVoidOrThrow(Consumer<Session> work) {
         Session session = null;
+
         try {
             session = getSession();
             session.beginTransaction();
@@ -340,6 +363,7 @@ public class DbManager {
         } catch (Exception e) {
             logger.error("Transaction failed.", e);
             rollbackAndClose(session);
+
             throw new RuntimeException("Transaction failed", e);
         }
     }

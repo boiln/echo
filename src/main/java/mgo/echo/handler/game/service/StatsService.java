@@ -94,15 +94,18 @@ public class StatsService {
             }
 
             JsonArray games = Util.jsonDecodeArray(gamesJson);
+
             if (currentIndex < 0 || currentIndex >= games.size()) {
                 return 0;
             }
 
             JsonArray currentGame = games.get(currentIndex).getAsJsonArray();
+
             return currentGame.get(0).getAsInt(); // rule is first element
         } catch (Exception e) {
             logger.warn("Failed to get game mode from game config: {}", e.getMessage());
         }
+
         return 0; // default to DM
     }
 
@@ -114,20 +117,25 @@ public class StatsService {
         stats.gameMode = gameMode;
 
         int readable = bi.readableBytes();
+
         if (readable < 30) {
             logger.warn("Stats packet too short: {} bytes", readable);
+
             return stats;
         }
 
         // Log non-zero shorts for debugging
         if (logger.isDebugEnabled()) {
             StringBuilder nonZero = new StringBuilder("Non-zero LE shorts: ");
+
             for (int i = 0; i < Math.min(readable, 100); i += 2) {
                 int val = (bi.getByte(i) & 0xFF) | ((bi.getByte(i + 1) & 0xFF) << 8);
+
                 if (val != 0) {
                     nonZero.append(String.format("[%d]=%d ", i, val));
                 }
             }
+
             logger.debug(nonZero.toString());
         }
 
@@ -148,13 +156,15 @@ public class StatsService {
 
         if (readable > 38) {
             stats.rolls = bi.getByte(32) & 0xFF;
-            stats.time = bi.getByte(38) & 0xFF;
+            stats.time  = bi.getByte(38) & 0xFF;
         }
+
         if (readable > 48) {
             stats.consecutiveKills = bi.getByte(48) & 0xFF;
         }
 
         bi.readerIndex(bi.readerIndex() + readable);
+
         return stats;
     }
 
@@ -182,28 +192,31 @@ public class StatsService {
     /**
      * Update player experience in database (per-character EXP)
      */
-    public static void updatePlayerExperience(Session session, User targetUser, Character targetCharacter,
-            int experience, boolean aborted) {
+    public static void updatePlayerExperience(Session session, User targetUser,
+        Character targetCharacter, int experience, boolean aborted) {
         int currentExp = getCurrentExperience(targetUser, targetCharacter);
         int finalExp = calculateFinalExperience(currentExp, experience, aborted);
 
         // Update character's EXP in database
         Character aCharacter = session.get(Character.class, targetCharacter.getId());
+
         if (aCharacter != null) {
             aCharacter.setExp(finalExp);
         }
+
         targetCharacter.setExp(finalExp);
     }
 
     /**
      * Update character stats in database
      */
-    public static void updateCharacterStats(Session session, Character targetCharacter, RoundStats roundStats) {
+    public static void updateCharacterStats(Session session, Character targetCharacter,
+        RoundStats roundStats) {
         CharacterStats stats = session.createQuery(
-                "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
-                .setParameter("charaId", targetCharacter.getId())
-                .uniqueResultOptional()
-                .orElse(null);
+            "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
+            .setParameter("charaId", targetCharacter.getId())
+            .uniqueResultOptional()
+            .orElse(null);
 
         if (stats == null) {
             stats = new CharacterStats();
@@ -221,12 +234,12 @@ public class StatsService {
         updateModeStats(stats, roundStats);
 
         // Update timestamp
-        stats.setLastUpdated((int) Instant.now().getEpochSecond());
+        stats.setLastUpdated((int)Instant.now().getEpochSecond());
 
         session.saveOrUpdate(stats);
 
         logger.info("Updated stats for character {}: +{} kills, +{} deaths, +{} score (mode={})",
-                targetCharacter.getName(), roundStats.kills, roundStats.deaths, roundStats.score, roundStats.gameMode);
+            targetCharacter.getName(), roundStats.kills, roundStats.deaths, roundStats.score, roundStats.gameMode);
     }
 
     /**
@@ -338,8 +351,8 @@ public class StatsService {
             stats.setStatsByMode(roundStats.gameMode, Util.jsonEncode(modeStats));
 
             logger.debug("Updated mode {} stats: kills={}, deaths={}, score={}",
-                    roundStats.gameMode, getJsonInt(modeStats, "kills"),
-                    getJsonInt(modeStats, "deaths"), getJsonInt(modeStats, "score"));
+                roundStats.gameMode, getJsonInt(modeStats, "kills"),
+                getJsonInt(modeStats, "deaths"), getJsonInt(modeStats, "score"));
         } catch (Exception e) {
             logger.warn("Failed to update mode stats: {}", e.getMessage());
         }

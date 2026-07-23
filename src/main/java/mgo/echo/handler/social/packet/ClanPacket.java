@@ -20,7 +20,8 @@ public final class ClanPacket {
     // Emblem
     // =========================================================================
 
-    public static void writeEmblem(ChannelHandlerContext ctx, int command, Clan clan, boolean getWip) {
+    public static void writeEmblem(ChannelHandlerContext ctx, int command, Clan clan,
+        boolean getWip) {
         ByteBuf bo = ctx.alloc().directBuffer(4 + 565);
         bo.writeInt(0);
         writeEmblemData(bo, clan, getWip);
@@ -30,11 +31,13 @@ public final class ClanPacket {
     private static void writeEmblemData(ByteBuf bo, Clan clan, boolean getWip) {
         if (getWip && clan.getEmblemWip() != null) {
             bo.writeBytes(clan.getEmblemWip());
+
             return;
         }
 
         if (clan.getEmblem() != null) {
             bo.writeBytes(clan.getEmblem());
+
             return;
         }
 

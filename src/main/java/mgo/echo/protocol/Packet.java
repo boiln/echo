@@ -29,13 +29,13 @@ public class Packet {
 
     public static final int MAX_PACKET_LENGTH = MAX_PAYLOAD_LENGTH + 1 + OFFSET_PAYLOAD;
 
-    private static final byte[] CHECKSUM_BLANK = new byte[16];
+    private static final byte[] CHECKSUM_BLANK = new byte [16];
 
     private ByteBuf header;
     private ByteBuf payload;
 
     public Packet(int command) {
-        this.header = PooledByteBufAllocator.DEFAULT.directBuffer(24);
+        this.header  = PooledByteBufAllocator.DEFAULT.directBuffer(24);
         this.payload = null;
         setCommand(command);
     }
@@ -45,7 +45,7 @@ public class Packet {
     }
 
     public Packet(int command, int error, boolean dontMask) {
-        this.header = PooledByteBufAllocator.DEFAULT.directBuffer(24);
+        this.header  = PooledByteBufAllocator.DEFAULT.directBuffer(24);
         this.payload = PooledByteBufAllocator.DEFAULT.directBuffer(4);
         setCommand(command);
         if (!dontMask) {
@@ -55,13 +55,13 @@ public class Packet {
     }
 
     public Packet(int command, ByteBuf payload) {
-        this.header = PooledByteBufAllocator.DEFAULT.directBuffer(24);
+        this.header  = PooledByteBufAllocator.DEFAULT.directBuffer(24);
         this.payload = payload;
         setCommand(command);
     }
 
     public Packet(ByteBuf header, ByteBuf payload) {
-        this.header = header;
+        this.header  = header;
         this.payload = payload;
     }
 
@@ -71,11 +71,13 @@ public class Packet {
 
     public short getCommand() {
         short result = 0;
+
         try {
             result = header.getShort(OFFSET_COMMAND);
         } catch (IndexOutOfBoundsException e) {
             //
         }
+
         return result;
     }
 
@@ -89,11 +91,13 @@ public class Packet {
 
     public short getPayloadLength() {
         short result = 0;
+
         try {
             result = header.getShort(OFFSET_PAYLOAD_LENGTH);
         } catch (IndexOutOfBoundsException e) {
             //
         }
+
         return result;
     }
 
@@ -107,11 +111,13 @@ public class Packet {
 
     public int getSequence() {
         int result = 0;
+
         try {
             result = header.getInt(OFFSET_SEQUENCE);
         } catch (IndexOutOfBoundsException e) {
             //
         }
+
         return result;
     }
 
@@ -132,21 +138,25 @@ public class Packet {
     }
 
     private byte[] getChecksum() {
-        byte[] result = new byte[16];
+        byte[] result = new byte [16];
+
         try {
             header.getBytes(OFFSET_CHECKSUM, result, 0, result.length);
         } catch (IndexOutOfBoundsException e) {
             //
         }
+
         return result;
     }
 
     private byte[] calculateChecksum() {
         byte[] result = CHECKSUM_BLANK;
+
         try {
             int payloadLength = getPayloadLength();
-            byte[] bytes = new byte[8 + payloadLength];
+            byte[] bytes = new byte [8 + payloadLength];
             header.getBytes(0, bytes, 0, 8);
+
             if (payload != null) {
                 payload.getBytes(0, bytes, 8, payloadLength);
             }
@@ -159,6 +169,7 @@ public class Packet {
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             logger.error("Failed to calculte checksum.", e);
         }
+
         return result;
     }
 
@@ -170,6 +181,7 @@ public class Packet {
         }
 
         byte[] checksum = calculateChecksum();
+
         try {
             header.setBytes(OFFSET_CHECKSUM, checksum, 0, checksum.length);
         } catch (IndexOutOfBoundsException e) {
@@ -177,6 +189,7 @@ public class Packet {
         }
 
         header.setIndex(0, header.capacity());
+
         if (payload != null) {
             payload.setIndex(0, payload.capacity());
         }
@@ -188,11 +201,13 @@ public class Packet {
         }
 
         byte[] actual = getChecksum();
+
         if (Arrays.equals(actual, CHECKSUM_BLANK)) {
             return false;
         }
 
         byte[] calculated = calculateChecksum();
+
         if (Arrays.equals(calculated, CHECKSUM_BLANK)) {
             return false;
         }

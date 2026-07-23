@@ -38,23 +38,23 @@ public class CharacterService {
          * Clamp all values to valid unsigned byte range (0-255)
          */
         public void validate() {
-            upper = clamp(upper);
-            lower = clamp(lower);
-            facePaint = clamp(facePaint);
-            upperColor = clamp(upperColor);
-            lowerColor = clamp(lowerColor);
-            head = clamp(head);
-            chest = clamp(chest);
-            hands = clamp(hands);
-            waist = clamp(waist);
-            feet = clamp(feet);
-            accessory1 = clamp(accessory1);
-            accessory2 = clamp(accessory2);
-            headColor = clamp(headColor);
-            chestColor = clamp(chestColor);
-            handsColor = clamp(handsColor);
-            waistColor = clamp(waistColor);
-            feetColor = clamp(feetColor);
+            upper           = clamp(upper);
+            lower           = clamp(lower);
+            facePaint       = clamp(facePaint);
+            upperColor      = clamp(upperColor);
+            lowerColor      = clamp(lowerColor);
+            head            = clamp(head);
+            chest           = clamp(chest);
+            hands           = clamp(hands);
+            waist           = clamp(waist);
+            feet            = clamp(feet);
+            accessory1      = clamp(accessory1);
+            accessory2      = clamp(accessory2);
+            headColor       = clamp(headColor);
+            chestColor      = clamp(chestColor);
+            handsColor      = clamp(handsColor);
+            waistColor      = clamp(waistColor);
+            feetColor       = clamp(feetColor);
             accessory1Color = clamp(accessory1Color);
             accessory2Color = clamp(accessory2Color);
         }
@@ -77,6 +77,7 @@ public class CharacterService {
             CharacterEquippedSkills skills = new CharacterEquippedSkills();
             skills.setCharacter(character);
             skillsList.add(skills);
+
             return skills;
         }
 
@@ -93,6 +94,7 @@ public class CharacterService {
             ConnectionInfo info = new ConnectionInfo();
             info.setCharacter(character);
             connectionInfos.add(info);
+
             return info;
         }
 
@@ -150,7 +152,7 @@ public class CharacterService {
      * Update connection info
      */
     public static void updateConnectionInfo(Character character, String publicIp, int publicPort,
-            String privateIp, int privatePort) {
+        String privateIp, int privatePort) {
         ConnectionInfo info = getOrCreateConnectionInfo(character);
 
         info.setPublicIp(publicIp);
@@ -179,20 +181,20 @@ public class CharacterService {
         public final int totalReward;
         public final int playtimeSeconds;
 
-        public CharacterCardData(int charaId, String name, String comment, int animalRank, int points,
-                String clanName, int clanId, boolean hasClan, boolean hasEmblem, boolean isFemale,
-                int totalReward, int playtimeSeconds) {
-            this.charaId = charaId;
-            this.name = name;
-            this.comment = comment;
-            this.animalRank = animalRank;
-            this.points = points;
-            this.clanName = clanName;
-            this.clanId = clanId;
-            this.hasClan = hasClan;
-            this.hasEmblem = hasEmblem;
-            this.isFemale = isFemale;
-            this.totalReward = totalReward;
+        public CharacterCardData(int charaId, String name, String comment, int animalRank,
+            int points, String clanName, int clanId, boolean hasClan, boolean hasEmblem,
+            boolean isFemale, int totalReward, int playtimeSeconds) {
+            this.charaId         = charaId;
+            this.name            = name;
+            this.comment         = comment;
+            this.animalRank      = animalRank;
+            this.points          = points;
+            this.clanName        = clanName;
+            this.clanId          = clanId;
+            this.hasClan         = hasClan;
+            this.hasEmblem       = hasEmblem;
+            this.isFemale        = isFemale;
+            this.totalReward     = totalReward;
             this.playtimeSeconds = playtimeSeconds;
         }
     }
@@ -200,12 +202,13 @@ public class CharacterService {
     public static CharacterCardData getCharacterCard(int targetCharaId) {
         return DbManager.tx(session -> {
             Character targetChar = session.createQuery(
-                    "select c from Character c " +
-                            "join fetch c.user u " +
-                            "where c.id = :charaId",
-                    Character.class)
-                    .setParameter("charaId", targetCharaId)
-                    .uniqueResult();
+                "select c from Character c " +
+                "join fetch c.user u " +
+                "where c.id = :charaId",
+                Character.class)
+                .setParameter("charaId", targetCharaId)
+                .uniqueResult();
+
             if (targetChar == null) {
                 return null;
             }
@@ -213,10 +216,10 @@ public class CharacterService {
             int playtime = calculatePlaytime(session, targetCharaId);
 
             CharacterStats stats = session.createQuery(
-                    "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
-                    .setParameter("charaId", targetCharaId)
-                    .uniqueResultOptional()
-                    .orElse(null);
+                "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
+                .setParameter("charaId", targetCharaId)
+                .uniqueResultOptional()
+                .orElse(null);
 
             User targetUser = targetChar.getUser();
             String charName = targetChar.getName();
@@ -232,14 +235,15 @@ public class CharacterService {
 
             boolean isFemale = false;
             CharacterAppearance appearance = session.createQuery(
-                    "select ap from CharacterAppearance ap " +
-                            "where ap.character.id = :charaId " +
-                            "order by ap.id asc",
-                    CharacterAppearance.class)
-                    .setParameter("charaId", targetCharaId)
-                    .setMaxResults(1)
-                    .uniqueResultOptional()
-                    .orElse(null);
+                "select ap from CharacterAppearance ap " +
+                "where ap.character.id = :charaId " +
+                "order by ap.id asc",
+                CharacterAppearance.class)
+                .setParameter("charaId", targetCharaId)
+                .setMaxResults(1)
+                .uniqueResultOptional()
+                .orElse(null);
+
             if (appearance != null && appearance.getGender() != null) {
                 isFemale = appearance.getGender() != 0;
             }
@@ -249,35 +253,36 @@ public class CharacterService {
             boolean hasClan = false;
             boolean hasEmblem = false;
             ClanMember clanMember = session.createQuery(
-                    "select cm from ClanMember cm " +
-                            "join fetch cm.clan cl " +
-                            "where cm.character.id = :charaId " +
-                            "order by cm.id asc",
-                    ClanMember.class)
-                    .setParameter("charaId", targetCharaId)
-                    .setMaxResults(1)
-                    .uniqueResultOptional()
-                    .orElse(null);
+                "select cm from ClanMember cm " +
+                "join fetch cm.clan cl " +
+                "where cm.character.id = :charaId " +
+                "order by cm.id asc",
+                ClanMember.class)
+                .setParameter("charaId", targetCharaId)
+                .setMaxResults(1)
+                .uniqueResultOptional()
+                .orElse(null);
+
             if (clanMember != null && clanMember.getClan() != null) {
-                clanName = clanMember.getClan().getName();
-                clanId = clanMember.getClan().getId();
-                hasClan = true;
+                clanName  = clanMember.getClan().getName();
+                clanId    = clanMember.getClan().getId();
+                hasClan   = true;
                 hasEmblem = clanMember.getClan().getEmblem() != null;
             }
 
             return new CharacterCardData(
-                    targetCharaId,
-                    charName,
-                    comment,
-                    animalRank,
-                    points,
-                    clanName,
-                    clanId,
-                    hasClan,
-                    hasEmblem,
-                    isFemale,
-                    totalReward,
-                    playtime);
+                targetCharaId,
+                charName,
+                comment,
+                animalRank,
+                points,
+                clanName,
+                clanId,
+                hasClan,
+                hasEmblem,
+                isFemale,
+                totalReward,
+                playtime);
         });
     }
 
@@ -285,20 +290,22 @@ public class CharacterService {
     private static int calculatePlaytime(org.hibernate.Session session, int charaId) {
         try {
             NativeQuery<Object[]> playtimeQuery = session.createNativeQuery(
-                    "SELECT SUM(d_time - c_time) as total FROM (" +
-                            "  SELECT c.time as c_time, " +
-                            "    (SELECT MIN(d.time) FROM mgo2_event_disconnectgame d " +
-                            "     WHERE d.game = c.game AND d.chara = c.chara AND d.time >= c.time) as d_time " +
-                            "  FROM mgo2_event_connectgame c WHERE c.chara = :charaId" +
-                            ") as sessions WHERE d_time IS NOT NULL");
+                "SELECT SUM(d_time - c_time) as total FROM (" +
+                "  SELECT c.time as c_time, " +
+                "    (SELECT MIN(d.time) FROM mgo2_event_disconnectgame d " +
+                "     WHERE d.game = c.game AND d.chara = c.chara AND d.time >= c.time) as d_time " +
+                "  FROM mgo2_event_connectgame c WHERE c.chara = :charaId" +
+                ") as sessions WHERE d_time IS NOT NULL");
             playtimeQuery.setParameter("charaId", charaId);
             Object result = playtimeQuery.uniqueResult();
+
             if (result instanceof Number) {
-                return ((Number) result).intValue();
+                return ((Number)result).intValue();
             }
         } catch (Exception e) {
             // Playtime calculation failed, return 0
         }
+
         return 0;
     }
 
@@ -308,45 +315,65 @@ public class CharacterService {
 
     public static int calculateLevel(int experience) {
         if (experience < 125)
-            return 0;
+        return 0;
+
         if (experience < 250)
-            return 1;
+        return 1;
+
         if (experience < 375)
-            return 2;
+        return 2;
+
         if (experience < 500)
-            return 3;
+        return 3;
+
         if (experience < 650)
-            return 4;
+        return 4;
+
         if (experience < 800)
-            return 5;
+        return 5;
+
         if (experience < 950)
-            return 6;
+        return 6;
+
         if (experience < 1100)
-            return 7;
+        return 7;
+
         if (experience < 1250)
-            return 8;
+        return 8;
+
         if (experience < 1400)
-            return 9;
+        return 9;
+
         if (experience < 1550)
-            return 10;
+        return 10;
+
         if (experience < 1700)
-            return 11;
+        return 11;
+
         if (experience < 1850)
-            return 12;
+        return 12;
+
         if (experience < 2000)
-            return 13;
+        return 13;
+
         if (experience < 2175)
-            return 14;
+        return 14;
+
         if (experience < 2350)
-            return 15;
+        return 15;
+
         if (experience < 2525)
-            return 16;
+        return 16;
+
         if (experience < 2725)
-            return 17;
+        return 17;
+
         if (experience < 2925)
-            return 18;
+        return 18;
+
         if (experience < 3275)
-            return 19;
+        return 19;
+
         return 20;
     }
 
@@ -360,7 +387,8 @@ public class CharacterService {
      * Falls back to current stats if no weekly stats exist.
      */
     @SuppressWarnings("unchecked")
-    private static int calculateAnimalRank(Session session, int charaId, CharacterStats currentStats) {
+    private static int calculateAnimalRank(Session session, int charaId,
+        CharacterStats currentStats) {
         // First try to get previous week's stats
         CharacterStats weeklyStats = getWeeklyStats(session, charaId);
 
@@ -387,10 +415,11 @@ public class CharacterService {
         try {
             // Query weekly stats and map to CharacterStats object
             NativeQuery<Object[]> query = session.createNativeQuery(
-                    "SELECT * FROM mgo2_characters_stats_weekly WHERE chara = :charaId LIMIT 1");
+                "SELECT * FROM mgo2_characters_stats_weekly WHERE chara = :charaId LIMIT 1");
             query.setParameter("charaId", charaId);
 
             List<Object[]> results = query.list();
+
             if (results.isEmpty()) {
                 return null;
             }
@@ -498,9 +527,11 @@ public class CharacterService {
         if (index >= row.length || row[index] == null) {
             return 0;
         }
+
         if (row[index] instanceof Number) {
-            return ((Number) row[index]).intValue();
+            return ((Number)row[index]).intValue();
         }
+
         return 0;
     }
 
@@ -508,6 +539,7 @@ public class CharacterService {
         if (index >= row.length || row[index] == null) {
             return null;
         }
+
         return row[index].toString();
     }
 
@@ -523,9 +555,10 @@ public class CharacterService {
             query.setParameter("name", searchPattern);
             List<Character> results = query.list();
 
-            for (Character character : results) {
+            for (Character character: results) {
                 Hibernate.initialize(character.getLobby());
             }
+
             return results;
         });
     }
@@ -541,26 +574,27 @@ public class CharacterService {
         public final String clanName;
         public final boolean hasClan;
 
-        public PersonalStatsData(Character character, CharacterStats stats, int playtimeSeconds, String clanName,
-                boolean hasClan) {
-            this.character = character;
-            this.stats = stats;
+        public PersonalStatsData(Character character, CharacterStats stats, int playtimeSeconds,
+            String clanName, boolean hasClan) {
+            this.character       = character;
+            this.stats           = stats;
             this.playtimeSeconds = playtimeSeconds;
-            this.clanName = clanName;
-            this.hasClan = hasClan;
+            this.clanName        = clanName;
+            this.hasClan         = hasClan;
         }
     }
 
     public static PersonalStatsData getPersonalStats(int targetCharaId) {
         return DbManager.tx(session -> {
             Character targetChar = session.createQuery(
-                    "select distinct c from Character c " +
-                            "left join fetch c.clanMember cm " +
-                            "left join fetch cm.clan " +
-                            "where c.id = :charaId",
-                    Character.class)
-                    .setParameter("charaId", targetCharaId)
-                    .uniqueResult();
+                "select distinct c from Character c " +
+                "left join fetch c.clanMember cm " +
+                "left join fetch cm.clan " +
+                "where c.id = :charaId",
+                Character.class)
+                .setParameter("charaId", targetCharaId)
+                .uniqueResult();
+
             if (targetChar == null) {
                 return null;
             }
@@ -570,25 +604,26 @@ public class CharacterService {
             String clanName = "";
             boolean hasClan = false;
             ClanMember clanMember = session.createQuery(
-                    "select cm from ClanMember cm " +
-                            "join fetch cm.clan cl " +
-                            "where cm.character.id = :charaId " +
-                            "order by cm.id asc",
-                    ClanMember.class)
-                    .setParameter("charaId", targetCharaId)
-                    .setMaxResults(1)
-                    .uniqueResultOptional()
-                    .orElse(null);
+                "select cm from ClanMember cm " +
+                "join fetch cm.clan cl " +
+                "where cm.character.id = :charaId " +
+                "order by cm.id asc",
+                ClanMember.class)
+                .setParameter("charaId", targetCharaId)
+                .setMaxResults(1)
+                .uniqueResultOptional()
+                .orElse(null);
+
             if (clanMember != null && clanMember.getClan() != null) {
                 clanName = clanMember.getClan().getName();
-                hasClan = true;
+                hasClan  = true;
             }
 
             CharacterStats stats = session.createQuery(
-                    "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
-                    .setParameter("charaId", targetCharaId)
-                    .uniqueResultOptional()
-                    .orElse(null);
+                "FROM CharacterStats WHERE charaId = :charaId", CharacterStats.class)
+                .setParameter("charaId", targetCharaId)
+                .uniqueResultOptional()
+                .orElse(null);
 
             return new PersonalStatsData(targetChar, stats, playtime, clanName, hasClan);
         });

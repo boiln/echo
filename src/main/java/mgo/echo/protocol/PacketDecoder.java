@@ -16,7 +16,9 @@ import mgo.echo.util.Util;
 
 @Sharable
 public class PacketDecoder extends ChannelInboundHandlerAdapter {
-    private final int[] CRYPTED_IDS = { 0x3003, 0x4310, 0x4320, 0x43c0, 0x4700, 0x4990 };
+    private final int[] CRYPTED_IDS = {
+        0x3003, 0x4310, 0x4320, 0x43c0, 0x4700, 0x4990
+    };
 
     private static final Logger logger = LogManager.getLogger(PacketDecoder.class);
 
@@ -41,6 +43,7 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf packetBuffer = null;
+
         try {
             Attribute<ByteBuf> bytebufAttr = ctx.channel().attr(BUFFER_IN);
             ByteBuf buffer = bytebufAttr.get();
@@ -49,14 +52,16 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            buffer.writeBytes((ByteBuf) msg);
+            buffer.writeBytes((ByteBuf)msg);
 
             while (true) {
                 int readable = buffer.readableBytes();
+
                 if (readable == 0) {
                     return;
                 } else if (readable < Packet.OFFSET_PAYLOAD) {
                     logger.debug("Packet is too short, waiting for header ..");
+
                     return;
                 }
 
@@ -64,19 +69,24 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
                 final int command = (buffer.getShort(readerIndex) ^ (Util.KEY_XOR >> 16)) & 0xffff;
                 int lenPayload = (buffer.getShort(readerIndex + 2) ^ Util.KEY_XOR) & 0xffff;
                 int pad = 0;
+
                 if (Packets.usesCrypto(CRYPTED_IDS, command) && lenPayload % 8 != 0) {
                     pad = 8 - (lenPayload % 8);
                 }
 
                 final int lengthPayload = lenPayload + pad;
+
                 if (lengthPayload < 0 || Packet.MAX_PAYLOAD_LENGTH < lengthPayload) {
                     logger.debug("Payload isn't a valid length: {}", lengthPayload);
+
                     return;
                 }
 
                 int bytesToRead = Packet.OFFSET_PAYLOAD + lengthPayload;
+
                 if (readable < bytesToRead) {
                     logger.debug("Packet is too short, waiting for payload ..");
+
                     return;
                 }
 
@@ -89,8 +99,10 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
                 ByteBuf payload = packetBuffer.copy(Packet.OFFSET_PAYLOAD, lengthPayload);
 
                 Packet packet = new Packet(header, payload);
+
                 if (!packet.validate()) {
                     logger.warn("Packet is invalid: {}", command);
+
                     return;
                 }
 
@@ -100,6 +112,7 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
 
                 if (packet.getSequence() != sequence) {
                     logger.warn("Packet is out of sequence: {} vs {}", packet.getSequence(), sequence);
+
                     return;
                 }
 
@@ -107,6 +120,7 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
 
                 if (Packets.usesCrypto(CRYPTED_IDS, packet)) {
                     CryptoProvider.instancePacket().decrypt(packet.getPayload());
+
                     if (pad != 0) {
                         int writerIndex = packet.getPayload().writerIndex();
                         packet.getPayload().writerIndex(writerIndex - pad);
@@ -115,8 +129,8 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
 
                 if (lengthPayload > 0) {
                     logger.debug("{} - In - Command {} - {} bytes", Util.getUserInfo(ctx),
-                            String.format("%04x", command),
-                            lengthPayload);
+                        String.format("%04x", command),
+                        lengthPayload);
                     logger.debug(() -> ByteBufUtil.hexDump(packet.getPayload()));
                 } else {
                     logger.debug("{} - In - Command {}", Util.getUserInfo(ctx), String.format("%04x", command));
@@ -133,7 +147,7 @@ public class PacketDecoder extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             logger.error("Failed to decode packet.", e);
         } finally {
-            Util.safeRelease((ByteBuf) msg);
+            Util.safeRelease((ByteBuf)msg);
             Util.safeRelease(packetBuffer);
         }
     }

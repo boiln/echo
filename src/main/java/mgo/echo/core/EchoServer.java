@@ -16,7 +16,7 @@ public class EchoServer {
     private ChannelFuture future;
 
     public EchoServer(BaseLobby nLobby, EventLoopGroup bossGroup, EventLoopGroup workerGroup,
-            EventExecutorGroup executorGroup) {
+        EventExecutorGroup executorGroup) {
         sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup);
         sb.channel(NioServerSocketChannel.class);
@@ -38,11 +38,13 @@ public class EchoServer {
 
     public boolean start() {
         future = sb.bind();
+
         return true;
     }
 
     public void stop() {
         future.cancel(true);
+
         try {
             future.sync();
         } catch (InterruptedException e) {

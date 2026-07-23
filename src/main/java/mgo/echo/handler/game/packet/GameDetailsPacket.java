@@ -59,15 +59,15 @@ public final class GameDetailsPacket {
         Util.writeString(game.getName(), 0x10, bo);
         Util.writeString(game.getComment(), 0x80, bo);
         bo.writeZero(2)
-                .writeByte(lobby.getSubtype())
-                .writeInt(averageExperience)
-                .writeInt(game.getHost().getHostScore())
-                .writeInt(game.getHost().getHostVotes())
-                .writeByte(0x1);
+            .writeByte(lobby.getSubtype())
+            .writeInt(averageExperience)
+            .writeInt(game.getHost().getHostScore())
+            .writeInt(game.getHost().getHostVotes())
+            .writeByte(0x1);
 
         // Game rounds (map/rule/flags)
-        for (JsonElement o : jGames) {
-            JsonArray game0 = (JsonArray) o;
+        for (JsonElement o: jGames) {
+            JsonArray game0 = (JsonArray)o;
             int rule0 = game0.get(0).getAsInt();
             int map0 = game0.get(1).getAsInt();
             int flags0 = game0.get(2).getAsInt();
@@ -76,31 +76,31 @@ public final class GameDetailsPacket {
 
         Util.padTo(0xd5, bo);
         bo.writeZero(5)
-                .writeBytes(wr)
-                .writeByte(game.getMaxPlayers())
-                .writeByte(numPlayers)
-                .writeInt(settings.briefingTime)
-                .writeZero(0x16)
-                .writeByte(game.getStance())
-                .writeByte(settings.levelLimitTolerance)
-                .writeInt(0x16)
-                .writeInt(ruleSettings.sneTime)
-                .writeInt(ruleSettings.sneRounds)
-                .writeInt(ruleSettings.capTime)
-                .writeInt(ruleSettings.capRounds)
-                .writeInt(ruleSettings.resTime)
-                .writeInt(ruleSettings.resRounds)
-                .writeInt(ruleSettings.tdmTime)
-                .writeInt(ruleSettings.tdmRounds)
-                .writeInt(ruleSettings.tdmTickets)
-                .writeInt(ruleSettings.dmTime)
-                .writeInt(ruleSettings.dmTickets)
-                .writeInt(ruleSettings.baseTime)
-                .writeInt(ruleSettings.baseRounds)
-                .writeInt(ruleSettings.bombTime)
-                .writeInt(ruleSettings.bombRounds)
-                .writeInt(ruleSettings.tsneTime)
-                .writeInt(ruleSettings.tsneRounds);
+            .writeBytes(wr)
+            .writeByte(game.getMaxPlayers())
+            .writeByte(numPlayers)
+            .writeInt(settings.briefingTime)
+            .writeZero(0x16)
+            .writeByte(game.getStance())
+            .writeByte(settings.levelLimitTolerance)
+            .writeInt(0x16)
+            .writeInt(ruleSettings.sneTime)
+            .writeInt(ruleSettings.sneRounds)
+            .writeInt(ruleSettings.capTime)
+            .writeInt(ruleSettings.capRounds)
+            .writeInt(ruleSettings.resTime)
+            .writeInt(ruleSettings.resRounds)
+            .writeInt(ruleSettings.tdmTime)
+            .writeInt(ruleSettings.tdmRounds)
+            .writeInt(ruleSettings.tdmTickets)
+            .writeInt(ruleSettings.dmTime)
+            .writeInt(ruleSettings.dmTickets)
+            .writeInt(ruleSettings.baseTime)
+            .writeInt(ruleSettings.baseRounds)
+            .writeInt(ruleSettings.bombTime)
+            .writeInt(ruleSettings.bombRounds)
+            .writeInt(ruleSettings.tsneTime)
+            .writeInt(ruleSettings.tsneRounds);
 
         // Uniques
         if (settings.uniquesRandom) {
@@ -110,35 +110,36 @@ public final class GameDetailsPacket {
         }
 
         bo.writeZero(7)
-                .writeByte(commonA)
-                .writeByte(commonB)
-                .writeZero(1)
-                .writeShort(settings.idleKick)
-                .writeShort(settings.teamKillKick)
-                .writeInt(0x2e)
-                .writeBoolean(ruleSettings.capExtraTime)
-                .writeByte(ruleSettings.sneSnake)
-                .writeByte(ruleSettings.sdmTime)
-                .writeByte(ruleSettings.sdmRounds)
-                .writeByte(ruleSettings.intTime)
-                .writeByte(ruleSettings.dmRounds)
-                .writeByte(ruleSettings.scapTime)
-                .writeByte(ruleSettings.scapRounds)
-                .writeByte(ruleSettings.raceTime)
-                .writeByte(ruleSettings.raceRounds)
-                .writeZero(1)
-                .writeByte(hostOptionsExtraTimeFlags)
-                .writeZero(4);
+            .writeByte(commonA)
+            .writeByte(commonB)
+            .writeZero(1)
+            .writeShort(settings.idleKick)
+            .writeShort(settings.teamKillKick)
+            .writeInt(0x2e)
+            .writeBoolean(ruleSettings.capExtraTime)
+            .writeByte(ruleSettings.sneSnake)
+            .writeByte(ruleSettings.sdmTime)
+            .writeByte(ruleSettings.sdmRounds)
+            .writeByte(ruleSettings.intTime)
+            .writeByte(ruleSettings.dmRounds)
+            .writeByte(ruleSettings.scapTime)
+            .writeByte(ruleSettings.scapRounds)
+            .writeByte(ruleSettings.raceTime)
+            .writeByte(ruleSettings.raceRounds)
+            .writeZero(1)
+            .writeByte(hostOptionsExtraTimeFlags)
+            .writeZero(4);
 
         // Host player info
         Player playerHost = players.stream().filter(e -> e.getCharacterId().equals(game.getHostId())).findAny()
-                .orElse(null);
+            .orElse(null);
+
         if (playerHost != null) {
             writePlayerInfo(bo, playerHost);
         }
 
         // Other players
-        for (Player player : players) {
+        for (Player player: players) {
             if (player == null || player == playerHost) {
                 continue;
             }
@@ -168,11 +169,11 @@ public final class GameDetailsPacket {
         }
 
         int totalExperience = 0;
-        for (Player player : players) {
+        for (Player player: players) {
             Character pCharacter = player.getCharacter();
             User pUser = pCharacter.getUser();
             boolean isMain = pUser.getMainCharacterId() != null
-                    && pCharacter.getId().equals(pUser.getMainCharacterId());
+                && pCharacter.getId().equals(pUser.getMainCharacterId());
             totalExperience += isMain ? pUser.getMainExp() : pUser.getAltExp();
         }
 

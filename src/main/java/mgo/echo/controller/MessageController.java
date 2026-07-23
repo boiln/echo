@@ -33,8 +33,10 @@ public class MessageController implements Controller {
     public boolean send(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 MessagePacket.writeSendError(ctx.nettyCtx());
+
                 return true;
             }
 
@@ -53,7 +55,7 @@ public class MessageController implements Controller {
                 errors = MessageService.sendClanApplication(user, character, name, comment);
             } else {
                 errors = Collections
-                        .singletonList(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
+                    .singletonList(new MessageRecipientError("Not implemented!", Error.NOT_IMPLEMENTED));
             }
 
             MessagePacket.writeSendResponse(ctx.nettyCtx(), errors);
@@ -72,8 +74,10 @@ public class MessageController implements Controller {
     public boolean getMessages(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 Packets.write(ctx.nettyCtx(), 0x4821, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -82,6 +86,7 @@ public class MessageController implements Controller {
 
             if (type == 0xf) {
                 MessagePacket.writeMailMessages(ctx.nettyCtx());
+
                 return true;
             }
 
@@ -91,12 +96,15 @@ public class MessageController implements Controller {
 
                 if (character == null) {
                     Packets.write(ctx.nettyCtx(), 0x4821, Error.INVALID_SESSION);
+
                     return true;
                 }
 
                 List<MessageClanApplication> messages = MessageService.getClanApplicationMessages(character);
+
                 if (messages == null) {
                     Packets.write(ctx.nettyCtx(), 0x4821, Error.CLAN_NOTAMEMBER);
+
                     return true;
                 }
 
@@ -116,6 +124,7 @@ public class MessageController implements Controller {
     @Command(0x4840)
     public boolean getContents(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), 0x4341);
+
         return true;
     }
 
@@ -127,8 +136,10 @@ public class MessageController implements Controller {
     public boolean addSent(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 Packets.write(ctx.nettyCtx(), 0x4861, Error.INVALID_SESSION);
+
                 return true;
             }
 

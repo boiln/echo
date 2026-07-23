@@ -51,6 +51,7 @@ public class AnimalRankService {
         ModeStats sdm = parseModeStats(stats.getStatsSdm());
 
         int totalRounds = stats.getRounds();
+
         if (totalRounds == 0) {
             totalRounds = 1; // Prevent division by zero
         }
@@ -258,37 +259,40 @@ public class AnimalRankService {
     // ===== FOXHOUND FAMILY =====
 
     private static boolean checkFoxhound(CharacterStats stats, ModeStats dm, ModeStats tdm,
-            ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race,
-            ModeStats res, ModeStats sne, ModeStats tsne) {
+        ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race, ModeStats res, ModeStats sne,
+        ModeStats tsne) {
         int totalRounds = stats.getRounds();
+
         if (totalRounds < 100) {
             return false;
         }
 
         // K+S+D+SR ratio in DM, TDM, SNE >= 1.45
         double kdsrr = calculateKDSRR(stats, dm, tdm, sne);
+
         if (kdsrr < 1.45) {
             return false;
         }
 
         // Win % in CAP, BASE, BOMB, RES, TSNE >= 52.5%
         double winRate = calculateWinRate(cap, base, bomb, res, tsne);
+
         if (winRate < 0.525) {
             return false;
         }
 
         // Win % in RACE >= 50%
-        if (race.rounds > 0 && (double) race.wins / race.rounds < 0.50) {
+        if (race.rounds > 0 && (double)race.wins / race.rounds < 0.50) {
             return false;
         }
 
         // Bases captured / BASE rounds >= 1.60
-        if (base.rounds > 0 && (double) stats.getBasesCaptured() / base.rounds < 1.60) {
+        if (base.rounds > 0 && (double)stats.getBasesCaptured() / base.rounds < 1.60) {
             return false;
         }
 
         // Withdrawal % <= 2%
-        if (totalRounds > 0 && (double) stats.getWithdrawals() / totalRounds > 0.02) {
+        if (totalRounds > 0 && (double)stats.getWithdrawals() / totalRounds > 0.02) {
             return false;
         }
 
@@ -296,32 +300,35 @@ public class AnimalRankService {
     }
 
     private static boolean checkFox(CharacterStats stats, ModeStats dm, ModeStats tdm,
-            ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race,
-            ModeStats res, ModeStats sne, ModeStats tsne) {
+        ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race, ModeStats res, ModeStats sne,
+        ModeStats tsne) {
         int totalRounds = stats.getRounds();
+
         if (totalRounds < 50) {
             return false;
         }
 
         double kdsrr = calculateKDSRR(stats, dm, tdm, sne);
+
         if (kdsrr < 1.40) {
             return false;
         }
 
         double winRate = calculateWinRate(cap, base, bomb, res, tsne);
+
         if (winRate < 0.475) {
             return false;
         }
 
-        if (race.rounds > 0 && (double) race.wins / race.rounds < 0.45) {
+        if (race.rounds > 0 && (double)race.wins / race.rounds < 0.45) {
             return false;
         }
 
-        if (base.rounds > 0 && (double) stats.getBasesCaptured() / base.rounds < 1.40) {
+        if (base.rounds > 0 && (double)stats.getBasesCaptured() / base.rounds < 1.40) {
             return false;
         }
 
-        if (totalRounds > 0 && (double) stats.getWithdrawals() / totalRounds > 0.02) {
+        if (totalRounds > 0 && (double)stats.getWithdrawals() / totalRounds > 0.02) {
             return false;
         }
 
@@ -329,32 +336,35 @@ public class AnimalRankService {
     }
 
     private static boolean checkDoberman(CharacterStats stats, ModeStats dm, ModeStats tdm,
-            ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race,
-            ModeStats res, ModeStats sne, ModeStats tsne) {
+        ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race, ModeStats res, ModeStats sne,
+        ModeStats tsne) {
         int totalRounds = stats.getRounds();
+
         if (totalRounds < 25) {
             return false;
         }
 
         double kdsrr = calculateKDSRR(stats, dm, tdm, sne);
+
         if (kdsrr < 1.35) {
             return false;
         }
 
         double winRate = calculateWinRate(cap, base, bomb, res, tsne);
+
         if (winRate < 0.45) {
             return false;
         }
 
-        if (race.rounds > 0 && (double) race.wins / race.rounds < 0.425) {
+        if (race.rounds > 0 && (double)race.wins / race.rounds < 0.425) {
             return false;
         }
 
-        if (base.rounds > 0 && (double) stats.getBasesCaptured() / base.rounds < 1.20) {
+        if (base.rounds > 0 && (double)stats.getBasesCaptured() / base.rounds < 1.20) {
             return false;
         }
 
-        if (totalRounds > 0 && (double) stats.getWithdrawals() / totalRounds > 0.04) {
+        if (totalRounds > 0 && (double)stats.getWithdrawals() / totalRounds > 0.04) {
             return false;
         }
 
@@ -362,32 +372,35 @@ public class AnimalRankService {
     }
 
     private static boolean checkHound(CharacterStats stats, ModeStats dm, ModeStats tdm,
-            ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race,
-            ModeStats res, ModeStats sne, ModeStats tsne) {
+        ModeStats cap, ModeStats base, ModeStats bomb, ModeStats race, ModeStats res, ModeStats sne,
+        ModeStats tsne) {
         int totalRounds = stats.getRounds();
+
         if (totalRounds < 5) {
             return false;
         }
 
         double kdsrr = calculateKDSRR(stats, dm, tdm, sne);
+
         if (kdsrr < 1.30) {
             return false;
         }
 
         double winRate = calculateWinRate(cap, base, bomb, res, tsne);
+
         if (winRate < 0.425) {
             return false;
         }
 
-        if (race.rounds > 0 && (double) race.wins / race.rounds < 0.40) {
+        if (race.rounds > 0 && (double)race.wins / race.rounds < 0.40) {
             return false;
         }
 
-        if (base.rounds > 0 && (double) stats.getBasesCaptured() / base.rounds < 1.00) {
+        if (base.rounds > 0 && (double)stats.getBasesCaptured() / base.rounds < 1.00) {
             return false;
         }
 
-        if (totalRounds > 0 && (double) stats.getWithdrawals() / totalRounds > 0.04) {
+        if (totalRounds > 0 && (double)stats.getWithdrawals() / totalRounds > 0.04) {
             return false;
         }
 
@@ -398,42 +411,49 @@ public class AnimalRankService {
 
     private static boolean checkCrocodile(CharacterStats stats, int totalRounds) {
         // (kills + stuns + deaths + stunsReceived) / rounds >= 1.50
-        double ratio = (double) (stats.getKills() + stats.getStuns() + stats.getDeaths()
-                + stats.getStunsReceived()) / totalRounds;
+        double ratio = (double)(stats.getKills() + stats.getStuns() + stats.getDeaths()
+            + stats.getStunsReceived())/ totalRounds;
+
         return ratio >= 1.50;
     }
 
     private static boolean checkEagle(CharacterStats stats, int totalRounds) {
         // KDSRR >= 1.30 AND headshots/body kills >= 0.50
-        double kdsrr = (double) (stats.getKills() + stats.getStuns() + stats.getDeaths()
-                + stats.getStunsReceived()) / totalRounds;
+        double kdsrr = (double)(stats.getKills() + stats.getStuns() + stats.getDeaths()
+            + stats.getStunsReceived())/ totalRounds;
+
         if (kdsrr < 1.30) {
             return false;
         }
 
         int kills = stats.getKills();
+
         if (kills == 0) {
             return false;
         }
 
-        double headshotRatio = (double) stats.getHeadshotKills() / kills;
+        double headshotRatio = (double)stats.getHeadshotKills() / kills;
+
         return headshotRatio >= 0.50;
     }
 
     private static boolean checkJaws(CharacterStats stats, int totalRounds) {
         // KDSRR >= 1.25 AND knife kills ratio >= 0.075
-        double kdsrr = (double) (stats.getKills() + stats.getStuns() + stats.getDeaths()
-                + stats.getStunsReceived()) / totalRounds;
+        double kdsrr = (double)(stats.getKills() + stats.getStuns() + stats.getDeaths()
+            + stats.getStunsReceived())/ totalRounds;
+
         if (kdsrr < 1.25) {
             return false;
         }
 
         int kills = stats.getKills();
+
         if (kills == 0) {
             return false;
         }
 
-        double knifeRatio = (double) stats.getKnifeKills() / kills;
+        double knifeRatio = (double)stats.getKnifeKills() / kills;
+
         return knifeRatio >= 0.075;
     }
 
@@ -447,64 +467,71 @@ public class AnimalRankService {
             return false;
         }
 
-        double stunKillRatio = (double) stuns / kills;
-        double stunRatio = (double) stuns / stunsRec;
+        double stunKillRatio = (double)stuns / kills;
+        double stunRatio = (double)stuns / stunsRec;
 
         return stunKillRatio >= 1.20 && stunRatio >= 1.20;
     }
 
     private static boolean checkScorpion(CharacterStats stats, int totalRounds) {
         // Knife stuns / total rounds >= 1
-        return (double) stats.getKnifeStuns() / totalRounds >= 1.0;
+        return (double)stats.getKnifeStuns() / totalRounds >= 1.0;
     }
 
     private static boolean checkOcelot(CharacterStats stats) {
         // Lock-on kills / total kills >= 0.40
         int kills = stats.getKills();
+
         if (kills == 0) {
             return false;
         }
-        return (double) stats.getLockKills() / kills >= 0.40;
+
+        return (double)stats.getLockKills() / kills >= 0.40;
     }
 
     // ===== EQUIPMENT/PLAYSTYLE RANKS =====
 
     private static boolean checkBear(CharacterStats stats, int totalRounds) {
         // CQC given per round >= 5
-        return (double) stats.getCqcGiven() / totalRounds >= 5.0;
+        return (double)stats.getCqcGiven() / totalRounds >= 5.0;
     }
 
     private static boolean checkTortoise(CharacterStats stats, int totalRounds) {
         // Box uses per round >= 15
-        return (double) stats.getBoxUses() / totalRounds >= 15.0;
+        return (double)stats.getBoxUses() / totalRounds >= 15.0;
     }
 
     private static boolean checkBee(CharacterStats stats, int totalRounds) {
         // Scans per round >= 0.30
-        return (double) stats.getScans() / totalRounds >= 0.30;
+        return (double)stats.getScans() / totalRounds >= 0.30;
     }
 
     private static boolean checkRat(CharacterStats stats, int totalRounds) {
         // Trapped per round >= 0.30
-        return (double) stats.getTrapped() / totalRounds >= 0.30;
+        return (double)stats.getTrapped() / totalRounds >= 0.30;
     }
 
     private static boolean checkOwl(CharacterStats stats) {
         // EVG time / total time >= 0.05
         int totalTime = stats.getTime();
+
         if (totalTime == 0) {
             return false;
         }
-        return (double) stats.getEvgTime() / totalTime >= 0.05;
+
+        return (double)stats.getEvgTime() / totalTime >= 0.05;
     }
 
     private static boolean checkNightOwl(CharacterStats stats, ModeStats tsne, ModeStats sne) {
         // (spotted in TSNE + snake spotted in SNE) / (TSNE rounds + SNE rounds) <= 0.50
         int totalRounds = tsne.rounds + sne.rounds;
+
         if (totalRounds < 15) {
             return false;
         }
-        double ratio = (double) (stats.getSpotted() + stats.getSnakeSpotted()) / totalRounds;
+
+        double ratio = (double)(stats.getSpotted() + stats.getSnakeSpotted())/ totalRounds;
+
         return ratio <= 0.50;
     }
 
@@ -513,12 +540,13 @@ public class AnimalRankService {
         if (tsne.rounds == 0) {
             return false;
         }
-        return (double) stats.getSpotted() / tsne.rounds >= 0.30;
+
+        return (double)stats.getSpotted() / tsne.rounds >= 0.30;
     }
 
     private static boolean checkFlyingSquirrel(CharacterStats stats, int totalRounds) {
         // Rolls per round >= 15
-        return (double) stats.getRolls() / totalRounds >= 15.0;
+        return (double)stats.getRolls() / totalRounds >= 15.0;
     }
 
     // ===== GAME MODE SPECIALIST RANKS =====
@@ -528,10 +556,12 @@ public class AnimalRankService {
         if (mode.rounds < minRounds) {
             return false;
         }
+
         if (totalRounds == 0) {
             return false;
         }
-        return (double) mode.rounds / totalRounds >= 0.60;
+
+        return (double)mode.rounds / totalRounds >= 0.60;
     }
 
     private static boolean checkFightingFish(ModeStats dm, int totalRounds) {
@@ -582,11 +612,13 @@ public class AnimalRankService {
         if (sne.rounds < 15) {
             return false;
         }
+
         int snakeRounds = sne.rounds; // Approximate, ideally would track snake-specific rounds
         if (snakeRounds < 5) {
             return false;
         }
-        return (double) stats.getSnakeHoldups() / snakeRounds >= 2.0;
+
+        return (double)stats.getSnakeHoldups() / snakeRounds >= 2.0;
     }
 
     private static boolean checkOctopus(CharacterStats stats, ModeStats sne, ModeStats tsne) {
@@ -594,10 +626,13 @@ public class AnimalRankService {
         // <=
         // 0.15
         int totalRounds = tsne.rounds + sne.rounds;
+
         if (totalRounds < 15) {
             return false;
         }
-        double ratio = (double) (stats.getSpotted() + stats.getSnakeSpotted()) / totalRounds;
+
+        double ratio = (double)(stats.getSpotted() + stats.getSnakeSpotted())/ totalRounds;
+
         return ratio <= 0.15;
     }
 
@@ -606,7 +641,8 @@ public class AnimalRankService {
         if (base.rounds < 15) {
             return false;
         }
-        return (double) stats.getBasesCaptured() / base.rounds >= 2.5;
+
+        return (double)stats.getBasesCaptured() / base.rounds >= 2.5;
     }
 
     private static boolean checkMantis(CharacterStats stats, ModeStats tsne) {
@@ -614,7 +650,8 @@ public class AnimalRankService {
         if (tsne.rounds == 0) {
             return false;
         }
-        return (double) stats.getWakeups() / tsne.rounds >= 0.30;
+
+        return (double)stats.getWakeups() / tsne.rounds >= 0.30;
     }
 
     // ===== SURVIVAL/DEFENSE =====
@@ -623,11 +660,14 @@ public class AnimalRankService {
         // Survival ratio in RES + TSNE <= 0.50
         // (deaths in these modes / rounds in these modes)
         int totalRounds = res.rounds + tsne.rounds;
+
         if (totalRounds == 0) {
             return false;
         }
+
         int totalDeaths = res.deaths + tsne.deaths;
-        return (double) totalDeaths / totalRounds <= 0.50;
+
+        return (double)totalDeaths / totalRounds <= 0.50;
     }
 
     // ===== NEGATIVE/PASSIVE RANKS =====
@@ -644,9 +684,9 @@ public class AnimalRankService {
             return false;
         }
 
-        double kd = (double) kills / deaths;
-        double hsDeathRatio = (double) hsDeaths / deaths;
-        double stunRatio = (double) stuns / stunsRec;
+        double kd = (double)kills / deaths;
+        double hsDeathRatio = (double)hsDeaths / deaths;
+        double stunRatio = (double)stuns / stunsRec;
 
         return kd <= 0.85 && hsDeathRatio >= 0.60 && stunRatio <= 0.85;
     }
@@ -656,13 +696,13 @@ public class AnimalRankService {
         // Stuns per round <= 0.30
         // Stuns received per round <= 0.50
         // Deaths per round <= 0.50
-        double killsPerRound = (double) stats.getKills() / totalRounds;
-        double stunsPerRound = (double) stats.getStuns() / totalRounds;
-        double stunsRecPerRound = (double) stats.getStunsReceived() / totalRounds;
-        double deathsPerRound = (double) stats.getDeaths() / totalRounds;
+        double killsPerRound = (double)stats.getKills() / totalRounds;
+        double stunsPerRound = (double)stats.getStuns() / totalRounds;
+        double stunsRecPerRound = (double)stats.getStunsReceived() / totalRounds;
+        double deathsPerRound = (double)stats.getDeaths() / totalRounds;
 
         return killsPerRound <= 0.30 && stunsPerRound <= 0.30
-                && stunsRecPerRound <= 0.50 && deathsPerRound <= 0.50;
+            && stunsRecPerRound <= 0.50 && deathsPerRound <= 0.50;
     }
 
     // ===== HELPER METHODS =====
@@ -671,8 +711,10 @@ public class AnimalRankService {
      * Calculate KDSRR (Kills + Stuns - Deaths - Stuns Received) ratio
      * for specific modes (DM, TDM, SNE)
      */
-    private static double calculateKDSRR(CharacterStats stats, ModeStats dm, ModeStats tdm, ModeStats sne) {
+    private static double calculateKDSRR(CharacterStats stats, ModeStats dm, ModeStats tdm,
+        ModeStats sne) {
         int totalRounds = dm.rounds + tdm.rounds + sne.rounds;
+
         if (totalRounds == 0) {
             return 0;
         }
@@ -682,18 +724,18 @@ public class AnimalRankService {
         int deaths = dm.deaths + tdm.deaths + sne.deaths;
         int stunsRec = dm.stunsRec + tdm.stunsRec + sne.stunsRec;
 
-        return (double) (kills + stuns + deaths + stunsRec) / totalRounds;
+        return (double)(kills + stuns + deaths + stunsRec)/ totalRounds;
     }
 
     /**
      * Calculate average win rate across multiple modes
      */
-    private static double calculateWinRate(ModeStats... modes) {
+    private static double calculateWinRate(ModeStats ... modes) {
         int totalWins = 0;
         int totalRounds = 0;
 
-        for (ModeStats mode : modes) {
-            totalWins += mode.wins;
+        for (ModeStats mode: modes) {
+            totalWins   += mode.wins;
             totalRounds += mode.rounds;
         }
 
@@ -701,7 +743,7 @@ public class AnimalRankService {
             return 0;
         }
 
-        return (double) totalWins / totalRounds;
+        return (double)totalWins / totalRounds;
     }
 
     /**
@@ -709,20 +751,21 @@ public class AnimalRankService {
      */
     private static ModeStats parseModeStats(String json) {
         ModeStats stats = new ModeStats();
+
         if (json == null || json.isEmpty()) {
             return stats;
         }
 
         try {
             JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-            stats.wins = getIntSafe(obj, "wins");
-            stats.rounds = getIntSafe(obj, "rounds");
-            stats.kills = getIntSafe(obj, "kills");
-            stats.deaths = getIntSafe(obj, "deaths");
-            stats.stuns = getIntSafe(obj, "stuns");
+            stats.wins     = getIntSafe(obj, "wins");
+            stats.rounds   = getIntSafe(obj, "rounds");
+            stats.kills    = getIntSafe(obj, "kills");
+            stats.deaths   = getIntSafe(obj, "deaths");
+            stats.stuns    = getIntSafe(obj, "stuns");
             stats.stunsRec = getIntSafe(obj, "stunsRec");
-            stats.score = getIntSafe(obj, "score");
-            stats.time = getIntSafe(obj, "time");
+            stats.score    = getIntSafe(obj, "score");
+            stats.time     = getIntSafe(obj, "time");
         } catch (Exception e) {
             // Return default empty stats on parse error
         }
@@ -734,6 +777,7 @@ public class AnimalRankService {
         if (obj.has(key) && !obj.get(key).isJsonNull()) {
             return obj.get(key).getAsInt();
         }
+
         return 0;
     }
 

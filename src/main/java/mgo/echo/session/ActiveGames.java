@@ -11,9 +11,11 @@ public class ActiveGames {
 
     public static boolean add(Game game) {
         int id = game.getId();
+
         if (get(id) == null) {
             return games.put(id, game) == null;
         }
+
         return false;
     }
 

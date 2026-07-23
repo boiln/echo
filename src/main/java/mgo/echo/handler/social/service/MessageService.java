@@ -28,6 +28,7 @@ public class MessageService {
 
     public static List<MessageClanApplication> getClanApplicationMessages(Character character) {
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
+
         if (clanMember == null) {
             return null;
         }
@@ -38,8 +39,8 @@ public class MessageService {
         session.beginTransaction();
 
         Query<MessageClanApplication> query = session.createQuery(
-                "from MessageClanApplication m join fetch m.character where m.clan = :clan",
-                MessageClanApplication.class);
+            "from MessageClanApplication m join fetch m.character where m.clan = :clan",
+            MessageClanApplication.class);
         query.setParameter("clan", clan);
         List<MessageClanApplication> messages = query.list();
 
@@ -53,29 +54,36 @@ public class MessageService {
     // Send Clan Application
     // =========================================================================
 
-    public static List<MessageRecipientError> sendClanApplication(User user, Character character, String clanName,
-            String comment) {
+    public static List<MessageRecipientError> sendClanApplication(User user, Character character,
+        String clanName, String comment) {
         List<MessageRecipientError> errors = new ArrayList<>();
 
         MessageClanApplication existingApplication = Util.getFirstOrNull(character.getClanApplication());
+
         if (existingApplication != null) {
             errors.add(new MessageRecipientError("Already applied!", Error.CLAN_HASAPPLICATION));
+
             return errors;
         }
 
         ClanMember clanMember = Util.getFirstOrNull(character.getClanMember());
+
         if (clanMember != null) {
             errors.add(new MessageRecipientError("Already in clan!", Error.CLAN_INACLAN));
+
             return errors;
         }
 
         Clan clan = findClanByName(clanName);
+
         if (clan == null) {
             errors.add(new MessageRecipientError("Bad clan name!", Error.CLAN_DOESNOTEXIST));
+
             return errors;
         }
 
         createClanApplication(character, clan, comment);
+
         return errors;
     }
 
@@ -98,7 +106,7 @@ public class MessageService {
         message.setCharacter(character);
         message.setClan(clan);
         message.setComment(comment);
-        message.setTime((int) Instant.now().getEpochSecond());
+        message.setTime((int)Instant.now().getEpochSecond());
 
         Session session = DbManager.getSession();
         session.beginTransaction();

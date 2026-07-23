@@ -34,6 +34,7 @@ public class HostController implements Controller {
     @Command(0x4304)
     public boolean getSettings(CommandContext ctx) {
         User user = Guards.requireUser(ctx.nettyCtx(), HostsCmd.GET_SETTINGS_RESPONSE);
+
         if (user == null) {
             return true;
         }
@@ -41,12 +42,14 @@ public class HostController implements Controller {
         Character character = user.getCurrentCharacter();
         HostSettingsDto settings = HostSettingsService.getOrCreateSettings(user, character, ctx.lobby());
         HostSettingsPacket.writeResponse(ctx.nettyCtx(), settings);
+
         return true;
     }
 
     @Command(0x4310)
     public boolean checkSettings(CommandContext ctx) {
         User user = Guards.requireUser(ctx.nettyCtx(), HostsCmd.CHECK_SETTINGS_RESPONSE);
+
         if (user == null) {
             return true;
         }
@@ -57,11 +60,13 @@ public class HostController implements Controller {
 
         if (settings.games.size() == 0) {
             Packets.writeError(ctx.nettyCtx(), HostsCmd.CHECK_SETTINGS_RESPONSE, 2);
+
             return true;
         }
 
         HostSettingsService.saveSettings(user, character, ctx.lobby(), settings);
         Packets.write(ctx.nettyCtx(), HostsCmd.CHECK_SETTINGS_RESPONSE, 0);
+
         return true;
     }
 
@@ -73,6 +78,7 @@ public class HostController implements Controller {
     public boolean createGame(CommandContext ctx) {
         try {
             User user = Guards.requireUser(ctx.nettyCtx(), HostsCmd.CREATE_GAME_RESPONSE);
+
             if (user == null) {
                 return true;
             }
@@ -82,6 +88,7 @@ public class HostController implements Controller {
 
             if (!result.success) {
                 Packets.writeError(ctx.nettyCtx(), HostsCmd.CREATE_GAME_RESPONSE, result.errorCode);
+
                 return true;
             }
 
@@ -101,12 +108,15 @@ public class HostController implements Controller {
     public boolean playerConnected(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 Packets.write(ctx.nettyCtx(), HostsCmd.PLAYER_CONNECTED_RESPONSE, Error.INVALID_SESSION);
+
                 return true;
             }
 
             Game game = requireHostGame(user, HostsCmd.PLAYER_CONNECTED_RESPONSE, ctx);
+
             if (game == null) {
                 return true;
             }
@@ -115,8 +125,10 @@ public class HostController implements Controller {
             int targetId = bi.readInt();
 
             int result = GameService.gameAddPlayer(game, targetId, true);
+
             if (result < 0) {
                 Packets.writeError(ctx.nettyCtx(), HostsCmd.PLAYER_CONNECTED_RESPONSE, 0xff + result);
+
                 return true;
             }
 
@@ -143,11 +155,13 @@ public class HostController implements Controller {
         // Then process disconnection
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 return true;
             }
 
             Game game = getHostGame(user);
+
             if (game == null) {
                 return true;
             }
@@ -168,11 +182,13 @@ public class HostController implements Controller {
     public boolean setPlayerTeam(CommandContext ctx) {
         try {
             User user = Guards.requireUser(ctx.nettyCtx(), HostsCmd.SET_PLAYER_TEAM_RESPONSE);
+
             if (user == null) {
                 return true;
             }
 
             Game game = requireHostGame(user, HostsCmd.SET_PLAYER_TEAM_RESPONSE, ctx);
+
             if (game == null) {
                 return true;
             }
@@ -182,8 +198,10 @@ public class HostController implements Controller {
             int team = bi.readByte();
 
             int result = HostService.setPlayerTeam(game, targetId, team);
+
             if (result != 0) {
                 Packets.writeError(ctx.nettyCtx(), HostsCmd.SET_PLAYER_TEAM_RESPONSE, result);
+
                 return true;
             }
 
@@ -203,8 +221,10 @@ public class HostController implements Controller {
     public boolean kickPlayer(CommandContext ctx) {
         try {
             ByteBuf bi = ctx.packet().getPayload();
+
             if (bi.readableBytes() < 4) {
                 Packets.write(ctx.nettyCtx(), HostsCmd.KICK_PLAYER_RESPONSE, Error.GENERAL);
+
                 return true;
             }
 
@@ -225,13 +245,16 @@ public class HostController implements Controller {
     public boolean updateStats(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 return true;
             }
 
             Game game = getHostGame(user);
+
             if (game == null) {
                 Packets.writeError(ctx.nettyCtx(), HostsCmd.UPDATE_STATS_RESPONSE, 2);
+
                 return true;
             }
 
@@ -240,6 +263,7 @@ public class HostController implements Controller {
 
             if (result != 0) {
                 Packets.writeError(ctx.nettyCtx(), HostsCmd.UPDATE_STATS_RESPONSE, result);
+
                 return true;
             }
 
@@ -259,11 +283,13 @@ public class HostController implements Controller {
     public boolean setGame(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 return true;
             }
 
             Game game = getHostGame(user);
+
             if (game == null) {
                 return true;
             }
@@ -300,11 +326,13 @@ public class HostController implements Controller {
             Packets.write(ctx.nettyCtx(), HostsCmd.UPDATE_PINGS_RESPONSE, 0);
 
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 return true;
             }
 
             Game game = getHostGame(user);
+
             if (game == null) {
                 return true;
             }
@@ -331,12 +359,14 @@ public class HostController implements Controller {
             Packets.write(ctx.nettyCtx(), HostsCmd.PASS_RESPONSE, 0);
 
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 return true;
             }
 
             Character character = user.getCurrentCharacter();
             Game game = getHostGame(user);
+
             if (game == null) {
                 return true;
             }
@@ -359,6 +389,7 @@ public class HostController implements Controller {
     @Command(0x43a2)
     public boolean unknown43a2(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), 0x43a3, 0);
+
         return true;
     }
 
@@ -369,6 +400,7 @@ public class HostController implements Controller {
     @Command(0x43c0)
     public boolean unknown43c0(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), 0x43c1);
+
         return true;
     }
 
@@ -380,14 +412,18 @@ public class HostController implements Controller {
     public boolean startRound(CommandContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.nettyCtx().channel());
+
             if (user == null) {
                 Packets.write(ctx.nettyCtx(), HostsCmd.START_ROUND_RESPONSE, Error.INVALID_SESSION);
+
                 return true;
             }
 
             Game game = getHostGame(user);
+
             if (game == null) {
                 Packets.writeError(ctx.nettyCtx(), HostsCmd.START_ROUND_RESPONSE, 2);
+
                 return true;
             }
 
@@ -413,6 +449,7 @@ public class HostController implements Controller {
         }
 
         Game game = player.getGame();
+
         if (!character.getId().equals(game.getHostId())) {
             return null;
         }
@@ -426,12 +463,15 @@ public class HostController implements Controller {
 
         if (player == null) {
             Packets.writeError(ctx.nettyCtx(), errorCommand, 3);
+
             return null;
         }
 
         Game game = player.getGame();
+
         if (!character.getId().equals(game.getHost().getId())) {
             Packets.writeError(ctx.nettyCtx(), errorCommand, 4);
+
             return null;
         }
 

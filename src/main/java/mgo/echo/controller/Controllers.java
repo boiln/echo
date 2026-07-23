@@ -31,8 +31,8 @@ public final class Controllers {
         controllers.add(new ClanController());
 
         CommandRegistry registry = CommandRegistry.builder()
-                .registerAll(controllers)
-                .build();
+            .registerAll(controllers)
+            .build();
 
         return new RegistryDispatcher(registry);
     }
@@ -46,8 +46,8 @@ public final class Controllers {
         controllers.add(new GateController());
 
         CommandRegistry registry = CommandRegistry.builder()
-                .registerAll(controllers)
-                .build();
+            .registerAll(controllers)
+            .build();
 
         return new RegistryDispatcher(registry);
     }
@@ -61,8 +61,8 @@ public final class Controllers {
         controllers.add(new AccountLobbyController());
 
         CommandRegistry registry = CommandRegistry.builder()
-                .registerAll(controllers)
-                .build();
+            .registerAll(controllers)
+            .build();
 
         return new RegistryDispatcher(registry);
     }

@@ -52,8 +52,9 @@ public final class CommandRegistry {
         public Builder register(Controller controller) {
             Class<?> clazz = controller.getClass();
 
-            for (Method method : clazz.getDeclaredMethods()) {
+            for (Method method: clazz.getDeclaredMethods()) {
                 Command annotation = method.getAnnotation(Command.class);
+
                 if (annotation == null) {
                     continue;
                 }
@@ -64,16 +65,16 @@ public final class CommandRegistry {
                 if (handlers.containsKey(commandId)) {
                     RegisteredHandler existing = handlers.get(commandId);
                     logger.warn("Duplicate handler for command 0x{}: {} overwrites {}",
-                            Integer.toHexString(commandId),
-                            formatMethod(controller, method),
-                            formatMethod(existing.controller(), existing.method()));
+                        Integer.toHexString(commandId),
+                        formatMethod(controller, method),
+                        formatMethod(existing.controller(), existing.method()));
                 }
 
                 method.setAccessible(true);
                 handlers.put(commandId, new RegisteredHandler(controller, method));
                 logger.debug("Registered command 0x{} -> {}",
-                        Integer.toHexString(commandId),
-                        formatMethod(controller, method));
+                    Integer.toHexString(commandId),
+                    formatMethod(controller, method));
             }
 
             return this;
@@ -83,7 +84,7 @@ public final class CommandRegistry {
          * Register multiple controllers at once.
          */
         public Builder registerAll(List<Controller> controllers) {
-            for (Controller controller : controllers) {
+            for (Controller controller: controllers) {
                 register(controller);
             }
 
@@ -92,24 +93,27 @@ public final class CommandRegistry {
 
         public CommandRegistry build() {
             logger.info("Built command registry with {} handlers", handlers.size());
+
             return new CommandRegistry(handlers);
         }
 
         private void validateMethod(Method method, int commandId) {
             Class<?>[] params = method.getParameterTypes();
+
             if (params.length != 1 || !CommandContext.class.isAssignableFrom(params[0])) {
                 throw new IllegalArgumentException(
-                        String.format("@Command method %s.%s must have exactly one parameter of type CommandContext",
-                                method.getDeclaringClass().getSimpleName(),
-                                method.getName()));
+                    String.format("@Command method %s.%s must have exactly one parameter of type CommandContext",
+                        method.getDeclaringClass().getSimpleName(),
+                        method.getName()));
             }
 
             Class<?> returnType = method.getReturnType();
+
             if (returnType != boolean.class && returnType != Boolean.class && returnType != void.class) {
                 throw new IllegalArgumentException(
-                        String.format("@Command method %s.%s must return boolean or void",
-                                method.getDeclaringClass().getSimpleName(),
-                                method.getName()));
+                    String.format("@Command method %s.%s must return boolean or void",
+                        method.getDeclaringClass().getSimpleName(),
+                        method.getName()));
             }
         }
 
@@ -124,7 +128,7 @@ public final class CommandRegistry {
 
         public RegisteredHandler(Controller controller, Method method) {
             this.controller = controller;
-            this.method = method;
+            this.method     = method;
         }
 
         public Controller controller() {
@@ -137,10 +141,12 @@ public final class CommandRegistry {
 
         public boolean invoke(CommandContext ctx) throws Exception {
             Object result = method.invoke(controller, ctx);
+
             if (result == null) {
                 return true;
             }
-            return (Boolean) result;
+
+            return (Boolean)result;
         }
     }
 }

@@ -21,6 +21,7 @@ public final class JoinResponsePacket {
     public static void write(ChannelHandlerContext ctx, JoinResult result) {
         if (!result.isSuccess()) {
             Packets.writeError(ctx, GamesCmd.JOIN_RESPONSE, result.getErrorCode());
+
             return;
         }
 

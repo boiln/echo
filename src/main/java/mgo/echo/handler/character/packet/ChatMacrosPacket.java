@@ -32,17 +32,18 @@ public final class ChatMacrosPacket {
         ByteBuf[] bos = null;
 
         try {
-            bos = new ByteBuf[2];
+            bos = new ByteBuf [2];
+
             for (int i = 0; i < bos.length; i++) {
                 bos[i] = ctx.alloc().directBuffer(BUFFER_SIZE);
                 bos[i].writeByte(i);
             }
 
-            for (CharacterChatMacro macro : macros) {
+            for (CharacterChatMacro macro: macros) {
                 Util.writeString(macro.getText(), MACRO_STRING_LENGTH, bos[macro.getType()]);
             }
 
-            for (ByteBuf bo : bos) {
+            for (ByteBuf bo: bos) {
                 Packets.write(ctx, CharactersCmd.GET_CHAT_MACROS_RESPONSE, bo);
             }
         } catch (Exception e) {

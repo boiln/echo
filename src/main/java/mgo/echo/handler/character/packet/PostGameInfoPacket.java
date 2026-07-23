@@ -65,7 +65,8 @@ public final class PostGameInfoPacket {
 
     private static int getCharacterExperience(User user, Character character) {
         boolean isMainCharacter = user.getMainCharacterId() != null
-                && character.getId().equals(user.getMainCharacterId());
+            && character.getId().equals(user.getMainCharacterId());
+
         return isMainCharacter ? user.getMainExp() : user.getAltExp();
     }
 

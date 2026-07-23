@@ -37,9 +37,11 @@ public class CharacterCardPacket {
         bo.writeByte(data.hasClan ? 0x12 : 0x00);
 
         String clanTag = "";
+
         if (data.hasClan && data.clanName != null && !data.clanName.isEmpty()) {
             clanTag = ";" + data.clanName;
         }
+
         Util.writeString(clanTag, 13, bo);
         bo.writeByte(0);
 

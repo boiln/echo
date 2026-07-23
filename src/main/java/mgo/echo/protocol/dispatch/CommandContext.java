@@ -22,8 +22,8 @@ public final class CommandContext {
 
     public CommandContext(ChannelHandlerContext nettyCtx, Packet packet, Lobby lobby) {
         this.nettyCtx = nettyCtx;
-        this.packet = packet;
-        this.lobby = lobby;
+        this.packet   = packet;
+        this.lobby    = lobby;
     }
 
     // ========================================================================
@@ -72,6 +72,7 @@ public final class CommandContext {
 
     public Character character() {
         User user = user();
+
         return user != null ? user.getCurrentCharacter() : null;
     }
 

@@ -16,11 +16,11 @@ import mgo.echo.util.Util;
  */
 public class AccountPackets {
     private static final byte[] CHARACTER_LIST_FOOTER = {
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x03,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x07, (byte)0x00, (byte)0x03,
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
     };
 
     private AccountPackets() {
@@ -30,7 +30,8 @@ public class AccountPackets {
     // Character List
     // ========================================================================
 
-    public static void writeCharacterList(ChannelHandlerContext ctx, User user, List<Character> characters) {
+    public static void writeCharacterList(ChannelHandlerContext ctx, User user,
+        List<Character> characters) {
         ByteBuf bo = ctx.alloc().directBuffer(0x1d7);
         bo.writeInt(0).writeByte(user.getSlots()).writeByte(characters.size()).writeZero(1);
 
@@ -43,7 +44,8 @@ public class AccountPackets {
         Packets.write(ctx, UsersCmd.GET_CHARACTER_LIST_RESPONSE, bo);
     }
 
-    private static void writeCharacterEntry(ByteBuf bo, Character character, Integer mainCharacterId, int index) {
+    private static void writeCharacterEntry(ByteBuf bo, Character character,
+        Integer mainCharacterId, int index) {
         CharacterAppearance appearance = Util.getFirstOrNull(character.getAppearance());
 
         boolean isMain = mainCharacterId != null && character.getId().equals(mainCharacterId);
@@ -64,18 +66,18 @@ public class AccountPackets {
 
     private static void writeAppearance(ByteBuf bo, CharacterAppearance appearance) {
         bo.writeByte(appearance.getGender()).writeByte(appearance.getFace())
-                .writeByte(appearance.getUpper()).writeByte(appearance.getLower())
-                .writeByte(appearance.getFacePaint()).writeByte(appearance.getUpperColor())
-                .writeByte(appearance.getLowerColor()).writeByte(appearance.getVoice())
-                .writeByte(appearance.getPitch()).writeZero(4)
-                .writeByte(appearance.getHead()).writeByte(appearance.getChest())
-                .writeByte(appearance.getHands()).writeByte(appearance.getWaist())
-                .writeByte(appearance.getFeet()).writeByte(appearance.getAccessory1())
-                .writeByte(appearance.getAccessory2()).writeByte(appearance.getHeadColor())
-                .writeByte(appearance.getChestColor()).writeByte(appearance.getHandsColor())
-                .writeByte(appearance.getWaistColor()).writeByte(appearance.getFeetColor())
-                .writeByte(appearance.getAccessory1Color()).writeByte(appearance.getAccessory2Color())
-                .writeZero(1);
+            .writeByte(appearance.getUpper()).writeByte(appearance.getLower())
+            .writeByte(appearance.getFacePaint()).writeByte(appearance.getUpperColor())
+            .writeByte(appearance.getLowerColor()).writeByte(appearance.getVoice())
+            .writeByte(appearance.getPitch()).writeZero(4)
+            .writeByte(appearance.getHead()).writeByte(appearance.getChest())
+            .writeByte(appearance.getHands()).writeByte(appearance.getWaist())
+            .writeByte(appearance.getFeet()).writeByte(appearance.getAccessory1())
+            .writeByte(appearance.getAccessory2()).writeByte(appearance.getHeadColor())
+            .writeByte(appearance.getChestColor()).writeByte(appearance.getHandsColor())
+            .writeByte(appearance.getWaistColor()).writeByte(appearance.getFeetColor())
+            .writeByte(appearance.getAccessory1Color()).writeByte(appearance.getAccessory2Color())
+            .writeZero(1);
     }
 
     // ========================================================================

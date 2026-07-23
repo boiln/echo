@@ -26,8 +26,10 @@ public final class RegistryDispatcher {
         int commandKey = in.getCommand() & 0xffff;
 
         RegisteredHandler handler = registry.get(commandKey);
+
         if (handler == null) {
             logger.warn("No handler for command 0x{}", Integer.toHexString(commandKey));
+
             return false;
         }
 
@@ -37,6 +39,7 @@ public final class RegistryDispatcher {
             return handler.invoke(cmdCtx);
         } catch (Exception e) {
             logger.error("Exception handling command 0x{}", Integer.toHexString(commandKey), e);
+
             return false;
         }
     }

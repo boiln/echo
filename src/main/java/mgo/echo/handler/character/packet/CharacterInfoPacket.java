@@ -28,15 +28,15 @@ public final class CharacterInfoPacket {
     private static final int BLOCKED_PAD_OFFSET = 0x229;
 
     private static final byte[] BYTES_1 = {
-            (byte) 0x16, (byte) 0xAE, (byte) 0x03, (byte) 0x38,
-            (byte) 0x01, (byte) 0x3E, (byte) 0x01, (byte) 0x50
+        (byte)0x16, (byte)0xAE, (byte)0x03, (byte)0x38, (byte)0x01, (byte)0x3E, (byte)0x01,
+        (byte)0x50
     };
 
     private static final byte[] BYTES_2 = {
-            (byte) 0x00, (byte) 0xB7, (byte) 0xFD, (byte) 0xAB, (byte) 0xFC, (byte) 0xFF, (byte) 0xFF,
-            (byte) 0x7B, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+        (byte)0x00, (byte)0xB7, (byte)0xFD, (byte)0xAB, (byte)0xFC, (byte)0xFF, (byte)0xFF,
+        (byte)0x7B, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+        (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
     };
 
     private CharacterInfoPacket() {
@@ -46,7 +46,7 @@ public final class CharacterInfoPacket {
         ByteBuf bo = null;
 
         try {
-            int currentEpoch = (int) Instant.now().getEpochSecond();
+            int currentEpoch = (int)Instant.now().getEpochSecond();
             int secondLastLogin = currentEpoch - 1;
             int lastLogin = currentEpoch;
             int exp = getCharacterExperience(user, character);
@@ -57,12 +57,12 @@ public final class CharacterInfoPacket {
             bo.writeBytes(BYTES_1);
             bo.writeInt(exp).writeInt(secondLastLogin).writeInt(lastLogin).writeZero(1);
 
-            for (CharacterFriend friend : character.getFriends()) {
+            for (CharacterFriend friend: character.getFriends()) {
                 bo.writeInt(friend.getTargetId());
             }
             Util.padTo(FRIENDS_PAD_OFFSET, bo);
 
-            for (CharacterBlocked blocked : character.getBlocked()) {
+            for (CharacterBlocked blocked: character.getBlocked()) {
                 bo.writeInt(blocked.getTargetId());
             }
             Util.padTo(BLOCKED_PAD_OFFSET, bo);

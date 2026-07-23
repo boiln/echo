@@ -23,6 +23,7 @@ public final class SkillsPacket {
 
     public static void write(ChannelHandlerContext ctx) {
         ByteBuf bo = null;
+
         try {
             bo = ctx.alloc().directBuffer(0x4 + NUM_SKILLS * 0x4);
 

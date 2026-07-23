@@ -42,11 +42,12 @@ public class GameService {
         Collection<Game> games = ActiveGames.getGames();
         ArrayList<Game> filtered = new ArrayList<>();
 
-        for (Game game : games) {
+        for (Game game: games) {
             if (type == 0x200) {
                 if (game.getName().startsWith("CLAN_ROOM_")) {
                     filtered.add(game);
                 }
+
                 continue;
             }
 
@@ -64,23 +65,29 @@ public class GameService {
 
     public static JoinResult joinGame(Character character, int gameId, String password) {
         Game game = ActiveGames.get(gameId);
+
         if (game == null) {
             logger.error("Error while joining game: No game.");
+
             return JoinResult.error(3);
         }
 
         Integer joinError = validateJoinRequest(character, game, password);
+
         if (joinError != null) {
             return JoinResult.error(joinError);
         }
 
         ConnectionInfo connectionInfo = Util.getFirstOrNull(game.getHost().getConnectionInfo());
+
         if (connectionInfo == null) {
             logger.error("Error while joining game: No connection info.");
+
             return JoinResult.error(4);
         }
 
         Player oldPlayer = Util.getFirstOrNull(character.getPlayer());
+
         if (oldPlayer != null) {
             gameRemovePlayer(game, character.getId(), false);
         }
@@ -91,12 +98,12 @@ public class GameService {
         int[] currentMapRule = getCurrentMapRule(game);
 
         return JoinResult.success(
-                connectionInfo.getPublicIp(),
-                connectionInfo.getPublicPort(),
-                connectionInfo.getPrivateIp(),
-                connectionInfo.getPrivatePort(),
-                currentMapRule[1],
-                currentMapRule[0]);
+            connectionInfo.getPublicIp(),
+            connectionInfo.getPublicPort(),
+            connectionInfo.getPrivateIp(),
+            connectionInfo.getPrivatePort(),
+            currentMapRule[1],
+            currentMapRule[0]);
     }
 
     private static Integer validateJoinRequest(Character character, Game game, String password) {
@@ -105,16 +112,19 @@ public class GameService {
 
         if (isBlocked) {
             logger.error("Error while joining game: Blocked by host.");
+
             return 0x11;
         }
 
         if (game.getPassword() != null && !password.equals(game.getPassword())) {
             logger.error("Error while joining game: Bad password. User: {} Orig: {}", password, game.getPassword());
+
             return 3;
         }
 
         if (game.getPlayers().size() >= game.getMaxPlayers()) {
             logger.error("Error while joining game: Game is full.");
+
             return 0x10;
         }
 
@@ -127,10 +137,11 @@ public class GameService {
 
         if (currentGame < jGames.size()) {
             JsonArray jGame = jGames.get(currentGame).getAsJsonArray();
-            return new int[] { jGame.get(0).getAsInt(), jGame.get(1).getAsInt() };
+
+            return new int [] { jGame.get(0).getAsInt(), jGame.get(1).getAsInt() };
         }
 
-        return new int[] { 0, 0 };
+        return new int [] { 0, 0 };
     }
 
     // =========================================================================
@@ -143,7 +154,7 @@ public class GameService {
         }
 
         logger.info(
-                "{} ({}) failed to join game: {}", character.getName(), character.getId(), character.getGameJoining());
+            "{} ({}) failed to join game: {}", character.getName(), character.getId(), character.getGameJoining());
         character.setGameJoining(null);
     }
 
@@ -154,13 +165,16 @@ public class GameService {
     public static void quitGame(User user) {
         if (user == null) {
             logger.error("Error while quitting game: No user.");
+
             return;
         }
 
         Character character = user.getCurrentCharacter();
         Player player = Util.getFirstOrNull(character.getPlayer());
+
         if (player == null) {
             logger.error("Error while quitting game: Not in a game.");
+
             return;
         }
 
@@ -169,6 +183,7 @@ public class GameService {
 
         if (isHost) {
             gameEnd(game);
+
             return;
         }
 
@@ -181,8 +196,8 @@ public class GameService {
 
     public static void cleanup() {
         ArrayList<Game> games = new ArrayList<>(ActiveGames.getGames());
-        for (Game game : games) {
-            int time = (int) Instant.now().getEpochSecond();
+        for (Game game: games) {
+            int time = (int)Instant.now().getEpochSecond();
             int timeout = game.getLastUpdate() + 60;
 
             if (time <= timeout) {
@@ -208,36 +223,42 @@ public class GameService {
                 logger.info("GameAddPlayer {} ({}) - Char {} | Got lock.", game.getName(), game.getId(), charaId);
 
                 User user = ActiveUsers.getByCharacterId(charaId);
+
                 if (user == null) {
                     logger.error(
-                            "GameAddPlayer {} ({}) - Char {} | User isn't online.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameAddPlayer {} ({}) - Char {} | User isn't online.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return -2;
                 }
 
                 Character character = user.getCurrentCharacter();
+
                 if (character == null) {
                     logger.error(
-                            "GameAddPlayer {} ({}) - Char {} | Character isn't online.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameAddPlayer {} ({}) - Char {} | Character isn't online.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return -3;
                 }
 
                 if (checkJoining && !game.getId().equals(character.getGameJoining())) {
                     logger.error(
-                            "GameAddPlayer {} ({}) - Char {} | Not joining this game.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameAddPlayer {} ({}) - Char {} | Not joining this game.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return -4;
                 }
 
                 Player existingPlayer = Util.getFirstOrNull(character.getPlayer());
                 int existingResult = handleExistingPlayer(game, character, existingPlayer, charaId);
+
                 if (existingResult != 0) {
                     return existingResult;
                 }
@@ -253,36 +274,42 @@ public class GameService {
             }
 
             logger.info("GameAddPlayer {} ({}) - Char {} | Successfully added!", game.getName(), game.getId(), charaId);
+
             return 0;
         } catch (Exception e) {
             logger.error(
-                    "GameAddPlayer {} ({}) - Char {} | Exception caught.", game.getName(), game.getId(), charaId, e);
+                "GameAddPlayer {} ({}) - Char {} | Exception caught.", game.getName(), game.getId(), charaId, e);
             DbManager.rollbackAndClose(session);
+
             return -1;
         }
     }
 
-    private static int handleExistingPlayer(Game game, Character character, Player existingPlayer, int charaId) {
+    private static int handleExistingPlayer(Game game, Character character, Player existingPlayer,
+        int charaId) {
         if (existingPlayer == null) {
             if (game.getPlayers().size() >= game.getMaxPlayers()) {
                 logger.info("GameAddPlayer {} ({}) - Char {} | Game is full.", game.getName(), game.getId(), charaId);
+
                 return -10;
             }
+
             return 0;
         }
 
         if (existingPlayer.getGame() == game) {
             logger.info("GameAddPlayer {} ({}) - Char {} | Already in game.", game.getName(), game.getId(), charaId);
+
             return 1;
         }
 
         logger.info(
-                "GameAddPlayer {} ({}) - Char {} | Removing from old game: {} ({})",
-                game.getName(),
-                game.getId(),
-                charaId,
-                existingPlayer.getGame().getName(),
-                existingPlayer.getGame().getId());
+            "GameAddPlayer {} ({}) - Char {} | Removing from old game: {} ({})",
+            game.getName(),
+            game.getId(),
+            charaId,
+            existingPlayer.getGame().getName(),
+            existingPlayer.getGame().getId());
 
         removePlayerFromDb(existingPlayer);
         existingPlayer.getGame().removePlayer(existingPlayer);
@@ -299,6 +326,7 @@ public class GameService {
         player.setGameId(game.getId());
         player.setPing(0);
         player.setTeam(0);
+
         return player;
     }
 
@@ -320,7 +348,7 @@ public class GameService {
 
     private static void logConnectGameEvent(int gameId, int charaId) {
         EventConnectGame event = new EventConnectGame();
-        event.setTime((int) Instant.now().getEpochSecond());
+        event.setTime((int)Instant.now().getEpochSecond());
         event.setGameId(gameId);
         event.setCharaId(charaId);
 
@@ -341,41 +369,48 @@ public class GameService {
                 logger.info("GameRemovePlayer {} ({}) - Char {} | Got lock.", game.getName(), game.getId(), charaId);
 
                 User user = ActiveUsers.getByCharacterId(charaId);
+
                 if (user == null) {
                     logger.error(
-                            "GameRemovePlayer {} ({}) - Char {} | User isn't online.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameRemovePlayer {} ({}) - Char {} | User isn't online.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return -2;
                 }
 
                 Character character = user.getCurrentCharacter();
+
                 if (character == null) {
                     logger.error(
-                            "GameRemovePlayer {} ({}) - Char {} | Character isn't online.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameRemovePlayer {} ({}) - Char {} | Character isn't online.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return -3;
                 }
 
                 Player player = Util.getFirstOrNull(character.getPlayer());
+
                 if (player == null) {
                     logger.error(
-                            "GameRemovePlayer {} ({}) - Char {} | Character isn't in this game.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameRemovePlayer {} ({}) - Char {} | Character isn't in this game.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return 1;
                 }
 
                 if (checkGame && player.getGame() != game) {
                     logger.error(
-                            "GameRemovePlayer {} ({}) - Char {} | Character isn't in this game.",
-                            game.getName(),
-                            game.getId(),
-                            charaId);
+                        "GameRemovePlayer {} ({}) - Char {} | Character isn't in this game.",
+                        game.getName(),
+                        game.getId(),
+                        charaId);
+
                     return -4;
                 }
 
@@ -387,22 +422,24 @@ public class GameService {
             }
 
             logger.info(
-                    "GameRemovePlayer {} ({}) - Char {} | Successfully removed!",
-                    game.getName(),
-                    game.getId(),
-                    charaId);
+                "GameRemovePlayer {} ({}) - Char {} | Successfully removed!",
+                game.getName(),
+                game.getId(),
+                charaId);
+
             return 0;
         } catch (Exception e) {
             logger.error(
-                    "GameRemovePlayer {} ({}) - Char {} | Exception caught.", game.getName(), game.getId(), charaId, e);
+                "GameRemovePlayer {} ({}) - Char {} | Exception caught.", game.getName(), game.getId(), charaId, e);
             DbManager.rollbackAndClose(session);
+
             return -1;
         }
     }
 
     private static void logDisconnectGameEvent(int gameId, int charaId) {
         EventDisconnectGame event = new EventDisconnectGame();
-        event.setTime((int) Instant.now().getEpochSecond());
+        event.setTime((int)Instant.now().getEpochSecond());
         event.setGameId(gameId);
         event.setCharaId(charaId);
 
@@ -439,10 +476,12 @@ public class GameService {
             }
 
             logger.info("Ended Game {} ({}).", game.getName(), game.getId());
+
             return 0;
         } catch (Exception e) {
             logger.error("GameEnd {} ({}) | Exception caught.", game.getName(), game.getId(), e);
             DbManager.rollbackAndClose(session);
+
             return -1;
         }
     }
@@ -454,7 +493,7 @@ public class GameService {
 
     private static void removeAllPlayersFromGame(Game game) {
         ArrayList<Player> playersCopy = new ArrayList<>(game.getPlayers());
-        for (Player player : playersCopy) {
+        for (Player player: playersCopy) {
             gameRemovePlayer(game, player.getCharacterId(), true);
         }
     }
@@ -469,7 +508,7 @@ public class GameService {
 
     private static void logEndGameEvent(int gameId) {
         EventEndGame event = new EventEndGame();
-        event.setTime((int) Instant.now().getEpochSecond());
+        event.setTime((int)Instant.now().getEpochSecond());
         event.setGameId(gameId);
 
         Session session = DbManager.getSession();

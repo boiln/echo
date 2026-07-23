@@ -30,32 +30,32 @@ public class GameSettings {
     public static GameSettings parse(JsonObject common) {
         GameSettings s = new GameSettings();
 
-        s.dedicated = common.get("dedicated").getAsBoolean();
+        s.dedicated    = common.get("dedicated").getAsBoolean();
         s.briefingTime = common.get("briefingTime").getAsInt();
-        s.nonStat = common.get("nonStat").getAsBoolean();
+        s.nonStat      = common.get("nonStat").getAsBoolean();
         s.friendlyFire = common.get("friendlyFire").getAsBoolean();
-        s.autoAim = common.get("autoAim").getAsBoolean();
+        s.autoAim      = common.get("autoAim").getAsBoolean();
 
         JsonObject uniques = common.get("uniques").getAsJsonObject();
         s.uniquesEnabled = uniques.get("enabled").getAsBoolean();
-        s.uniquesRandom = uniques.get("random").getAsBoolean();
-        s.uniqueRed = uniques.get("red").getAsInt();
-        s.uniqueBlue = uniques.get("blue").getAsInt();
+        s.uniquesRandom  = uniques.get("random").getAsBoolean();
+        s.uniqueRed      = uniques.get("red").getAsInt();
+        s.uniqueBlue     = uniques.get("blue").getAsInt();
 
         s.enemyNametags = common.get("enemyNametags").getAsBoolean();
-        s.silentMode = common.get("silentMode").getAsBoolean();
-        s.autoAssign = common.get("autoAssign").getAsBoolean();
-        s.teamsSwitch = common.get("teamsSwitch").getAsBoolean();
-        s.ghosts = common.get("ghosts").getAsBoolean();
+        s.silentMode    = common.get("silentMode").getAsBoolean();
+        s.autoAssign    = common.get("autoAssign").getAsBoolean();
+        s.teamsSwitch   = common.get("teamsSwitch").getAsBoolean();
+        s.ghosts        = common.get("ghosts").getAsBoolean();
 
         JsonObject levelLimit = common.get("levelLimit").getAsJsonObject();
-        s.levelLimitEnabled = levelLimit.get("enabled").getAsBoolean();
-        s.levelLimitBase = levelLimit.get("base").getAsInt();
+        s.levelLimitEnabled   = levelLimit.get("enabled").getAsBoolean();
+        s.levelLimitBase      = levelLimit.get("base").getAsInt();
         s.levelLimitTolerance = levelLimit.get("tolerance").getAsInt();
 
-        s.voiceChat = common.get("voiceChat").getAsBoolean();
+        s.voiceChat    = common.get("voiceChat").getAsBoolean();
         s.teamKillKick = common.get("teamKillKick").getAsInt();
-        s.idleKick = common.get("idleKick").getAsInt();
+        s.idleKick     = common.get("idleKick").getAsInt();
 
         return s;
     }
@@ -67,6 +67,7 @@ public class GameSettings {
         commonA |= ghosts ? 0b10000 : 0;
         commonA |= autoAim ? 0b100000 : 0;
         commonA |= uniquesEnabled ? 0b10000000 : 0;
+
         return commonA;
     }
 
@@ -79,6 +80,7 @@ public class GameSettings {
         commonB |= levelLimitEnabled ? 0b10000 : 0;
         commonB |= voiceChat ? 0b1000000 : 0;
         commonB |= teamKillKick > 0 ? 0b10000000 : 0;
+
         return commonB;
     }
 
@@ -86,6 +88,7 @@ public class GameSettings {
         int hostOptions = 0;
         hostOptions |= hasPassword ? 0b1 : 0;
         hostOptions |= dedicated ? 0b10 : 0;
+
         return hostOptions;
     }
 }

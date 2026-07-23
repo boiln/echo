@@ -41,6 +41,7 @@ public class GameController implements Controller {
 
         try {
             User user = Guards.requireUser(ctx.nettyCtx(), 0x4301);
+
             if (user == null) {
                 return true;
             }
@@ -79,8 +80,10 @@ public class GameController implements Controller {
             int gameId = bi.readInt();
 
             Game game = ActiveGames.get(gameId);
+
             if (game == null) {
                 Packets.write(ctx.nettyCtx(), GamesCmd.GET_DETAILS_RESPONSE, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -100,6 +103,7 @@ public class GameController implements Controller {
     public boolean join(CommandContext ctx) {
         try {
             User user = Guards.requireUser(ctx.nettyCtx(), GamesCmd.JOIN_RESPONSE);
+
             if (user == null) {
                 return true;
             }
@@ -127,6 +131,7 @@ public class GameController implements Controller {
     public boolean joinFailed(CommandContext ctx) {
         try {
             User user = Guards.requireUser(ctx.nettyCtx(), GamesCmd.JOIN_FAILED_RESPONSE);
+
             if (user == null) {
                 return true;
             }
@@ -165,6 +170,7 @@ public class GameController implements Controller {
     @Command(0x4400)
     public boolean chat(CommandContext ctx) {
         mgo.echo.handler.social.packet.ChatPacketHandler.send(ctx.nettyCtx(), ctx.packet());
+
         return true;
     }
 
@@ -175,6 +181,7 @@ public class GameController implements Controller {
     @Command(0x4440)
     public boolean unknown4440(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), 0x4441, 0);
+
         return true;
     }
 }

@@ -34,9 +34,10 @@ public class CharacterCrudService {
     public static List<Character> getCharacters(User user) {
         return DbManager.tx(session -> {
             Query<Character> query = session.createQuery(
-                    "from Character as c inner join fetch c.appearance where user=:user and c.active=1",
-                    Character.class);
+                "from Character as c inner join fetch c.appearance where user=:user and c.active=1",
+                Character.class);
             query.setParameter("user", user);
+
             return query.list();
         });
     }
@@ -48,9 +49,11 @@ public class CharacterCrudService {
 
         for (int i = 0; i < characters.size(); i++) {
             Character character = characters.get(i);
+
             if (!character.getId().equals(mainCharacterId)) {
                 continue;
             }
+
             characters.remove(i);
             characters.add(0, character);
             break;
@@ -66,17 +69,20 @@ public class CharacterCrudService {
     public static Integer validateName(String name) {
         if (name.startsWith(":#") || name.startsWith("GM_") || name.startsWith("GM-")
                 || name.startsWith("GM.") || name.startsWith("GM,")) {
-            logger.error("Error while creating character: Reserved prefix.");
-            return Error.CHAR_NAMEPREFIX.getCode();
-        }
+                logger.error("Error while creating character: Reserved prefix.");
+
+                return Error.CHAR_NAMEPREFIX.getCode();
+            }
 
         if (name.equalsIgnoreCase("EchoMGO")) {
             logger.error("Error while creating character: Reserved name.");
+
             return Error.CHAR_NAMERESERVED.getCode();
         }
 
         if (!Util.checkName(name)) {
             logger.error("Error while creating character: Invalid name.");
+
             return Error.CHAR_NAMEINVALID.getCode();
         }
 
@@ -87,25 +93,28 @@ public class CharacterCrudService {
         Character existing = DbManager.tx(session -> {
             Query<Character> query = session.createQuery("from Character c where c.name = :name", Character.class);
             query.setParameter("name", name);
+
             return query.uniqueResult();
         });
 
         return existing != null;
     }
 
-    public static Character createCharacter(String name, User user, CharacterAppearance appearance) {
+    public static Character createCharacter(String name, User user,
+        CharacterAppearance appearance) {
         long time = Instant.now().getEpochSecond();
 
         Character character = new Character();
         character.setName(name);
         character.setUser(user);
-        character.setCreationTime((int) time);
+        character.setCreationTime((int)time);
         character.setActive(1);
         character.setAppearance(Arrays.asList(appearance));
 
         appearance.setCharacter(character);
 
         user.setCurrentCharacter(character);
+
         if (user.getMainCharacterId() == null) {
             user.setMainCharacter(character);
         }
@@ -126,13 +135,14 @@ public class CharacterCrudService {
     public static Character selectCharacter(User user, int index) {
         List<Character> characters = DbManager.tx(session -> {
             Query<Character> query = session.createQuery("from Character c where user=:user and c.active=1",
-                    Character.class);
+                Character.class);
             query.setParameter("user", user);
+
             return query.list();
         });
 
         characters = sortByMain(characters, user.getMainCharacterId());
-        index = clampIndex(index, characters.size());
+        index      = clampIndex(index, characters.size());
 
         Character character = characters.get(index);
         user.setCurrentCharacter(character);
@@ -146,6 +156,7 @@ public class CharacterCrudService {
         if (index < 0 || index > size - 1) {
             return 0;
         }
+
         return index;
     }
 
@@ -158,7 +169,7 @@ public class CharacterCrudService {
         public final Integer errorCode;
 
         private DeleteResult(boolean success, Integer errorCode) {
-            this.success = success;
+            this.success   = success;
             this.errorCode = errorCode;
         }
 
@@ -174,19 +185,21 @@ public class CharacterCrudService {
     public static DeleteResult deleteCharacter(User user, int index) {
         List<Character> characters = DbManager.tx(session -> {
             Query<Character> query = session.createQuery(
-                    "from Character as c inner join fetch c.appearance where user=:user and c.active=1",
-                    Character.class);
+                "from Character as c inner join fetch c.appearance where user=:user and c.active=1",
+                Character.class);
             query.setParameter("user", user);
+
             return query.list();
         });
 
         characters = sortByMain(characters, user.getMainCharacterId());
-        index = clampIndexForDelete(index, characters.size());
+        index      = clampIndexForDelete(index, characters.size());
 
         Character character = characters.get(index);
 
         if (!canDelete(character)) {
             logger.error("Error while deleting character: Can't delete yet.");
+
             return DeleteResult.error(Error.CHAR_CANTDELETEYET.getCode());
         }
 
@@ -200,6 +213,7 @@ public class CharacterCrudService {
         if (index < 0 || size - 1 < index) {
             return size - 1;
         }
+
         return index;
     }
 
@@ -210,6 +224,7 @@ public class CharacterCrudService {
 
         long time = Instant.now().getEpochSecond();
         long canDeleteTime = character.getCreationTime() + CHARACTER_DELETION_WAIT_SECONDS;
+
         return time >= canDeleteTime;
     }
 
@@ -225,6 +240,7 @@ public class CharacterCrudService {
         if (user.getMainCharacterId() == null) {
             return;
         }
+
         if (!character.getId().equals(user.getMainCharacterId())) {
             return;
         }

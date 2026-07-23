@@ -124,105 +124,105 @@ public class HostSettingsDto {
 
         dto.name = settings.get("name").getAsString();
         dto.password = settings.get("password") != null && !settings.get("password").isJsonNull()
-                ? settings.get("password").getAsString()
-                : null;
-        dto.stance = settings.get("stance").getAsInt();
+        ? settings.get("password").getAsString()
+        : null;
+        dto.stance  = settings.get("stance").getAsInt();
         dto.comment = settings.get("comment").getAsString();
-        dto.games = settings.get("games").getAsJsonArray();
+        dto.games   = settings.get("games").getAsJsonArray();
 
         // Common settings
         JsonObject common = settings.get("common").getAsJsonObject();
-        dto.common.dedicated = common.get("dedicated").getAsBoolean();
-        dto.common.maxPlayers = common.get("maxPlayers").getAsInt();
+        dto.common.dedicated    = common.get("dedicated").getAsBoolean();
+        dto.common.maxPlayers   = common.get("maxPlayers").getAsInt();
         dto.common.briefingTime = common.get("briefingTime").getAsInt();
-        dto.common.nonStat = common.get("nonStat").getAsBoolean();
+        dto.common.nonStat      = common.get("nonStat").getAsBoolean();
         dto.common.friendlyFire = common.get("friendlyFire").getAsBoolean();
-        dto.common.autoAim = common.get("autoAim").getAsBoolean();
+        dto.common.autoAim      = common.get("autoAim").getAsBoolean();
 
         // Uniques
         JsonObject uniques = common.get("uniques").getAsJsonObject();
         dto.common.uniquesEnabled = uniques.get("enabled").getAsBoolean();
-        dto.common.uniquesRandom = uniques.get("random").getAsBoolean();
-        dto.common.uniqueRed = uniques.get("red").getAsInt();
-        dto.common.uniqueBlue = uniques.get("blue").getAsInt();
+        dto.common.uniquesRandom  = uniques.get("random").getAsBoolean();
+        dto.common.uniqueRed      = uniques.get("red").getAsInt();
+        dto.common.uniqueBlue     = uniques.get("blue").getAsInt();
 
         dto.common.enemyNametags = common.get("enemyNametags").getAsBoolean();
-        dto.common.silentMode = common.get("silentMode").getAsBoolean();
-        dto.common.autoAssign = common.get("autoAssign").getAsBoolean();
-        dto.common.teamsSwitch = common.get("teamsSwitch").getAsBoolean();
-        dto.common.ghosts = common.get("ghosts").getAsBoolean();
+        dto.common.silentMode    = common.get("silentMode").getAsBoolean();
+        dto.common.autoAssign    = common.get("autoAssign").getAsBoolean();
+        dto.common.teamsSwitch   = common.get("teamsSwitch").getAsBoolean();
+        dto.common.ghosts        = common.get("ghosts").getAsBoolean();
 
         // Level limit
         JsonObject levelLimit = common.get("levelLimit").getAsJsonObject();
-        dto.common.levelLimitEnabled = levelLimit.get("enabled").getAsBoolean();
-        dto.common.levelLimitBase = levelLimit.get("base").getAsInt();
+        dto.common.levelLimitEnabled   = levelLimit.get("enabled").getAsBoolean();
+        dto.common.levelLimitBase      = levelLimit.get("base").getAsInt();
         dto.common.levelLimitTolerance = levelLimit.get("tolerance").getAsInt();
 
-        dto.common.voiceChat = common.get("voiceChat").getAsBoolean();
+        dto.common.voiceChat    = common.get("voiceChat").getAsBoolean();
         dto.common.teamKillKick = common.get("teamKillKick").getAsInt();
-        dto.common.idleKick = common.get("idleKick").getAsInt();
+        dto.common.idleKick     = common.get("idleKick").getAsInt();
 
         // Weapon restrictions
         JsonObject weaponRestrictions = common.get("weaponRestrictions").getAsJsonObject();
         dto.common.weaponRestrictions.enabled = weaponRestrictions.get("enabled").getAsBoolean();
 
         JsonObject wrPrimary = weaponRestrictions.get("primary").getAsJsonObject();
-        dto.common.weaponRestrictions.vz = wrPrimary.get("vz").getAsBoolean();
-        dto.common.weaponRestrictions.p90 = wrPrimary.get("p90").getAsBoolean();
-        dto.common.weaponRestrictions.mp5 = wrPrimary.get("mp5").getAsBoolean();
+        dto.common.weaponRestrictions.vz      = wrPrimary.get("vz").getAsBoolean();
+        dto.common.weaponRestrictions.p90     = wrPrimary.get("p90").getAsBoolean();
+        dto.common.weaponRestrictions.mp5     = wrPrimary.get("mp5").getAsBoolean();
         dto.common.weaponRestrictions.patriot = wrPrimary.get("patriot").getAsBoolean();
-        dto.common.weaponRestrictions.ak = wrPrimary.get("ak").getAsBoolean();
-        dto.common.weaponRestrictions.m4 = wrPrimary.get("m4").getAsBoolean();
-        dto.common.weaponRestrictions.mk17 = wrPrimary.get("mk17").getAsBoolean();
-        dto.common.weaponRestrictions.xm8 = wrPrimary.get("xm8").getAsBoolean();
-        dto.common.weaponRestrictions.g3a3 = wrPrimary.get("g3a3").getAsBoolean();
-        dto.common.weaponRestrictions.svd = wrPrimary.get("svd").getAsBoolean();
-        dto.common.weaponRestrictions.mosin = wrPrimary.get("mosin").getAsBoolean();
-        dto.common.weaponRestrictions.m14 = wrPrimary.get("m14").getAsBoolean();
-        dto.common.weaponRestrictions.vss = wrPrimary.get("vss").getAsBoolean();
-        dto.common.weaponRestrictions.dsr = wrPrimary.get("dsr").getAsBoolean();
-        dto.common.weaponRestrictions.m870 = wrPrimary.get("m870").getAsBoolean();
-        dto.common.weaponRestrictions.saiga = wrPrimary.get("saiga").getAsBoolean();
-        dto.common.weaponRestrictions.m60 = wrPrimary.get("m60").getAsBoolean();
-        dto.common.weaponRestrictions.shield = wrPrimary.get("shield").getAsBoolean();
-        dto.common.weaponRestrictions.rpg = wrPrimary.get("rpg").getAsBoolean();
-        dto.common.weaponRestrictions.knife = wrPrimary.get("knife").getAsBoolean();
+        dto.common.weaponRestrictions.ak      = wrPrimary.get("ak").getAsBoolean();
+        dto.common.weaponRestrictions.m4      = wrPrimary.get("m4").getAsBoolean();
+        dto.common.weaponRestrictions.mk17    = wrPrimary.get("mk17").getAsBoolean();
+        dto.common.weaponRestrictions.xm8     = wrPrimary.get("xm8").getAsBoolean();
+        dto.common.weaponRestrictions.g3a3    = wrPrimary.get("g3a3").getAsBoolean();
+        dto.common.weaponRestrictions.svd     = wrPrimary.get("svd").getAsBoolean();
+        dto.common.weaponRestrictions.mosin   = wrPrimary.get("mosin").getAsBoolean();
+        dto.common.weaponRestrictions.m14     = wrPrimary.get("m14").getAsBoolean();
+        dto.common.weaponRestrictions.vss     = wrPrimary.get("vss").getAsBoolean();
+        dto.common.weaponRestrictions.dsr     = wrPrimary.get("dsr").getAsBoolean();
+        dto.common.weaponRestrictions.m870    = wrPrimary.get("m870").getAsBoolean();
+        dto.common.weaponRestrictions.saiga   = wrPrimary.get("saiga").getAsBoolean();
+        dto.common.weaponRestrictions.m60     = wrPrimary.get("m60").getAsBoolean();
+        dto.common.weaponRestrictions.shield  = wrPrimary.get("shield").getAsBoolean();
+        dto.common.weaponRestrictions.rpg     = wrPrimary.get("rpg").getAsBoolean();
+        dto.common.weaponRestrictions.knife   = wrPrimary.get("knife").getAsBoolean();
 
         JsonObject wrSecondary = weaponRestrictions.get("secondary").getAsJsonObject();
-        dto.common.weaponRestrictions.gsr = wrSecondary.get("gsr").getAsBoolean();
-        dto.common.weaponRestrictions.mk2 = wrSecondary.get("mk2").getAsBoolean();
+        dto.common.weaponRestrictions.gsr      = wrSecondary.get("gsr").getAsBoolean();
+        dto.common.weaponRestrictions.mk2      = wrSecondary.get("mk2").getAsBoolean();
         dto.common.weaponRestrictions.operator = wrSecondary.get("operator").getAsBoolean();
-        dto.common.weaponRestrictions.g18 = wrSecondary.get("g18").getAsBoolean();
-        dto.common.weaponRestrictions.mk23 = wrSecondary.get("mk23").getAsBoolean();
-        dto.common.weaponRestrictions.de = wrSecondary.get("de").getAsBoolean();
+        dto.common.weaponRestrictions.g18      = wrSecondary.get("g18").getAsBoolean();
+        dto.common.weaponRestrictions.mk23     = wrSecondary.get("mk23").getAsBoolean();
+        dto.common.weaponRestrictions.de       = wrSecondary.get("de").getAsBoolean();
 
         JsonObject wrSupport = weaponRestrictions.get("support").getAsJsonObject();
-        dto.common.weaponRestrictions.grenade = wrSupport.get("grenade").getAsBoolean();
-        dto.common.weaponRestrictions.wp = wrSupport.get("wp").getAsBoolean();
-        dto.common.weaponRestrictions.stun = wrSupport.get("stun").getAsBoolean();
-        dto.common.weaponRestrictions.chaff = wrSupport.get("chaff").getAsBoolean();
-        dto.common.weaponRestrictions.smoke = wrSupport.get("smoke").getAsBoolean();
-        dto.common.weaponRestrictions.smoke_r = wrSupport.get("smoke_r").getAsBoolean();
-        dto.common.weaponRestrictions.smoke_g = wrSupport.get("smoke_g").getAsBoolean();
-        dto.common.weaponRestrictions.smoke_y = wrSupport.get("smoke_y").getAsBoolean();
-        dto.common.weaponRestrictions.eloc = wrSupport.get("eloc").getAsBoolean();
-        dto.common.weaponRestrictions.claymore = wrSupport.get("claymore").getAsBoolean();
-        dto.common.weaponRestrictions.sgmine = wrSupport.get("sgmine").getAsBoolean();
-        dto.common.weaponRestrictions.c4 = wrSupport.get("c4").getAsBoolean();
+        dto.common.weaponRestrictions.grenade   = wrSupport.get("grenade").getAsBoolean();
+        dto.common.weaponRestrictions.wp        = wrSupport.get("wp").getAsBoolean();
+        dto.common.weaponRestrictions.stun      = wrSupport.get("stun").getAsBoolean();
+        dto.common.weaponRestrictions.chaff     = wrSupport.get("chaff").getAsBoolean();
+        dto.common.weaponRestrictions.smoke     = wrSupport.get("smoke").getAsBoolean();
+        dto.common.weaponRestrictions.smoke_r   = wrSupport.get("smoke_r").getAsBoolean();
+        dto.common.weaponRestrictions.smoke_g   = wrSupport.get("smoke_g").getAsBoolean();
+        dto.common.weaponRestrictions.smoke_y   = wrSupport.get("smoke_y").getAsBoolean();
+        dto.common.weaponRestrictions.eloc      = wrSupport.get("eloc").getAsBoolean();
+        dto.common.weaponRestrictions.claymore  = wrSupport.get("claymore").getAsBoolean();
+        dto.common.weaponRestrictions.sgmine    = wrSupport.get("sgmine").getAsBoolean();
+        dto.common.weaponRestrictions.c4        = wrSupport.get("c4").getAsBoolean();
         dto.common.weaponRestrictions.sgsatchel = wrSupport.get("sgsatchel").getAsBoolean();
-        dto.common.weaponRestrictions.magazine = wrSupport.get("magazine").getAsBoolean();
+        dto.common.weaponRestrictions.magazine  = wrSupport.get("magazine").getAsBoolean();
 
         JsonObject wrCustom = weaponRestrictions.get("custom").getAsJsonObject();
         dto.common.weaponRestrictions.suppressor = wrCustom.get("suppressor").getAsBoolean();
-        dto.common.weaponRestrictions.gp30 = wrCustom.get("gp30").getAsBoolean();
-        dto.common.weaponRestrictions.xm320 = wrCustom.get("xm320").getAsBoolean();
-        dto.common.weaponRestrictions.masterkey = wrCustom.get("masterkey").getAsBoolean();
-        dto.common.weaponRestrictions.scope = wrCustom.get("scope").getAsBoolean();
-        dto.common.weaponRestrictions.sight = wrCustom.get("sight").getAsBoolean();
-        dto.common.weaponRestrictions.laser = wrCustom.get("laser").getAsBoolean();
-        dto.common.weaponRestrictions.lighthg = wrCustom.get("lighthg").getAsBoolean();
-        dto.common.weaponRestrictions.lightlg = wrCustom.get("lightlg").getAsBoolean();
-        dto.common.weaponRestrictions.grip = wrCustom.get("grip").getAsBoolean();
+        dto.common.weaponRestrictions.gp30       = wrCustom.get("gp30").getAsBoolean();
+        dto.common.weaponRestrictions.xm320      = wrCustom.get("xm320").getAsBoolean();
+        dto.common.weaponRestrictions.masterkey  = wrCustom.get("masterkey").getAsBoolean();
+        dto.common.weaponRestrictions.scope      = wrCustom.get("scope").getAsBoolean();
+        dto.common.weaponRestrictions.sight      = wrCustom.get("sight").getAsBoolean();
+        dto.common.weaponRestrictions.laser      = wrCustom.get("laser").getAsBoolean();
+        dto.common.weaponRestrictions.lighthg    = wrCustom.get("lighthg").getAsBoolean();
+        dto.common.weaponRestrictions.lightlg    = wrCustom.get("lightlg").getAsBoolean();
+        dto.common.weaponRestrictions.grip       = wrCustom.get("grip").getAsBoolean();
 
         JsonObject wrItems = weaponRestrictions.get("items").getAsJsonObject();
         dto.common.weaponRestrictions.envg = wrItems.get("envg").getAsBoolean();
@@ -232,56 +232,56 @@ public class HostSettingsDto {
         JsonObject ruleSettings = settings.get("ruleSettings").getAsJsonObject();
 
         JsonObject dm = ruleSettings.get("dm").getAsJsonObject();
-        dto.ruleSettings.dmTime = dm.get("time").getAsInt();
-        dto.ruleSettings.dmRounds = dm.get("rounds").getAsInt();
+        dto.ruleSettings.dmTime    = dm.get("time").getAsInt();
+        dto.ruleSettings.dmRounds  = dm.get("rounds").getAsInt();
         dto.ruleSettings.dmTickets = dm.get("tickets").getAsInt();
 
         JsonObject tdm = ruleSettings.get("tdm").getAsJsonObject();
-        dto.ruleSettings.tdmTime = tdm.get("time").getAsInt();
-        dto.ruleSettings.tdmRounds = tdm.get("rounds").getAsInt();
+        dto.ruleSettings.tdmTime    = tdm.get("time").getAsInt();
+        dto.ruleSettings.tdmRounds  = tdm.get("rounds").getAsInt();
         dto.ruleSettings.tdmTickets = tdm.get("tickets").getAsInt();
 
         JsonObject res = ruleSettings.get("res").getAsJsonObject();
-        dto.ruleSettings.resTime = res.get("time").getAsInt();
+        dto.ruleSettings.resTime   = res.get("time").getAsInt();
         dto.ruleSettings.resRounds = res.get("rounds").getAsInt();
 
         JsonObject cap = ruleSettings.get("cap").getAsJsonObject();
-        dto.ruleSettings.capTime = cap.get("time").getAsInt();
-        dto.ruleSettings.capRounds = cap.get("rounds").getAsInt();
+        dto.ruleSettings.capTime      = cap.get("time").getAsInt();
+        dto.ruleSettings.capRounds    = cap.get("rounds").getAsInt();
         dto.ruleSettings.capExtraTime = cap.get("extraTime").getAsBoolean();
 
         JsonObject sne = ruleSettings.get("sne").getAsJsonObject();
-        dto.ruleSettings.sneTime = sne.get("time").getAsInt();
+        dto.ruleSettings.sneTime   = sne.get("time").getAsInt();
         dto.ruleSettings.sneRounds = sne.get("rounds").getAsInt();
-        dto.ruleSettings.sneSnake = sne.get("snake").getAsInt();
+        dto.ruleSettings.sneSnake  = sne.get("snake").getAsInt();
 
         JsonObject base = ruleSettings.get("base").getAsJsonObject();
-        dto.ruleSettings.baseTime = base.get("time").getAsInt();
+        dto.ruleSettings.baseTime   = base.get("time").getAsInt();
         dto.ruleSettings.baseRounds = base.get("rounds").getAsInt();
 
         JsonObject bomb = ruleSettings.get("bomb").getAsJsonObject();
-        dto.ruleSettings.bombTime = bomb.get("time").getAsInt();
+        dto.ruleSettings.bombTime   = bomb.get("time").getAsInt();
         dto.ruleSettings.bombRounds = bomb.get("rounds").getAsInt();
 
         JsonObject tsne = ruleSettings.get("tsne").getAsJsonObject();
-        dto.ruleSettings.tsneTime = tsne.get("time").getAsInt();
+        dto.ruleSettings.tsneTime   = tsne.get("time").getAsInt();
         dto.ruleSettings.tsneRounds = tsne.get("rounds").getAsInt();
 
         JsonObject sdm = ruleSettings.get("sdm").getAsJsonObject();
-        dto.ruleSettings.sdmTime = sdm.get("time").getAsInt();
+        dto.ruleSettings.sdmTime   = sdm.get("time").getAsInt();
         dto.ruleSettings.sdmRounds = sdm.get("rounds").getAsInt();
 
         JsonObject intr = ruleSettings.get("int").getAsJsonObject();
         dto.ruleSettings.intTime = intr.get("time").getAsInt();
 
         JsonObject scap = ruleSettings.get("scap").getAsJsonObject();
-        dto.ruleSettings.scapTime = scap.get("time").getAsInt();
-        dto.ruleSettings.scapRounds = scap.get("rounds").getAsInt();
+        dto.ruleSettings.scapTime      = scap.get("time").getAsInt();
+        dto.ruleSettings.scapRounds    = scap.get("rounds").getAsInt();
         dto.ruleSettings.scapExtraTime = scap.get("extraTime").getAsBoolean();
 
         JsonObject race = ruleSettings.get("race").getAsJsonObject();
-        dto.ruleSettings.raceTime = race.get("time").getAsInt();
-        dto.ruleSettings.raceRounds = race.get("rounds").getAsInt();
+        dto.ruleSettings.raceTime      = race.get("time").getAsInt();
+        dto.ruleSettings.raceRounds    = race.get("rounds").getAsInt();
         dto.ruleSettings.raceExtraTime = race.get("extraTime").getAsBoolean();
 
         return dto;

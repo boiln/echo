@@ -36,7 +36,7 @@ public class LobbyService {
             session = DbManager.getSession();
             session.beginTransaction();
 
-            for (Lobby lobby : lobbies) {
+            for (Lobby lobby: lobbies) {
                 Query<?> query = session.createQuery("delete Game where lobby=:lobby");
                 query.setParameter("lobby", lobby);
                 query.executeUpdate();
@@ -55,16 +55,19 @@ public class LobbyService {
         try {
             Collection<Lobby> lobbies = ActiveLobbies.get().values();
 
-            for (Lobby lobby : lobbies) {
+            for (Lobby lobby: lobbies) {
                 List<User> users = ActiveUsers.get((user) -> {
                     try {
                         Character character = user.getCurrentCharacter();
+
                         if (character == null || character.getLobbyId() == null) {
                             return false;
                         }
+
                         return character.getLobbyId() == lobby.getId();
                     } catch (Exception ex) {
                         logger.error("Exception while updating lobby counts.", ex);
+
                         return false;
                     }
                 });
@@ -74,7 +77,7 @@ public class LobbyService {
             session = DbManager.getSession();
             session.beginTransaction();
 
-            for (Lobby lobby : lobbies) {
+            for (Lobby lobby: lobbies) {
                 session.update(lobby);
             }
 

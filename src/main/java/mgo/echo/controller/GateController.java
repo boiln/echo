@@ -57,17 +57,19 @@ public class GateController implements Controller {
                 Util.writeString(lobby.getName(), 16, bo);
                 Util.writeString(lobby.getIp(), 15, bo);
                 bo.writeShort(lobby.getPort()).writeShort(lobby.getPlayers()).writeShort(lobby.getId())
-                        .writeByte(restriction);
+                    .writeByte(restriction);
             });
 
             Packets.write(ctx.nettyCtx(), 0x2002, 0);
             Packets.write(ctx.nettyCtx(), 0x2003, payloads);
             Packets.write(ctx.nettyCtx(), 0x2004, 0);
+
             return true;
         } catch (Exception e) {
             logger.error("Exception while getting lobby list.", e);
             Util.releaseBuffers(payloads);
             Packets.write(ctx.nettyCtx(), 0x2002, Error.GENERAL);
+
             return false;
         }
     }
@@ -88,7 +90,7 @@ public class GateController implements Controller {
             DbManager.closeSession(session);
 
             int newsItems = news.size();
-            bos = new ByteBuf[newsItems];
+            bos = new ByteBuf [newsItems];
 
             for (int i = 0; i < newsItems; i++) {
                 News newsItem = news.get(i);
@@ -108,12 +110,14 @@ public class GateController implements Controller {
             Packets.write(ctx.nettyCtx(), 0x2009, 0);
             Packets.write(ctx.nettyCtx(), 0x200a, bos);
             Packets.write(ctx.nettyCtx(), 0x200b, 0);
+
             return true;
         } catch (Exception e) {
             logger.error("Exception while getting news.", e);
             DbManager.rollbackAndClose(session);
             Util.releaseBuffers(bos);
             Packets.write(ctx.nettyCtx(), 0x2009, Error.GENERAL);
+
             return false;
         }
     }

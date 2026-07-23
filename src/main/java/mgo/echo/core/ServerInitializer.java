@@ -17,7 +17,7 @@ public class ServerInitializer extends ChannelInitializer<SocketChannel> {
     private final EventExecutorGroup executorGroup;
 
     public ServerInitializer(BaseLobby lobby, EventExecutorGroup executorGroup) {
-        this.lobby = lobby;
+        this.lobby         = lobby;
         this.executorGroup = executorGroup;
     }
 

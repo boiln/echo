@@ -35,8 +35,9 @@ public final class StatsPacket {
     private StatsPacket() {
     }
 
-    public static void write(ChannelHandlerContext ctx, int targetCharaId, Character targetCharacter,
-            CharacterStats stats, int playtimeSeconds, boolean hasClan, String clanName) {
+    public static void write(ChannelHandlerContext ctx, int targetCharaId,
+        Character targetCharacter, CharacterStats stats, int playtimeSeconds, boolean hasClan,
+        String clanName) {
         ByteBuf bo1 = null;
         ByteBuf bo2 = null;
         ByteBuf bo3 = null;
@@ -51,38 +52,48 @@ public final class StatsPacket {
 
             int exp = targetCharacter.getExp() != null ? targetCharacter.getExp() : 0;
             int toExpOffset = HEADER_EXP_OFFSET - bo1.writerIndex();
+
             if (toExpOffset > 0) {
                 bo1.writeZero(toExpOffset);
             }
+
             bo1.writeInt(exp);
 
             String safeClanName = clanName != null ? clanName : "";
             String clanTag = hasClan && !safeClanName.isEmpty() ? ";" + safeClanName : "";
 
             int toClanOffset = HEADER_CLAN_TAG_OFFSET - bo1.writerIndex();
+
             if (toClanOffset > 0) {
                 bo1.writeZero(toClanOffset);
             }
+
             bo1.writeByte(hasClan ? 0x12 : 0x00);
             Util.writeString(clanTag, HEADER_CLAN_TAG_LENGTH, bo1);
 
             int toClanTrailerOffset = HEADER_CLAN_TRAILER_OFFSET - bo1.writerIndex();
+
             if (toClanTrailerOffset > 0) {
                 bo1.writeZero(toClanTrailerOffset);
             }
+
             bo1.writeInt(0x00000100);
 
             String comment = targetCharacter.getComment() != null ? targetCharacter.getComment() : "";
             int toCommentOffset = HEADER_COMMENT_OFFSET - bo1.writerIndex();
+
             if (toCommentOffset > 0) {
                 bo1.writeZero(toCommentOffset);
             }
+
             Util.writeString(comment, 128, bo1);
 
             int toInstructorOffset = HEADER_INSTRUCTOR_OFFSET - bo1.writerIndex();
+
             if (toInstructorOffset > 0) {
                 bo1.writeZero(toInstructorOffset);
             }
+
             Util.writeString("", 16, bo1);
 
             bo1.writeZero(STATS_BUFFER_SIZE - bo1.writerIndex());
@@ -91,11 +102,13 @@ public final class StatsPacket {
             bo2 = ctx.alloc().directBuffer(STATS_BUFFER_SIZE);
             bo2.writeZero(80);
             writeAggregateStatsBlock(bo2, stats);
+
             for (int mode = 0; mode <= 10; mode++) {
                 writeModeStatsBlock(bo2, stats, mode);
             }
 
             int safePlaytimeSeconds = playtimeSeconds;
+
             if (safePlaytimeSeconds < 0) {
                 safePlaytimeSeconds = 0;
             }
@@ -134,19 +147,23 @@ public final class StatsPacket {
             Packets.write(ctx, CharactersCmd.GET_PERSONAL_STATS_HEADER, Error.GENERAL);
         } finally {
             if (bo1 != null)
-                bo1.release();
+            bo1.release();
+
             if (bo2 != null)
-                bo2.release();
+            bo2.release();
+
             if (bo3 != null)
-                bo3.release();
+            bo3.release();
+
             if (bo4 != null)
-                bo4.release();
+            bo4.release();
         }
     }
 
     private static void writeAggregateStatsBlock(ByteBuf buf, CharacterStats stats) {
         if (stats == null) {
             buf.writeZero(MODE_STATS_BLOCK_SIZE);
+
             return;
         }
 
@@ -173,13 +190,16 @@ public final class StatsPacket {
     private static void writeModeStatsBlock(ByteBuf buf, CharacterStats stats, int mode) {
         if (stats == null) {
             buf.writeZero(MODE_STATS_BLOCK_SIZE);
+
             return;
         }
 
         try {
             String json = stats.getStatsByMode(mode);
+
             if (json == null || json.isEmpty()) {
                 buf.writeZero(MODE_STATS_BLOCK_SIZE);
+
                 return;
             }
 
@@ -213,6 +233,7 @@ public final class StatsPacket {
         if (json != null && json.has(key) && !json.get(key).isJsonNull()) {
             return json.get(key).getAsInt();
         }
+
         return 0;
     }
 }

@@ -45,11 +45,13 @@ public class NamedParameterStatement {
         char quotationStart = EMPTY;
         boolean inSingleQuotes = false;
         boolean inDoubleQuotes = false;
+
         for (int i = start; i < query.length(); i++) {
             char c = query.charAt(i);
 
             // for escaped (checking if it necessary)
             char before = EMPTY;
+
             if (i != 0) {
                 before = query.charAt(i - 1);
             }
@@ -58,12 +60,14 @@ public class NamedParameterStatement {
                 if (c == '\'') {
                     if (inSingleQuotes) {
                         inSingleQuotes = false;
+
                         if (quotationStart == '\'') {
                             quotationStart = EMPTY;
-                            inDoubleQuotes = false;//
+                            inDoubleQuotes = false; //
                         }
                     } else {
                         inSingleQuotes = true;
+
                         if (quotationStart == EMPTY) {
                             quotationStart = c;
                         }
@@ -72,18 +76,21 @@ public class NamedParameterStatement {
                 } else if (c == '"') {
                     if (inDoubleQuotes) {
                         inDoubleQuotes = false;
+
                         if (quotationStart == '"') {
                             quotationStart = EMPTY;
                             inSingleQuotes = false;
                         }
                     } else {
                         inDoubleQuotes = true;
+
                         if (quotationStart == EMPTY) {
                             quotationStart = c;
                         }
                     }
                 }
             }
+
             if ((quotationStart == '\'' && inSingleQuotes) || (quotationStart == '"' && inDoubleQuotes)) {
                 continue;
             }
@@ -99,6 +106,7 @@ public class NamedParameterStatement {
 
     private static int findEndofVariable(StringBuffer sql, int idx) {
         int i = idx + 1;
+
         while (i < sql.length() && Character.isJavaIdentifierPart(sql.charAt(i))) {
             i++;
         }
@@ -118,10 +126,12 @@ public class NamedParameterStatement {
             sql = sql.replace(idx, end, "?");
 
             List<Integer> variableList = variables.get(name);
+
             if (variableList == null) {
                 variableList = new ArrayList<>();
                 variables.put(name, variableList);
             }
+
             variableList.add(variableNumber);
             variableNumber++;
 
@@ -129,11 +139,11 @@ public class NamedParameterStatement {
         }
 
         variablesMap = new HashMap<>(variables.size());
-        for (Map.Entry<String, List<Integer>> entry : variables.entrySet()) {
+        for (Map.Entry<String, List<Integer>> entry: variables.entrySet()) {
             List<Integer> list = entry.getValue();
-            int[] indexes = new int[list.size()];
+            int[] indexes = new int [list.size()];
             int i = 0;
-            for (Integer x : list) {
+            for (Integer x: list) {
                 indexes[i++] = x;
             }
             variablesMap.put(entry.getKey(), indexes);
@@ -144,6 +154,7 @@ public class NamedParameterStatement {
 
     private int[] getVariableIndexes(String name) {
         int[] indexes = variablesMap.get(name);
+
         if (indexes == null) {
             throw new IllegalStateException("Parameter not found: " + name);
         }
@@ -153,70 +164,70 @@ public class NamedParameterStatement {
 
     public void setObject(String name, Object value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setObject(index, value);
         }
     }
 
     public void setString(String name, String value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setString(index, value);
         }
     }
 
     public void setInt(String name, int value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setInt(index, value);
         }
     }
 
     public void setBigDecimal(String name, BigDecimal value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setBigDecimal(index, value);
         }
     }
 
     public void setLong(String name, long value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setLong(index, value);
         }
     }
 
     public void setTimestamp(String name, Timestamp value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setTimestamp(index, value);
         }
     }
 
     public void setTime(String name, Time value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setTime(index, value);
         }
     }
 
     public void setDouble(String name, double value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setDouble(index, value);
         }
     }
 
     public void setBoolean(String name, boolean value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setBoolean(index, value);
         }
     }
 
     public void setBytes(String name, byte[] value) throws SQLException {
         int[] indexes = getVariableIndexes(name);
-        for (int index : indexes) {
+        for (int index: indexes) {
             statement.setBytes(index, value);
         }
     }

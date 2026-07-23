@@ -113,7 +113,7 @@ public class HostSettingsPacket {
     public static HostSettingsDto read(ByteBuf bi) {
         HostSettingsDto settings = new HostSettingsDto();
 
-        settings.name = Util.readString(bi, 0x10, CharsetUtil.UTF_8);
+        settings.name    = Util.readString(bi, 0x10, CharsetUtil.UTF_8);
         settings.comment = Util.readString(bi, 0x80, CharsetUtil.UTF_8);
 
         boolean passwordEnabled = bi.readBoolean();
@@ -123,14 +123,14 @@ public class HostSettingsPacket {
 
         bi.skipBytes(1); // lobbySubtype2 - not used
 
-        byte[] gamesBytes = new byte[GAMES_BYTES_SIZE];
+        byte[] gamesBytes = new byte [GAMES_BYTES_SIZE];
         bi.readBytes(gamesBytes);
 
         bi.skipBytes(5);
-        byte[] wrBytes = new byte[WR_SIZE];
+        byte[] wrBytes = new byte [WR_SIZE];
         bi.readBytes(wrBytes);
 
-        settings.common.maxPlayers = bi.readByte();
+        settings.common.maxPlayers   = bi.readByte();
         settings.common.briefingTime = bi.readInt();
         bi.skipBytes(0xc);
         settings.stance = bi.readByte();
@@ -149,15 +149,15 @@ public class HostSettingsPacket {
         bi.skipBytes(1);
         int teamKillKick = bi.readByte();
         settings.ruleSettings.capExtraTime = bi.readBoolean();
-        settings.ruleSettings.sneSnake = bi.readByte();
-        settings.ruleSettings.sdmTime = bi.readByte();
-        settings.ruleSettings.sdmRounds = bi.readByte();
-        settings.ruleSettings.intTime = bi.readByte();
-        settings.ruleSettings.dmRounds = bi.readByte();
-        settings.ruleSettings.scapTime = bi.readByte();
-        settings.ruleSettings.scapRounds = bi.readByte();
-        settings.ruleSettings.raceTime = bi.readByte();
-        settings.ruleSettings.raceRounds = bi.readByte();
+        settings.ruleSettings.sneSnake     = bi.readByte();
+        settings.ruleSettings.sdmTime      = bi.readByte();
+        settings.ruleSettings.sdmRounds    = bi.readByte();
+        settings.ruleSettings.intTime      = bi.readByte();
+        settings.ruleSettings.dmRounds     = bi.readByte();
+        settings.ruleSettings.scapTime     = bi.readByte();
+        settings.ruleSettings.scapRounds   = bi.readByte();
+        settings.ruleSettings.raceTime     = bi.readByte();
+        settings.ruleSettings.raceRounds   = bi.readByte();
 
         bi.skipBytes(1);
         int extraTimeFlags = bi.readByte();
@@ -177,6 +177,7 @@ public class HostSettingsPacket {
             bo.writeByte(1);
             Util.writeString(password, 0x0f, bo);
             bo.writeZero(1);
+
             return;
         }
 
@@ -187,16 +188,18 @@ public class HostSettingsPacket {
         if (passwordEnabled) {
             String password = Util.readString(bi, 0xf, CharsetUtil.UTF_8);
             bi.skipBytes(1);
+
             return password;
         }
 
         bi.skipBytes(0x10);
+
         return null;
     }
 
     private static void writeGames(ByteBuf bo, JsonArray games) {
-        for (JsonElement o : games) {
-            JsonArray game = (JsonArray) o;
+        for (JsonElement o: games) {
+            JsonArray game = (JsonArray)o;
             int rule = game.get(0).getAsInt();
             int map = game.get(1).getAsInt();
             int flags = game.get(2).getAsInt();
@@ -231,7 +234,7 @@ public class HostSettingsPacket {
         int uniqueBlue = common.uniqueBlue;
 
         if (common.uniquesRandom) {
-            uniqueRed += 0x80;
+            uniqueRed  += 0x80;
             uniqueBlue += 0x80;
         }
 
@@ -257,22 +260,22 @@ public class HostSettingsPacket {
     }
 
     private static void readRuleSettingsInts(ByteBuf bi, RuleSettings rules) {
-        rules.sneTime = bi.readInt();
-        rules.sneRounds = bi.readInt();
-        rules.capTime = bi.readInt();
-        rules.capRounds = bi.readInt();
-        rules.resTime = bi.readInt();
-        rules.resRounds = bi.readInt();
-        rules.tdmTime = bi.readInt();
-        rules.tdmRounds = bi.readInt();
+        rules.sneTime    = bi.readInt();
+        rules.sneRounds  = bi.readInt();
+        rules.capTime    = bi.readInt();
+        rules.capRounds  = bi.readInt();
+        rules.resTime    = bi.readInt();
+        rules.resRounds  = bi.readInt();
+        rules.tdmTime    = bi.readInt();
+        rules.tdmRounds  = bi.readInt();
         rules.tdmTickets = bi.readInt();
-        rules.dmTime = bi.readInt();
-        rules.dmTickets = bi.readInt();
-        rules.baseTime = bi.readInt();
+        rules.dmTime     = bi.readInt();
+        rules.dmTickets  = bi.readInt();
+        rules.baseTime   = bi.readInt();
         rules.baseRounds = bi.readInt();
-        rules.bombTime = bi.readInt();
+        rules.bombTime   = bi.readInt();
         rules.bombRounds = bi.readInt();
-        rules.tsneTime = bi.readInt();
+        rules.tsneTime   = bi.readInt();
         rules.tsneRounds = bi.readInt();
     }
 
@@ -283,6 +286,7 @@ public class HostSettingsPacket {
         commonA |= common.ghosts ? 0b10000 : 0;
         commonA |= common.autoAim ? 0b100000 : 0;
         commonA |= common.uniquesEnabled ? 0b10000000 : 0;
+
         return commonA;
     }
 
@@ -295,6 +299,7 @@ public class HostSettingsPacket {
         commonB |= common.levelLimitEnabled ? 0b10000 : 0;
         commonB |= common.voiceChat ? 0b1000000 : 0;
         commonB |= common.teamKillKick > 0 ? 0b10000000 : 0;
+
         return commonB;
     }
 
@@ -302,17 +307,19 @@ public class HostSettingsPacket {
         int extraTimeFlags = 0;
         extraTimeFlags |= !rules.scapExtraTime ? 0b1 : 0;
         extraTimeFlags |= !rules.raceExtraTime ? 0b100 : 0;
+
         return extraTimeFlags;
     }
 
     private static int buildHostOptions(CommonSettings common) {
         int hostOptions = 0;
         hostOptions |= common.nonStat ? 0b10 : 0;
+
         return hostOptions;
     }
 
     private static byte[] buildWeaponRestrictionBytes(WeaponRestrictions wr) {
-        byte[] wrBytes = new byte[WR_SIZE];
+        byte[] wrBytes = new byte [WR_SIZE];
 
         wrBytes[0] |= wr.enabled ? 0b1 : 0;
         wrBytes[0] |= !wr.knife ? 0b10 : 0;
@@ -387,42 +394,46 @@ public class HostSettingsPacket {
     }
 
     private static void parseCommonFlags(CommonSettings common, int commonA, int commonB,
-            int hostOptions, int idleKick, int teamKillKick) {
-        common.nonStat = (hostOptions & 0b10) == 0b10;
-        common.friendlyFire = (commonA & 0b1000) == 0b1000;
-        common.autoAim = (commonA & 0b100000) == 0b100000;
-        common.enemyNametags = (commonB & 0b1000) == 0b1000;
-        common.silentMode = (commonB & 0b100) == 0b100;
-        common.autoAssign = (commonB & 0b10) == 0b10;
-        common.teamsSwitch = (commonB & 0b1) == 0b1;
-        common.ghosts = (commonA & 0b10000) == 0b10000;
-        common.voiceChat = (commonB & 0b1000000) == 0b1000000;
+        int hostOptions, int idleKick, int teamKillKick) {
+        common.nonStat           = (hostOptions & 0b10) == 0b10;
+        common.friendlyFire      = (commonA & 0b1000) == 0b1000;
+        common.autoAim           = (commonA & 0b100000) == 0b100000;
+        common.enemyNametags     = (commonB & 0b1000) == 0b1000;
+        common.silentMode        = (commonB & 0b100) == 0b100;
+        common.autoAssign        = (commonB & 0b10) == 0b10;
+        common.teamsSwitch       = (commonB & 0b1) == 0b1;
+        common.ghosts            = (commonA & 0b10000) == 0b10000;
+        common.voiceChat         = (commonB & 0b1000000) == 0b1000000;
         common.levelLimitEnabled = (commonB & 0b10000) == 0b10000;
 
         int adjustedTeamKillKick = teamKillKick;
         int adjustedIdleKick = idleKick;
+
         if ((commonB & 0b10000000) != 0b10000000) {
             adjustedTeamKillKick = 0;
         }
+
         if ((commonA & 0b1) != 0b1) {
             adjustedIdleKick = 0;
         }
 
         common.teamKillKick = adjustedTeamKillKick;
-        common.idleKick = adjustedIdleKick;
+        common.idleKick     = adjustedIdleKick;
     }
 
-    private static void parseUniques(CommonSettings common, int uniqueRed, int uniqueBlue, int commonA) {
+    private static void parseUniques(CommonSettings common, int uniqueRed, int uniqueBlue,
+        int commonA) {
         common.uniquesEnabled = (commonA & 0b10000000) == 0b10000000;
-        common.uniquesRandom = (uniqueRed & 0x80) == 0x80;
+        common.uniquesRandom  = (uniqueRed & 0x80) == 0x80;
         int adjustedRed = uniqueRed;
         int adjustedBlue = uniqueBlue;
+
         if (common.uniquesRandom) {
-            adjustedRed = uniqueRed & 0x7F;
+            adjustedRed  = uniqueRed & 0x7F;
             adjustedBlue = uniqueBlue & 0x7F;
         }
 
-        common.uniqueRed = adjustedRed;
+        common.uniqueRed  = adjustedRed;
         common.uniqueBlue = adjustedBlue;
     }
 
@@ -434,59 +445,59 @@ public class HostSettingsPacket {
     private static void parseWeaponRestrictions(WeaponRestrictions wr, byte[] wrBytes) {
         wr.enabled = (wrBytes[0] & 0b1) == 0b1;
 
-        wr.vz = (wrBytes[2] & 0b10000000) == 0;
-        wr.p90 = (wrBytes[2] & 0b10000) == 0;
-        wr.mp5 = (wrBytes[2] & 0b100) == 0;
+        wr.vz      = (wrBytes[2] & 0b10000000) == 0;
+        wr.p90     = (wrBytes[2] & 0b10000) == 0;
+        wr.mp5     = (wrBytes[2] & 0b100) == 0;
         wr.patriot = (wrBytes[2] & 0b1000000) == 0;
-        wr.ak = (wrBytes[3] & 0b10) == 0;
-        wr.m4 = (wrBytes[3] & 0b1) == 0;
-        wr.mk17 = (wrBytes[3] & 0b1000000) == 0;
-        wr.xm8 = (wrBytes[3] & 0b10000000) == 0;
-        wr.g3a3 = (wrBytes[3] & 0b100) == 0;
-        wr.svd = (wrBytes[5] & 0b10000) == 0;
-        wr.mosin = (wrBytes[5] & 0b1000) == 0;
-        wr.m14 = (wrBytes[5] & 0b100) == 0;
-        wr.vss = (wrBytes[4] & 0b10000000) == 0;
-        wr.dsr = (wrBytes[5] & 0b10) == 0;
-        wr.m870 = (wrBytes[4] & 0b100000) == 0;
-        wr.saiga = (wrBytes[4] & 0b1000000) == 0;
-        wr.m60 = (wrBytes[4] & 0b1000) == 0;
-        wr.shield = (wrBytes[9] & 0b10) == 0;
-        wr.rpg = (wrBytes[6] & 0b100) == 0;
-        wr.knife = (wrBytes[0] & 0b10) == 0;
+        wr.ak      = (wrBytes[3] & 0b10) == 0;
+        wr.m4      = (wrBytes[3] & 0b1) == 0;
+        wr.mk17    = (wrBytes[3] & 0b1000000) == 0;
+        wr.xm8     = (wrBytes[3] & 0b10000000) == 0;
+        wr.g3a3    = (wrBytes[3] & 0b100) == 0;
+        wr.svd     = (wrBytes[5] & 0b10000) == 0;
+        wr.mosin   = (wrBytes[5] & 0b1000) == 0;
+        wr.m14     = (wrBytes[5] & 0b100) == 0;
+        wr.vss     = (wrBytes[4] & 0b10000000) == 0;
+        wr.dsr     = (wrBytes[5] & 0b10) == 0;
+        wr.m870    = (wrBytes[4] & 0b100000) == 0;
+        wr.saiga   = (wrBytes[4] & 0b1000000) == 0;
+        wr.m60     = (wrBytes[4] & 0b1000) == 0;
+        wr.shield  = (wrBytes[9] & 0b10) == 0;
+        wr.rpg     = (wrBytes[6] & 0b100) == 0;
+        wr.knife   = (wrBytes[0] & 0b10) == 0;
 
-        wr.gsr = (wrBytes[0] & 0b10000000) == 0;
-        wr.mk2 = (wrBytes[0] & 0b100) == 0;
+        wr.gsr      = (wrBytes[0] & 0b10000000) == 0;
+        wr.mk2      = (wrBytes[0] & 0b100) == 0;
         wr.operator = (wrBytes[0] & 0b1000) == 0;
-        wr.g18 = (wrBytes[1] & 0b10000000) == 0;
-        wr.mk23 = (wrBytes[0] & 0b10000) == 0;
-        wr.de = (wrBytes[1] & 0b1) == 0;
+        wr.g18      = (wrBytes[1] & 0b10000000) == 0;
+        wr.mk23     = (wrBytes[0] & 0b10000) == 0;
+        wr.de       = (wrBytes[1] & 0b1) == 0;
 
-        wr.grenade = (wrBytes[6] & 0b10000) == 0;
-        wr.wp = (wrBytes[6] & 0b100000) == 0;
-        wr.stun = (wrBytes[6] & 0b1000000) == 0;
-        wr.chaff = (wrBytes[6] & 0b10000000) == 0;
-        wr.smoke = (wrBytes[7] & 0b1) == 0;
-        wr.smoke_r = (wrBytes[7] & 0b10) == 0;
-        wr.smoke_g = (wrBytes[7] & 0b100) == 0;
-        wr.smoke_y = (wrBytes[7] & 0b1000) == 0;
-        wr.eloc = (wrBytes[7] & 0b10000000) == 0;
-        wr.claymore = (wrBytes[8] & 0b1) == 0;
-        wr.sgmine = (wrBytes[8] & 0b10) == 0;
-        wr.c4 = (wrBytes[8] & 0b100) == 0;
+        wr.grenade   = (wrBytes[6] & 0b10000) == 0;
+        wr.wp        = (wrBytes[6] & 0b100000) == 0;
+        wr.stun      = (wrBytes[6] & 0b1000000) == 0;
+        wr.chaff     = (wrBytes[6] & 0b10000000) == 0;
+        wr.smoke     = (wrBytes[7] & 0b1) == 0;
+        wr.smoke_r   = (wrBytes[7] & 0b10) == 0;
+        wr.smoke_g   = (wrBytes[7] & 0b100) == 0;
+        wr.smoke_y   = (wrBytes[7] & 0b1000) == 0;
+        wr.eloc      = (wrBytes[7] & 0b10000000) == 0;
+        wr.claymore  = (wrBytes[8] & 0b1) == 0;
+        wr.sgmine    = (wrBytes[8] & 0b10) == 0;
+        wr.c4        = (wrBytes[8] & 0b100) == 0;
         wr.sgsatchel = (wrBytes[8] & 0b1000) == 0;
-        wr.magazine = (wrBytes[8] & 0b100000) == 0;
+        wr.magazine  = (wrBytes[8] & 0b100000) == 0;
 
         wr.suppressor = (wrBytes[9] & 0b100000) == 0;
-        wr.gp30 = (wrBytes[9] & 0b10000) == 0;
-        wr.xm320 = (wrBytes[9] & 0b1000) == 0;
-        wr.masterkey = (wrBytes[9] & 0b100) == 0;
-        wr.scope = (wrBytes[11] & 0b10000) == 0;
-        wr.sight = (wrBytes[11] & 0b100000) == 0;
-        wr.laser = (wrBytes[12] & 0b1) == 0;
-        wr.lighthg = (wrBytes[12] & 0b10) == 0;
-        wr.lightlg = (wrBytes[11] & 0b10000000) == 0;
-        wr.grip = (wrBytes[12] & 0b100) == 0;
+        wr.gp30       = (wrBytes[9] & 0b10000) == 0;
+        wr.xm320      = (wrBytes[9] & 0b1000) == 0;
+        wr.masterkey  = (wrBytes[9] & 0b100) == 0;
+        wr.scope      = (wrBytes[11] & 0b10000) == 0;
+        wr.sight      = (wrBytes[11] & 0b100000) == 0;
+        wr.laser      = (wrBytes[12] & 0b1) == 0;
+        wr.lighthg    = (wrBytes[12] & 0b10) == 0;
+        wr.lightlg    = (wrBytes[11] & 0b10000000) == 0;
+        wr.grip       = (wrBytes[12] & 0b100) == 0;
 
         wr.envg = (wrBytes[14] & 0b1000000) == 0;
         wr.drum = (wrBytes[13] & 0b100) == 0;
@@ -499,11 +510,12 @@ public class HostSettingsPacket {
         for (int i = 0; i < games.size(); i++) {
             JsonArray game = games.get(i).getAsJsonArray();
             int rule = game.get(0).getAsInt();
+
             if (rule == 11) {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

@@ -86,8 +86,8 @@ public class GameplayOptionsDto {
 
         dto.onlineStatusMode = data.get("onlineStatusMode").getAsInt();
         dto.emailFriendsOnly = data.get("emailFriendsOnly").getAsBoolean();
-        dto.receiveNotices = data.get("receiveNotices").getAsBoolean();
-        dto.receiveInvites = data.get("receiveInvites").getAsBoolean();
+        dto.receiveNotices   = data.get("receiveNotices").getAsBoolean();
+        dto.receiveInvites   = data.get("receiveInvites").getAsBoolean();
 
         dto.normalViewVerticalInvert = data.get("normalViewVerticalInvert").getAsBoolean();
         dto.normalViewHorizontalInvert = data.get("normalViewHorizontalInvert").getAsBoolean();
@@ -100,45 +100,45 @@ public class GameplayOptionsDto {
         dto.firstViewSpeed = data.get("firstViewSpeed").getAsInt();
 
         dto.firstViewPlayerDirection = data.get("firstViewPlayerDirection").getAsBoolean();
-        dto.viewChangeSpeed = data.get("viewChangeSpeed").getAsInt();
-        dto.firstViewMemory = data.get("firstViewMemory").getAsBoolean();
-        dto.radarLockNorth = data.get("radarLockNorth").getAsBoolean();
-        dto.radarFloorHide = data.get("radarFloorHide").getAsBoolean();
-        dto.hudDisplaySize = data.get("hudDisplaySize").getAsInt();
-        dto.hudHideNameTags = data.get("hudHideNameTags").getAsBoolean();
-        dto.lockOnEnabled = data.get("lockOnEnabled").getAsBoolean();
+        dto.viewChangeSpeed          = data.get("viewChangeSpeed").getAsInt();
+        dto.firstViewMemory          = data.get("firstViewMemory").getAsBoolean();
+        dto.radarLockNorth           = data.get("radarLockNorth").getAsBoolean();
+        dto.radarFloorHide           = data.get("radarFloorHide").getAsBoolean();
+        dto.hudDisplaySize           = data.get("hudDisplaySize").getAsInt();
+        dto.hudHideNameTags          = data.get("hudHideNameTags").getAsBoolean();
+        dto.lockOnEnabled            = data.get("lockOnEnabled").getAsBoolean();
 
-        dto.weaponSwitchMode = data.get("weaponSwitchMode").getAsInt();
-        dto.weaponSwitchA = data.get("weaponSwitchA").getAsInt();
-        dto.weaponSwitchB = data.get("weaponSwitchB").getAsInt();
-        dto.weaponSwitchC = data.get("weaponSwitchC").getAsInt();
-        dto.weaponSwitchNow = data.get("weaponSwitchNow").getAsInt();
+        dto.weaponSwitchMode   = data.get("weaponSwitchMode").getAsInt();
+        dto.weaponSwitchA      = data.get("weaponSwitchA").getAsInt();
+        dto.weaponSwitchB      = data.get("weaponSwitchB").getAsInt();
+        dto.weaponSwitchC      = data.get("weaponSwitchC").getAsInt();
+        dto.weaponSwitchNow    = data.get("weaponSwitchNow").getAsInt();
         dto.weaponSwitchBefore = data.get("weaponSwitchBefore").getAsInt();
-        dto.itemSwitchMode = data.get("itemSwitchMode").getAsInt();
+        dto.itemSwitchMode     = data.get("itemSwitchMode").getAsInt();
 
         dto.codec1Name = data.get("codec1Name").getAsString();
-        dto.codec1a = data.get("codec1a").getAsInt();
-        dto.codec1b = data.get("codec1b").getAsInt();
-        dto.codec1c = data.get("codec1c").getAsInt();
-        dto.codec1d = data.get("codec1d").getAsInt();
+        dto.codec1a    = data.get("codec1a").getAsInt();
+        dto.codec1b    = data.get("codec1b").getAsInt();
+        dto.codec1c    = data.get("codec1c").getAsInt();
+        dto.codec1d    = data.get("codec1d").getAsInt();
 
         dto.codec2Name = data.get("codec2Name").getAsString();
-        dto.codec2a = data.get("codec2a").getAsInt();
-        dto.codec2b = data.get("codec2b").getAsInt();
-        dto.codec2c = data.get("codec2c").getAsInt();
-        dto.codec2d = data.get("codec2d").getAsInt();
+        dto.codec2a    = data.get("codec2a").getAsInt();
+        dto.codec2b    = data.get("codec2b").getAsInt();
+        dto.codec2c    = data.get("codec2c").getAsInt();
+        dto.codec2d    = data.get("codec2d").getAsInt();
 
         dto.codec3Name = data.get("codec3Name").getAsString();
-        dto.codec3a = data.get("codec3a").getAsInt();
-        dto.codec3b = data.get("codec3b").getAsInt();
-        dto.codec3c = data.get("codec3c").getAsInt();
-        dto.codec3d = data.get("codec3d").getAsInt();
+        dto.codec3a    = data.get("codec3a").getAsInt();
+        dto.codec3b    = data.get("codec3b").getAsInt();
+        dto.codec3c    = data.get("codec3c").getAsInt();
+        dto.codec3d    = data.get("codec3d").getAsInt();
 
         dto.codec4Name = data.get("codec4Name").getAsString();
-        dto.codec4a = data.get("codec4a").getAsInt();
-        dto.codec4b = data.get("codec4b").getAsInt();
-        dto.codec4c = data.get("codec4c").getAsInt();
-        dto.codec4d = data.get("codec4d").getAsInt();
+        dto.codec4a    = data.get("codec4a").getAsInt();
+        dto.codec4b    = data.get("codec4b").getAsInt();
+        dto.codec4c    = data.get("codec4c").getAsInt();
+        dto.codec4d    = data.get("codec4d").getAsInt();
 
         dto.voiceChatRecognitionLevel = data.get("voiceChatRecognitionLevel").getAsInt();
         dto.voiceChatVolume = data.get("voiceChatVolume").getAsInt();

@@ -25,9 +25,11 @@ public class AccountLobby extends BaseLobby {
     @Override
     public boolean handlePacket(ChannelHandlerContext ctx, Packet in) {
         boolean handled = dispatcher.dispatch(ctx, in, getLobby());
+
         if (!handled) {
             logger.error("Couldn't handle command {}", Integer.toHexString(in.getCommand()));
         }
+
         return handled;
     }
 

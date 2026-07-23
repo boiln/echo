@@ -39,24 +39,24 @@ public final class GameListEntryPacket {
         bo.writeInt(game.getId());
         Util.writeString(game.getName(), 16, bo);
         bo.writeByte(hostOptions)
-                .writeByte(0x8)
-                .writeByte(currentMapRule[0])
-                .writeByte(currentMapRule[1])
-                .writeZero(1)
-                .writeByte(game.getMaxPlayers())
-                .writeByte(game.getStance())
-                .writeByte(commonA)
-                .writeByte(commonB)
-                .writeByte(players.size())
-                .writeInt(game.getPing())
-                .writeByte(friendBlockFlags)
-                .writeByte(settings.levelLimitTolerance)
-                .writeInt(settings.levelLimitBase)
-                .writeInt(averageExperience)
-                .writeInt(game.getHost().getHostScore())
-                .writeInt(game.getHost().getHostVotes())
-                .writeZero(2)
-                .writeByte(0x63);
+            .writeByte(0x8)
+            .writeByte(currentMapRule[0])
+            .writeByte(currentMapRule[1])
+            .writeZero(1)
+            .writeByte(game.getMaxPlayers())
+            .writeByte(game.getStance())
+            .writeByte(commonA)
+            .writeByte(commonB)
+            .writeByte(players.size())
+            .writeInt(game.getPing())
+            .writeByte(friendBlockFlags)
+            .writeByte(settings.levelLimitTolerance)
+            .writeInt(settings.levelLimitBase)
+            .writeInt(averageExperience)
+            .writeInt(game.getHost().getHostScore())
+            .writeInt(game.getHost().getHostVotes())
+            .writeZero(2)
+            .writeByte(0x63);
     }
 
     private static int[] getCurrentMapRule(Game game) {
@@ -65,10 +65,11 @@ public final class GameListEntryPacket {
 
         if (currentGame < jGames.size()) {
             JsonArray jGame = jGames.get(currentGame).getAsJsonArray();
-            return new int[] { jGame.get(0).getAsInt(), jGame.get(1).getAsInt() };
+
+            return new int [] { jGame.get(0).getAsInt(), jGame.get(1).getAsInt() };
         }
 
-        return new int[] { 0, 0 };
+        return new int [] { 0, 0 };
     }
 
     private static int calculateAverageExperience(List<Player> players) {
@@ -77,7 +78,7 @@ public final class GameListEntryPacket {
         }
 
         int totalExperience = 0;
-        for (Player player : players) {
+        for (Player player: players) {
             totalExperience += getPlayerExperience(player);
         }
 
@@ -99,17 +100,19 @@ public final class GameListEntryPacket {
         boolean hasFriend = false;
         boolean hasBlocked = false;
 
-        for (Player player : players) {
+        for (Player player: players) {
             if (!hasFriend
                     && character.getFriends().stream()
-                            .anyMatch(e -> e.getTargetId().equals(player.getCharacterId()))) {
-                hasFriend = true;
-            }
+                    .anyMatch(e -> e.getTargetId().equals(player.getCharacterId()))) {
+                    hasFriend = true;
+                }
+
             if (!hasBlocked
                     && character.getBlocked().stream()
-                            .anyMatch(e -> e.getTargetId().equals(player.getCharacterId()))) {
-                hasBlocked = true;
-            }
+                    .anyMatch(e -> e.getTargetId().equals(player.getCharacterId()))) {
+                    hasBlocked = true;
+                }
+
             if (hasFriend && hasBlocked) {
                 break;
             }
@@ -118,6 +121,7 @@ public final class GameListEntryPacket {
         int friendBlock = 0;
         friendBlock |= hasFriend ? 0b1 : 0;
         friendBlock |= hasBlocked ? 0b10 : 0;
+
         return friendBlock;
     }
 }

@@ -8,7 +8,7 @@ public class MessageRecipientError {
 
     public MessageRecipientError(String recipient, Error error) {
         this.recipient = recipient;
-        this.error = error;
+        this.error     = error;
     }
 
     public String getRecipient() {

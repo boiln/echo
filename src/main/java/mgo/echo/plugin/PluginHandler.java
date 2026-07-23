@@ -25,8 +25,9 @@ public class PluginHandler {
     public void loadPlugin(String className) throws Exception {
         try {
             Class<?> clazz = getClass().getClassLoader().loadClass(className);
+
             if (clazz != null && Plugin.class.isAssignableFrom(clazz)) {
-                plugin = (Plugin) clazz.getDeclaredConstructor().newInstance();
+                plugin = (Plugin)clazz.getDeclaredConstructor().newInstance();
                 logger.debug("Loaded Plugin: {}", className);
             }
         } catch (Exception e) {

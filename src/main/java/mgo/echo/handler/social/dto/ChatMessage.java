@@ -6,7 +6,7 @@ public class ChatMessage {
 
     public ChatMessage(MessageRecipient recipient, String message) {
         this.recipient = recipient;
-        this.message = message;
+        this.message   = message;
     }
 
     public MessageRecipient getRecipient() {

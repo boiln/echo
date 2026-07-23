@@ -51,9 +51,11 @@ public class CharacterController implements Controller {
     @Command(0x4100)
     public boolean getCharacterInfo(CommandContext ctx) {
         User user = ctx.user();
+
         if (user == null) {
             logger.error("Error while getting character info: No User.");
             ctx.write(CharactersCmd.GET_CHARACTER_INFO_RESPONSE, Error.INVALID_SESSION);
+
             return true;
         }
 
@@ -76,6 +78,7 @@ public class CharacterController implements Controller {
 
     private void sendChatMacros(CommandContext ctx, Character character) {
         List<CharacterChatMacro> macros = character.getChatMacros();
+
         if (macros.size() <= 0) {
             macros = ChatMacrosPacket.initializeMacros(character);
         }
@@ -97,6 +100,7 @@ public class CharacterController implements Controller {
 
     private void sendSkillSets(CommandContext ctx, Character character) {
         List<CharacterSetSkills> sets = character.getSetsSkills();
+
         if (sets.size() <= 0) {
             sets = SetsPacket.initializeSkillSets(character);
         }
@@ -106,6 +110,7 @@ public class CharacterController implements Controller {
 
     private void sendGearSets(CommandContext ctx, Character character) {
         List<CharacterSetGear> sets = character.getSetsGear();
+
         if (sets.size() <= 0) {
             sets = SetsPacket.initializeGearSets(character);
         }
@@ -120,9 +125,11 @@ public class CharacterController implements Controller {
     @Command(0x4110)
     public boolean updateGameplayOptions(CommandContext ctx) {
         User user = ctx.user();
+
         if (user == null) {
             logger.error("Error while updating gameplay options: No User.");
             ctx.write(CharactersCmd.UPDATE_SETTINGS_RESPONSE, Error.INVALID_SESSION);
+
             return true;
         }
 
@@ -137,34 +144,37 @@ public class CharacterController implements Controller {
     @Command(0x4112)
     public boolean updateUiSettings(CommandContext ctx) {
         ctx.write(CharactersCmd.UPDATE_UI_SETTINGS_RESPONSE, 0);
+
         return true;
     }
 
     @Command(0x4114)
     public boolean updateChatMacros(CommandContext ctx) {
         User user = ctx.user();
+
         if (user == null) {
             logger.error("Error while updating chat macros: No User.");
             ctx.write(CharactersCmd.UPDATE_SETTINGS_RESPONSE, Error.INVALID_SESSION);
+
             return true;
         }
 
         Character character = user.getCurrentCharacter();
         List<CharacterChatMacro> macros = character.getChatMacros();
 
-        String[] texts = new String[12];
+        String[] texts = new String [12];
         int type = ChatMacrosPacket.readUpdate(ctx.packet(), texts);
 
         for (int i = 0; i < 12; i++) {
             final int index = i;
             CharacterChatMacro macro = macros.stream()
-                    .filter((e) -> e.getIndex() == index && e.getType() == type)
-                    .findAny().orElse(null);
+                .filter((e) -> e.getIndex() == index && e.getType() == type)
+                .findAny().orElse(null);
             macro.setText(texts[i]);
         }
 
         DbManager.txVoid(session -> {
-            for (CharacterChatMacro macro : macros) {
+            for (CharacterChatMacro macro: macros) {
                 session.saveOrUpdate(macro);
             }
         });
@@ -184,9 +194,11 @@ public class CharacterController implements Controller {
     public boolean updatePersonalInfo(CommandContext ctx) {
         try {
             User user = ctx.user();
+
             if (user == null) {
                 logger.error("Error while updating personal info: No User.");
                 ctx.write(CharactersCmd.UPDATE_PERSONAL_INFO_RESPONSE, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -209,9 +221,11 @@ public class CharacterController implements Controller {
     @Command(0x4141)
     public boolean updateSkillSets(CommandContext ctx) {
         User user = ctx.user();
+
         if (user == null) {
             logger.error("Error while updating skill sets: No User.");
             ctx.write(CharactersCmd.UPDATE_SKILL_SETS_RESPONSE, Error.INVALID_SESSION);
+
             return true;
         }
 
@@ -226,15 +240,18 @@ public class CharacterController implements Controller {
         });
 
         ctx.write(CharactersCmd.UPDATE_SKILL_SETS_RESPONSE, 0);
+
         return true;
     }
 
     @Command(0x4143)
     public boolean updateGearSets(CommandContext ctx) {
         User user = ctx.user();
+
         if (user == null) {
             logger.error("Error while updating gear sets: No User.");
             ctx.write(CharactersCmd.UPDATE_GEAR_SETS_RESPONSE, Error.INVALID_SESSION);
+
             return true;
         }
 
@@ -249,6 +266,7 @@ public class CharacterController implements Controller {
         });
 
         ctx.write(CharactersCmd.UPDATE_GEAR_SETS_RESPONSE, 0);
+
         return true;
     }
 
@@ -259,14 +277,17 @@ public class CharacterController implements Controller {
     @Command(0x4128)
     public boolean getPostGameInfo(CommandContext ctx) {
         User user = ctx.user();
+
         if (user == null) {
             logger.error("Error while getting post game info: No User.");
             ctx.write(CharactersCmd.GET_POST_GAME_INFO_RESPONSE, Error.INVALID_SESSION);
+
             return true;
         }
 
         Character character = user.getCurrentCharacter();
         PostGameInfoPacket.write(ctx.nettyCtx(), user, character);
+
         return true;
     }
 
@@ -280,21 +301,25 @@ public class CharacterController implements Controller {
         int targetCharaId = bi.readInt();
 
         CharacterService.PersonalStatsData data = CharacterService.getPersonalStats(targetCharaId);
+
         if (data == null) {
             logger.warn("getPersonalStats: Character not found: {}", targetCharaId);
             ctx.write(CharactersCmd.GET_PERSONAL_STATS_HEADER, Error.CHARACTER_DOESNOTEXIST);
+
             return true;
         }
 
         StatsPacket.write(ctx.nettyCtx(), targetCharaId, data.character, data.stats, data.playtimeSeconds,
-                data.hasClan, data.clanName);
+            data.hasClan, data.clanName);
 
         CharacterService.CharacterCardData card = CharacterService.getCharacterCard(targetCharaId);
+
         if (card == null) {
             return true;
         }
 
         CharacterCardPacket.write(ctx.nettyCtx(), card);
+
         return true;
     }
 
@@ -306,9 +331,11 @@ public class CharacterController implements Controller {
     public boolean updateConnectionInfo(CommandContext ctx) {
         try {
             User user = ctx.user();
+
             if (user == null) {
                 logger.error("Error while updating connection info: No User.");
                 ctx.write(CharactersCmd.UPDATE_CONNECTION_INFO_RESPONSE, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -319,7 +346,7 @@ public class CharacterController implements Controller {
             int publicPort = bi.readUnsignedShort();
             bi.skipBytes(2);
 
-            String publicIp = ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress();
+            String publicIp = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
             CharacterService.updateConnectionInfo(character, publicIp, publicPort, privateIp, privatePort);
 
             ctx.write(CharactersCmd.UPDATE_CONNECTION_INFO_RESPONSE, 0);
@@ -341,8 +368,10 @@ public class CharacterController implements Controller {
 
         try {
             User user = ctx.user();
+
             if (user == null) {
                 ctx.write(CharactersCmd.GET_FRIENDS_BLOCKED_LIST_START, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -355,15 +384,15 @@ public class CharacterController implements Controller {
                     if (type == 0) {
                         List<CharacterFriend> friends = FriendsService.getFriends(session, character);
                         Packets.handleMutliElementPayload(ctx.nettyCtx(), friends.size(), 23,
-                                FriendsBlockedPacket.ENTRY_SIZE, payloads,
-                                (i, bo) -> FriendsBlockedPacket.writeEntry(bo, friends.get(i).getTargetId(),
-                                        friends.get(i).getTarget()));
+                            FriendsBlockedPacket.ENTRY_SIZE, payloads,
+                            (i, bo) -> FriendsBlockedPacket.writeEntry(bo, friends.get(i).getTargetId(),
+                                friends.get(i).getTarget()));
                     } else {
                         List<CharacterBlocked> blocked = FriendsService.getBlocked(session, character);
                         Packets.handleMutliElementPayload(ctx.nettyCtx(), blocked.size(), 23,
-                                FriendsBlockedPacket.ENTRY_SIZE, payloads,
-                                (i, bo) -> FriendsBlockedPacket.writeEntry(bo, blocked.get(i).getTargetId(),
-                                        blocked.get(i).getTarget()));
+                            FriendsBlockedPacket.ENTRY_SIZE, payloads,
+                            (i, bo) -> FriendsBlockedPacket.writeEntry(bo, blocked.get(i).getTargetId(),
+                                blocked.get(i).getTarget()));
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -388,8 +417,10 @@ public class CharacterController implements Controller {
 
         try {
             User user = ctx.user();
+
             if (user == null) {
                 ctx.write(CharactersCmd.ADD_FRIENDS_BLOCKED_DATA, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -403,12 +434,14 @@ public class CharacterController implements Controller {
             if (result == FriendsService.AddResult.TARGET_NOT_FOUND) {
                 logger.error("Error while adding to friends/blocked list: Target not found.");
                 ctx.write(CharactersCmd.ADD_FRIENDS_BLOCKED_DATA, Error.CHARACTER_DOESNOTEXIST);
+
                 return true;
             }
 
             if (result == FriendsService.AddResult.LIST_FULL) {
                 logger.error("Error while adding to friends/blocked list: List is full.");
                 Packets.writeError(ctx.nettyCtx(), CharactersCmd.ADD_FRIENDS_BLOCKED_DATA, 10);
+
                 return true;
             }
 
@@ -430,8 +463,10 @@ public class CharacterController implements Controller {
 
         try {
             User user = ctx.user();
+
             if (user == null) {
                 ctx.write(CharactersCmd.REMOVE_FRIENDS_BLOCKED_DATA, Error.INVALID_SESSION);
+
                 return true;
             }
 
@@ -441,9 +476,11 @@ public class CharacterController implements Controller {
             int targetId = bi.readInt();
 
             boolean removed = FriendsService.remove(type, character, targetId);
+
             if (!removed) {
                 logger.error("Error while removing from friends/blocked list: No entry.");
                 Packets.writeError(ctx.nettyCtx(), CharactersCmd.REMOVE_FRIENDS_BLOCKED_DATA, 3);
+
                 return true;
             }
 
@@ -479,11 +516,13 @@ public class CharacterController implements Controller {
             int count = Math.min(characters.size(), maxEntries);
 
             ByteBuf bo = ctx.nettyCtx().alloc().directBuffer(maxEntries * entrySize);
+
             for (int i = 0; i < count; i++) {
                 FriendsBlockedPacket.writeSearchEntry(bo, characters.get(i));
             }
+
             bo.writeZero((maxEntries - count) * entrySize);
-            payloads.set(new ByteBuf[] { bo });
+            payloads.set(new ByteBuf [] { bo });
 
             Packets.write(ctx.nettyCtx(), CharactersCmd.SEARCH_RESPONSE_START, 0);
             Packets.write(ctx.nettyCtx(), CharactersCmd.SEARCH_RESPONSE_DATA, payloads);
@@ -508,9 +547,11 @@ public class CharacterController implements Controller {
             int targetCharaId = bi.readInt();
 
             CharacterService.CharacterCardData data = CharacterService.getCharacterCard(targetCharaId);
+
             if (data == null) {
                 logger.error("Error while getting character card: Character not found.");
                 ctx.write(CharactersCmd.GET_CHARACTER_CARD_RESPONSE, Error.GENERAL);
+
                 return true;
             }
 
@@ -531,6 +572,7 @@ public class CharacterController implements Controller {
     public boolean getMatchHistory(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), CharactersCmd.GET_MATCH_HISTORY_START, 0);
         Packets.write(ctx.nettyCtx(), CharactersCmd.GET_MATCH_HISTORY_END, 0);
+
         return true;
     }
 
@@ -538,6 +580,7 @@ public class CharacterController implements Controller {
     public boolean getOfficialGameHistory(CommandContext ctx) {
         Packets.write(ctx.nettyCtx(), CharactersCmd.GET_OFFICIAL_GAME_HISTORY_START, 0);
         Packets.write(ctx.nettyCtx(), CharactersCmd.GET_OFFICIAL_GAME_HISTORY_END, 0);
+
         return true;
     }
 }

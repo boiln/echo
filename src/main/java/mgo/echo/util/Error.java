@@ -35,7 +35,7 @@ public enum Error {
     }
 
     Error(int code, boolean official) {
-        this.code = code;
+        this.code     = code;
         this.official = official;
     }
 

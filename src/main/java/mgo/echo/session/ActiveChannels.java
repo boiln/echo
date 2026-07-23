@@ -20,7 +20,7 @@ public class ActiveChannels {
     }
 
     public static void process(Predicate<Channel> predicate, Consumer<Channel> consumer) {
-        for (Channel channel : channels) {
+        for (Channel channel: channels) {
             if (predicate.test(channel)) {
                 consumer.accept(channel);
             }

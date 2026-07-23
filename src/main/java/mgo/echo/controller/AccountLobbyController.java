@@ -40,22 +40,25 @@ public class AccountLobbyController implements Controller {
         try {
             ByteBuf bi = ctx.payload();
             int id = bi.readInt();
-            byte[] bytes = new byte[16];
+            byte[] bytes = new byte [16];
             bi.readBytes(bytes);
 
             String mgo2Session = AccountService.decodeSessionBytes(bytes);
             logger.info("Decrypted session: {}", mgo2Session);
 
             User user = AccountService.findUserBySession(mgo2Session);
+
             if (user == null) {
                 logger.error("Error while checking session: Bad session.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.CHECK_SESSION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
             if (id != user.getId()) {
                 logger.error("Error while checking session: Bad id ... {} -- {}", id, user.getId());
                 Packets.write(ctx.nettyCtx(), UsersCmd.CHECK_SESSION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -63,6 +66,7 @@ public class AccountLobbyController implements Controller {
 
             if (!AccountService.connectToLobby(ctx.nettyCtx(), ctx.lobby(), user)) {
                 Packets.write(ctx.nettyCtx(), UsersCmd.CHECK_SESSION_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -86,9 +90,11 @@ public class AccountLobbyController implements Controller {
     public void getCharacterList(CommandContext ctx) {
         try {
             User user = ctx.user();
+
             if (user == null) {
                 logger.error("Error while getting character list: No User.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.GET_CHARACTER_LIST_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -110,9 +116,11 @@ public class AccountLobbyController implements Controller {
     public void createCharacter(CommandContext ctx) {
         try {
             User user = ctx.user();
+
             if (user == null) {
                 logger.error("Error while creating character: No User.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.CREATE_CHARACTER_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -120,14 +128,17 @@ public class AccountLobbyController implements Controller {
             String name = Util.readString(bi, 16);
 
             Integer nameError = CharacterCrudService.validateName(name);
+
             if (nameError != null) {
                 Packets.write(ctx.nettyCtx(), UsersCmd.CREATE_CHARACTER_RESPONSE, nameError);
+
                 return;
             }
 
             if (CharacterCrudService.isNameTaken(name)) {
                 logger.error("Error while creating character: Name is taken.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.CREATE_CHARACTER_RESPONSE, Error.CHAR_NAMETAKEN);
+
                 return;
             }
 
@@ -145,9 +156,11 @@ public class AccountLobbyController implements Controller {
     public void selectCharacter(CommandContext ctx) {
         try {
             User user = ctx.user();
+
             if (user == null) {
                 logger.error("Error while selecting character: No User.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.SELECT_CHARACTER_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -167,9 +180,11 @@ public class AccountLobbyController implements Controller {
     public void deleteCharacter(CommandContext ctx) {
         try {
             User user = ctx.user();
+
             if (user == null) {
                 logger.error("Error while deleting character: No User.");
                 Packets.write(ctx.nettyCtx(), UsersCmd.DELETE_CHARACTER_RESPONSE, Error.INVALID_SESSION);
+
                 return;
             }
 
@@ -177,8 +192,10 @@ public class AccountLobbyController implements Controller {
             int index = bi.readByte();
 
             CharacterCrudService.DeleteResult result = CharacterCrudService.deleteCharacter(user, index);
+
             if (!result.success) {
                 Packets.write(ctx.nettyCtx(), UsersCmd.DELETE_CHARACTER_RESPONSE, result.errorCode);
+
                 return;
             }
 

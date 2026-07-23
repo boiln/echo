@@ -32,43 +32,51 @@ public class GameLobby extends BaseLobby {
     @Override
     public boolean handlePacket(ChannelHandlerContext ctx, Packet in) {
         int result = PluginHandler.get().getPlugin().handleGameLobbyCommand(ctx, in);
+
         if (result == 1) {
             return true;
         }
+
         if (result == 0) {
             return false;
         }
 
         boolean handled = dispatcher.dispatch(ctx, in, getLobby());
+
         if (!handled) {
             logger.error("Couldn't handle command {}", Integer.toHexString(in.getCommand()));
         }
+
         return handled;
     }
 
     @Override
     public void onPing(ChannelHandlerContext ctx) {
         User user = ActiveUsers.get(ctx.channel());
+
         if (user == null) {
             return;
         }
 
         Character character = user.getCurrentCharacter();
+
         if (character == null) {
             return;
         }
 
         Player player = character.getPlayer().size() > 0 ? character.getPlayer().get(0) : null;
+
         if (player == null) {
             return;
         }
 
         Game game = player.getGame();
+
         if (!character.getId().equals(game.getHostId())) {
             return;
         }
 
-        game.setLastUpdate((int) java.time.Instant.now().getEpochSecond());
+        game.setLastUpdate((int)java.time.Instant.now().getEpochSecond());
         HostService.onPing(game);
     }
 

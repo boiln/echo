@@ -39,6 +39,7 @@ public class AccountHandler {
     public static void onLobbyDisconnected(ChannelHandlerContext ctx, Lobby lobby) {
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 return;
             }
@@ -48,6 +49,7 @@ public class AccountHandler {
 
             if (user.getCurrentCharacterId() == null || character == null) {
                 ActiveUsers.remove(ctx.channel());
+
                 return;
             }
 
@@ -62,10 +64,11 @@ public class AccountHandler {
         }
     }
 
-    private static void handlePlayerQuitIfNeeded(ChannelHandlerContext ctx, User user, Character character) {
+    private static void handlePlayerQuitIfNeeded(ChannelHandlerContext ctx, User user,
+        Character character) {
         boolean hasPlayer = Hibernate.isInitialized(character.getPlayer())
-                && character.getPlayer() != null
-                && !character.getPlayer().isEmpty();
+            && character.getPlayer() != null
+            && !character.getPlayer().isEmpty();
 
         Player player = hasPlayer ? character.getPlayer().get(0) : null;
         logger.debug("Disconnecting from lobby {}: Player - {}", user.getId(), player);
@@ -85,11 +88,13 @@ public class AccountHandler {
     public static void updateUserClan(ChannelHandlerContext ctx) {
         try {
             User user = ActiveUsers.get(ctx.channel());
+
             if (user == null) {
                 return;
             }
 
             Character character = user.getCurrentCharacter();
+
             if (user.getCurrentCharacterId() == null || character == null) {
                 return;
             }
@@ -97,6 +102,7 @@ public class AccountHandler {
             ClanData clanData = DbManager.tx(session -> {
                 MessageClanApplication application = fetchClanApplication(session, character);
                 ClanMember member = fetchClanMember(session, character);
+
                 return new ClanData(application, member);
             });
 
@@ -118,22 +124,25 @@ public class AccountHandler {
 
         ClanData(MessageClanApplication application, ClanMember member) {
             this.application = application;
-            this.member = member;
+            this.member      = member;
         }
     }
 
-    private static MessageClanApplication fetchClanApplication(Session session, Character character) {
+    private static MessageClanApplication fetchClanApplication(Session session,
+        Character character) {
         Query<MessageClanApplication> query = session.createQuery(
-                "from MessageClanApplication a join fetch a.clan where a.character = :character",
-                MessageClanApplication.class);
+            "from MessageClanApplication a join fetch a.clan where a.character = :character",
+            MessageClanApplication.class);
         query.setParameter("character", character);
+
         return query.uniqueResult();
     }
 
     private static ClanMember fetchClanMember(Session session, Character character) {
         Query<ClanMember> query = session.createQuery(
-                "from ClanMember m join fetch m.clan where m.character = :character", ClanMember.class);
+            "from ClanMember m join fetch m.clan where m.character = :character", ClanMember.class);
         query.setParameter("character", character);
+
         return query.uniqueResult();
     }
 }

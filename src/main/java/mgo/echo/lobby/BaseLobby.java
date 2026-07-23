@@ -38,17 +38,17 @@ public abstract class BaseLobby extends ChannelInboundHandlerAdapter {
 
         switch (command) {
 
-            case 0x0003:
-                ctx.close();
-                return 0;
+        case 0x0003:
+            ctx.close();
+            return 0;
 
-            case 0x0005:
-                Packets.write(ctx, 0x0005);
-                onPing(ctx);
-                break;
+        case 0x0005:
+            Packets.write(ctx, 0x0005);
+            onPing(ctx);
+            break;
 
-            default:
-                return -1;
+        default:
+            return -1;
         }
 
         return 1;
@@ -56,11 +56,13 @@ public abstract class BaseLobby extends ChannelInboundHandlerAdapter {
 
     @Override
     public final void channelRead(ChannelHandlerContext ctx, Object msg) {
-        Packet in = (Packet) msg;
+        Packet in = (Packet)msg;
 
         boolean wrote = false;
+
         try {
             int result = handleCommonPacket(ctx, in);
+
             if (result == 1) {
                 wrote = true;
             } else if (result < 0) {

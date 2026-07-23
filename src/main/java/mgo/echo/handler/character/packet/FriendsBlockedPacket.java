@@ -77,9 +77,11 @@ public class FriendsBlockedPacket {
     /**
      * Allocate and write add response buffer
      */
-    public static ByteBuf createAddResponse(ChannelHandlerContext ctx, int targetId, int type, String targetName) {
+    public static ByteBuf createAddResponse(ChannelHandlerContext ctx, int targetId, int type,
+        String targetName) {
         ByteBuf bo = ctx.alloc().directBuffer(ADD_RESPONSE_SIZE);
         writeAddResponse(bo, targetId, type, targetName);
+
         return bo;
     }
 
@@ -98,6 +100,7 @@ public class FriendsBlockedPacket {
     public static ByteBuf createRemoveResponse(ChannelHandlerContext ctx, int type, int targetId) {
         ByteBuf bo = ctx.alloc().directBuffer(REMOVE_RESPONSE_SIZE);
         writeRemoveResponse(bo, type, targetId);
+
         return bo;
     }
 
@@ -110,8 +113,9 @@ public class FriendsBlockedPacket {
 
         int lobbyId = 0;
         String lobbyName = "";
+
         if (character.getLobby() != null) {
-            lobbyId = character.getLobbyId();
+            lobbyId   = character.getLobbyId();
             lobbyName = character.getLobby().getName();
         }
 
@@ -130,21 +134,25 @@ public class FriendsBlockedPacket {
      */
     private static GameInfo getGameInfo(int characterId) {
         User userTarget = ActiveUsers.getByCharacterId(characterId);
+
         if (userTarget == null) {
             return GameInfo.EMPTY;
         }
 
         Character characterTarget = userTarget.getCurrentCharacter();
+
         if (characterTarget == null) {
             return GameInfo.EMPTY;
         }
 
         Player player = Util.getFirstOrNull(characterTarget.getPlayer());
+
         if (player == null) {
             return GameInfo.EMPTY;
         }
 
         Game game = player.getGame();
+
         return new GameInfo(game.getId(), game.getHost().getName(), game.getLobby().getSubtype());
     }
 
@@ -159,7 +167,7 @@ public class FriendsBlockedPacket {
         final int gameType;
 
         GameInfo(int gameId, String hostName, int gameType) {
-            this.gameId = gameId;
+            this.gameId   = gameId;
             this.hostName = hostName;
             this.gameType = gameType;
         }
